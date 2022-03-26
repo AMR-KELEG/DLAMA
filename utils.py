@@ -1,4 +1,7 @@
+import time
 import requests
+from tqdm import tqdm
+from constants import LANGS
 
 
 def get_wikidata_triples(query):
@@ -25,3 +28,30 @@ def parse_sparql_results(results_list):
             parsed_result[k] = field_value
         parsed_results.append(parsed_result)
     return parsed_results
+
+
+def get_wikidata_labels(wikidata_entities_ids):
+    """Get labels of wikidata entities using their IDs"""
+    batch_size = 50
+    labels = {}
+    langs = "|".join(LANGS)
+    for start in tqdm(range(0, len(wikidata_entities_ids), batch_size)):
+        wikidata_ids = "|".join(wikidata_entities_ids[start : start + batch_size])
+        url = (
+            "https://www.wikidata.org/w/api.php?"
+            "action=wbgetentities"
+            f"&ids={wikidata_ids}"
+            f"&languages={langs}&format=json&props=labels"
+        )
+        r = requests.get(url)
+        data = r.json()["entities"]
+        time.sleep(0.1)
+        for entity in data:
+            labels[entity] = {
+                lang: data[entity].get("labels", {}).get(lang, {}).get("value", None)
+                for lang in LANGS
+            }
+    return labels
+
+
+
