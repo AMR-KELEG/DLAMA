@@ -1,3 +1,4 @@
+import re
 import time
 import requests
 from tqdm import tqdm
@@ -54,4 +55,38 @@ def get_wikidata_labels(wikidata_entities_ids):
     return labels
 
 
+def get_wikipedia_article_sizes(articles_urls, lang):
+    """Get the size of wikipedia articles in bytes"""
+    batch_size = 50
+    # A dictionary of url -> article size
+    articles_sizes = {}
+    for start in tqdm(range(0, len(articles_urls), batch_size)):
+        # Get the articles' titles from the urls
+        # TODO: Find a better format for this dictionary
+        titles = {
+            # Replace "_" in titles with " "
+            requests.utils.unquote(re.sub("_", " ", url.split("/")[-1])): url
+            for url in articles_urls[start : start + batch_size]
+        }
+        titles_to_query = "|".join(titles.keys())
+        url = (
+            f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
+            f"{titles_to_query}&prop=revisions&rvprop=size"
+        )
+        response = requests.get(url).json()
+        time.sleep(0.1)
+        pages_responses = response["query"]["pages"]
 
+        page_ids = list(pages_responses.keys())
+        for page_id in page_ids:
+            if int(page_id) != -1:
+                try:
+                    article_size = pages_responses[page_id]["revisions"][0]["size"]
+                except:
+                    print(pages_responses[page_id])
+                    article_size = 0
+            else:
+                article_size = 0
+            articles_sizes[titles[pages_responses[page_id]["title"]]] = article_size
+
+    return articles_sizes
