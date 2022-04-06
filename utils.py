@@ -4,6 +4,16 @@ import requests
 from tqdm import tqdm
 from constants import LANGS
 
+import logging
+
+logger = logging.getLogger(__name__)
+ch = logging.StreamHandler()
+formatter = logging.Formatter(
+    "%(levelname)s - %(filename)s:%(funcName)s:line %(lineno)d - %(message)s"
+)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
 
 def get_wikidata_triples(query):
     """Query wikidata using a SPARQL query"""
@@ -79,14 +89,19 @@ def get_wikipedia_article_sizes(articles_urls, lang):
 
         page_ids = list(pages_responses.keys())
         for page_id in page_ids:
-            if int(page_id) != -1:
-                try:
-                    article_size = pages_responses[page_id]["revisions"][0]["size"]
-                except:
-                    print(pages_responses[page_id])
-                    article_size = 0
+            # "missing" field indicates that the API failed in retrieving the page's size
+            if "missing" not in pages_responses[page_id]:
+                article_size = pages_responses[page_id]["revisions"][0]["size"]
             else:
                 article_size = 0
-            articles_sizes[titles[pages_responses[page_id]["title"]]] = article_size
+
+            # Wikipedia has problems if the page's title contains "&"
+            try:
+                articles_sizes[titles[pages_responses[page_id]["title"]]] = article_size
+            except:
+                logger.warn("Title contains '&' causing problems with Wikipedia's API")
+                logger.warn(
+                    pages_responses[page_id],
+                )
 
     return articles_sizes
