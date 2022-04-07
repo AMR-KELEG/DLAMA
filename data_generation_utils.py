@@ -26,6 +26,7 @@ def generate_facts_jsonl(df, q, lang, output_filename):
         # TODO: Handle missing labels?
         triple_dict["sub_label"] = subjects_labels[sub_uri][lang]
         triple_dict["obj_label"] = objects_labels[obj_uri][lang]
+        # TODO: Add the region to the id or any unique identifier to avoid collisions
         triple_dict["uuid"] = f"{q.relation_id}_{i}"
         triples.append(triple_dict)
 
