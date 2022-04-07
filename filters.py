@@ -3,7 +3,6 @@ from constants import *
 FILTERS_DICTIONARY = {
     # Subject should be a person
     "occupation": {
-        "common": f"?{PERSON} wdt:P106 ?{OCCUPATION} . # Occupation",
         "politics": f"{{?{OCCUPATION} wdt:P31 wd:Q303618}} # The occupation is instance of diplomatic rank\n"
         "UNION\n"
         f"{{?{PERSON} wdt:P106 wd:Q82955}} . # The occupation is politician",
@@ -16,6 +15,10 @@ FILTERS_DICTIONARY = {
     "sports": {"football": f"?{CLUB} wdt:P31 wd:Q476028 . # Club is a football club"},
     "region_country": {
         ARAB_REGION: f"?{COUNTRY} wdt:P463 wd:Q7172 . # Make sure the country belongs to the Arab league",
+    },
+    "person": {
+        "country_of_citizenship": f"?{PERSON} wdt:P27 ?{COUNTRY} . # The person has a country of citizenship",
+        "occupation": f"?{PERSON} wdt:P106 ?{OCCUPATION} . # The person has an occupation",
     },
     # TODO: Fix this
     "misc": {

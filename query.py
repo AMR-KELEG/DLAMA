@@ -10,12 +10,16 @@ class Query:
         relation_id,
         subject_field,
         object_field,
+        domain,
+        region,
         wikipedia_langs=None,
         filters=None,
     ):
         self.relation_id = relation_id
         self.subject_field = subject_field
         self.object_field = object_field
+        self.domain = domain
+        self.region = region
         self.filters = [] if not filters else filters
         # Default to English
         # TODO: Is this the best way to do it?
