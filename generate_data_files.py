@@ -5,6 +5,7 @@ import data_generation_utils
 from query import Query
 import pandas as pd
 from pathlib import Path
+import os
 
 pd.set_option("display.max_rows", 2000)
 pd.set_option("display.max_colwidth", 2000)
@@ -14,6 +15,11 @@ SAMPLE_SIZE = 100
 
 
 if __name__ == "__main__":
+    # Create output data files
+    BASE_DATA_DIR = str(Path("data", "cultlama"))
+    for lang in LANGS:
+        os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
+
     q17 = Query(
         "P17",
         subject_field=CLUB,
@@ -54,10 +60,11 @@ if __name__ == "__main__":
             .loc[:, ["size", CLUB, COUNTRY, "subject_article_ar", "subject_article_en"]]
             .head(SAMPLE_SIZE)
         )
+        sample_df.reset_index(drop=True, inplace=True)
 
         # TODO: Augment with page views as well?
 
         # Export the triples to jsonl files
         for lang in LANGS:
-            filename = Path("data", f"{q.relation_id}_{REGION}_{lang}.json")
+            filename = Path(BASE_DATA_DIR, lang, f"{q.relation_id}_{REGION}.jsonl")
             data_generation_utils.generate_facts_jsonl(sample_df, q, lang, filename)

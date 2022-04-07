@@ -23,12 +23,14 @@ def generate_facts_jsonl(df, q, lang, output_filename):
         obj_uri = row[q.object_field]
         triple_dict["sub_uri"] = sub_uri
         triple_dict["obj_uri"] = obj_uri
+        # TODO: Handle missing labels?
         triple_dict["sub_label"] = subjects_labels[sub_uri][lang]
         triple_dict["obj_label"] = objects_labels[obj_uri][lang]
+        triple_dict["uuid"] = f"{q.relation_id}_{i}"
         triples.append(triple_dict)
 
     # Export triples to a jsonl file
     with open(output_filename, "w") as f:
         for triple in triples:
-            f.write(json.dumps(triple))
+            f.write(json.dumps(triple, ensure_ascii=False))
             f.write("\n")
