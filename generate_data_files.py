@@ -65,6 +65,18 @@ if __name__ == "__main__":
     q1303.add_filter(MUSIC, "not_voice")
     queries.append(q1303)
 
+    q364 = Query(
+        "P364",
+        subject_field=PIECE_OF_WORK,
+        object_field=LANGUAGE,
+        domain=CINEMA_AND_THEATRE,
+        region=REGION,
+        wikipedia_langs=REGIONS_LANGS[REGION],
+    )
+    q364.add_filter(PIECE_OF_WORK, "country_of_origin")
+    q364.add_filter("region_country", REGION)
+    queries.append(q364)
+
     ### SPORTS ###
     # Country of sports clubs
     q17 = Query(
