@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     ### ALL DOMAINS ###
     queries = []
-    for domain in ["cinema_and_theatre", "politics", "sports", "music"]:
+    for domain in [CINEMA_AND_THEATRE, POLITICS, SPORTS, MUSIC]:
         # Country of citizenship
         q27 = Query(
             "P27",
@@ -32,8 +32,8 @@ if __name__ == "__main__":
             region=REGION,
             wikipedia_langs=REGIONS_LANGS[REGION],
         )
-        q27.add_filter("person", "occupation")
-        q27.add_filter("occupation", domain)
+        q27.add_filter(PERSON, OCCUPATION)
+        q27.add_filter(OCCUPATION, domain)
         q27.add_filter("region_country", REGION)
         queries.append(q27)
 
@@ -46,10 +46,24 @@ if __name__ == "__main__":
             region=REGION,
             wikipedia_langs=REGIONS_LANGS[REGION],
         )
-        q106.add_filter("occupation", domain)
-        q106.add_filter("person", "country_of_citizenship")
+        q106.add_filter(OCCUPATION, domain)
+        q106.add_filter(PERSON, "country_of_citizenship")
         q106.add_filter("region_country", REGION)
         queries.append(q106)
+
+    ### Entertainment ###
+    q1303 = Query(
+        "P1303",
+        subject_field=PERSON,
+        object_field=INSTRUMENT,
+        domain=MUSIC,
+        region=REGION,
+        wikipedia_langs=REGIONS_LANGS[REGION],
+    )
+    q1303.add_filter(PERSON, "country_of_citizenship")
+    q1303.add_filter("region_country", REGION)
+    q1303.add_filter(MUSIC, "not_voice")
+    queries.append(q1303)
 
     ### SPORTS ###
     # Country of sports clubs
@@ -57,14 +71,73 @@ if __name__ == "__main__":
         "P17",
         subject_field=CLUB,
         object_field=COUNTRY,
-        domain="sports",
+        domain=SPORTS,
         region=REGION,
         wikipedia_langs=REGIONS_LANGS[REGION],
     )
     q17.add_filter("region_country", REGION)
-    q17.add_filter("sports", "football")
+    q17.add_filter(SPORTS, "football")
     queries.append(q17)
 
+    ### GEOGRAPHY ###
+    for region in [REGION, WORLDWIDE]:
+        # Capital
+        q36 = Query(
+            "P36",
+            subject_field=COUNTRY,
+            object_field=CITY,
+            domain=GEOGRAPHY,
+            region=region,
+            wikipedia_langs=REGIONS_LANGS[region],
+        )
+        if region != WORLDWIDE:
+            q36.add_filter("region_country", region)
+        q36.add_filter(GEOGRAPHY, "not_ancient")
+        q36.add_filter(GEOGRAPHY, "sovereign_state")
+        queries.append(q36)
+
+        # Capital of
+        q1376 = Query(
+            "P1376",
+            subject_field=CITY,
+            object_field=COUNTRY,
+            domain=GEOGRAPHY,
+            region=region,
+            wikipedia_langs=REGIONS_LANGS[region],
+        )
+        if region != WORLDWIDE:
+            q1376.add_filter("region_country", region)
+        q1376.add_filter(GEOGRAPHY, "not_ancient")
+        q1376.add_filter(GEOGRAPHY, "sovereign_state")
+        queries.append(q1376)
+
+        #  Continent
+        q30 = Query(
+            "P30",
+            subject_field=COUNTRY,
+            object_field=CONTINENT,
+            domain=GEOGRAPHY,
+            region=region,
+            wikipedia_langs=REGIONS_LANGS[region],
+        )
+        if region != WORLDWIDE:
+            q30.add_filter("region_country", region)
+        q30.add_filter(GEOGRAPHY, "sovereign_state")
+        queries.append(q30)
+
+        # Official lamguage
+        q37 = Query(
+            "P37",
+            subject_field=COUNTRY,
+            object_field=LANGUAGE,
+            domain=POLITICS,
+            region=region,
+            wikipedia_langs=REGIONS_LANGS[region],
+        )
+        if region != WORLDWIDE:
+            q37.add_filter("region_country", region)
+        q37.add_filter(GEOGRAPHY, "sovereign_state")
+        queries.append(q37)
 
     for q in queries:
         print(q.build_query())
@@ -77,13 +150,15 @@ if __name__ == "__main__":
         # Query the articles' sizes
         for lang in q.wikipedia_langs:
             # Find list of urls
-            urls = df[~df[f"subject_article_{lang}"].isnull()][
-                f"subject_article_{lang}"
-            ].tolist()
+            article_url_col = f"subject_article_{lang}"
+            if article_url_col not in df.columns:
+                continue
+            urls = df[~df[article_url_col].isnull()][article_url_col].tolist()
+
             # Find the articles' sizes of the urls
             wikipedia_views_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
             # Add the size column to the dataframe
-            df[f"size_article_{lang}"] = df[f"subject_article_{lang}"].apply(
+            df[f"size_article_{lang}"] = df[article_url_col].apply(
                 lambda url: wikipedia_views_dict.get(url, 0)
             )
 
@@ -94,16 +169,7 @@ if __name__ == "__main__":
         # Sample triples using articles' sizes
         sample_df = (
             df.sort_values(by="size", ascending=False)
-            .loc[
-                :,
-                [
-                    "size",
-                    q.subject_field,
-                    q.object_field,
-                    "subject_article_ar",
-                    "subject_article_en",
-                ],
-            ]
+            .loc[:, ["size", q.subject_field, q.object_field,],]
             .head(SAMPLE_SIZE)
         )
         sample_df.reset_index(drop=True, inplace=True)

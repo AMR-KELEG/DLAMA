@@ -57,7 +57,11 @@ class Query:
 
         # Add filters related to object only
         for f in self.filters:
-            if self.object_field in f and self.subject_field not in f:
+            if (
+                "MINUS" not in f
+                and self.object_field in f
+                and self.subject_field not in f
+            ):
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
@@ -68,14 +72,20 @@ class Query:
 
         # Add filters related to subject only
         for f in self.filters:
-            if self.object_field not in f and self.subject_field in f:
+            if (
+                "MINUS" not in f
+                and self.object_field not in f
+                and self.subject_field in f
+            ):
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
         #  Add the remaining filters
         for f in self.filters:
-            if not (self.object_field in f and self.subject_field not in f) and not (
-                self.object_field not in f and self.subject_field in f
+            if (
+                "MINUS" in f
+                or not (self.object_field in f and self.subject_field not in f)
+                and not (self.object_field not in f and self.subject_field in f)
             ):
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
