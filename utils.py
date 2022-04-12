@@ -100,8 +100,6 @@ def get_wikipedia_article_sizes(articles_urls, lang):
                 articles_sizes[titles[pages_responses[page_id]["title"]]] = article_size
             except:
                 logger.warn("Title contains '&' causing problems with Wikipedia's API")
-                logger.warn(
-                    pages_responses[page_id],
-                )
+                logger.warn(pages_responses[page_id],)
 
     return articles_sizes
