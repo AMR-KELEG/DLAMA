@@ -178,19 +178,46 @@ if __name__ == "__main__":
             lambda row: max([row[col] for col in row.keys() if "size" in col]), axis=1
         )
 
-        # Sample triples using articles' sizes
+        # TODO: Think of a better way to keep enough rows for sampling
+
+        # Sort the triples using the articles' sizes
+        # Keep the top 10*SAMPLE_SIZE rows for sampling
         sample_df = (
             df.sort_values(by="size", ascending=False)
             .loc[:, ["size", q.subject_field, q.object_field,],]
-            .head(SAMPLE_SIZE)
+            .head(n=10 * SAMPLE_SIZE)
         )
         sample_df.reset_index(drop=True, inplace=True)
 
         # TODO: Augment with page views as well?
 
+        # TODO: Do this progressively
+        # Query the Wikidata labels
+        subjects_ids = sample_df[q.subject_field].tolist()
+        objects_ids = sample_df[q.object_field].tolist()
+        subjects_labels = utils.get_wikidata_labels(subjects_ids)
+        objects_labels = utils.get_wikidata_labels(objects_ids)
+
+        # Drop the rows having missing labels
+        sample_df["sub_label_missing"] = sample_df[q.subject_field].apply(
+            lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
+        )
+        sample_df["obj_label_missing"] = sample_df[q.object_field].apply(
+            lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
+        )
+        sample_df = sample_df.loc[
+            ~(sample_df["sub_label_missing"] | sample_df["obj_label_missing"]), :
+        ].head(n=SAMPLE_SIZE)
+
         # Export the triples to jsonl files
         for lang in LANGS:
             filename = Path(
                 BASE_DATA_DIR, lang, f"{q.relation_id}_{q.domain}_{q.region}.jsonl"
+            )
+            sample_df["sub_label"] = sample_df[q.subject_field].apply(
+                lambda uri: subjects_labels[uri][lang]
+            )
+            sample_df["obj_label"] = sample_df[q.object_field].apply(
+                lambda uri: objects_labels[uri][lang]
             )
             data_generation_utils.generate_facts_jsonl(sample_df, q, lang, filename)
