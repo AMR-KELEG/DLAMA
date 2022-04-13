@@ -1,19 +1,12 @@
 from constants import *
 from filters import FILTERS_DICTIONARY
-from utils import get_wikidata_triples
+import utils
 
 
 class Query:
     # TODO: Add docstrings
     def __init__(
-        self,
-        relation_id,
-        subject_field,
-        object_field,
-        domain,
-        region,
-        wikipedia_langs=None,
-        filters=None,
+        self, relation_id, subject_field, object_field, domain, region, filters=None,
     ):
         self.relation_id = relation_id
         self.subject_field = subject_field
@@ -21,17 +14,16 @@ class Query:
         self.domain = domain
         self.region = region
         self.filters = [] if not filters else filters
-        # Default to English
-        # TODO: Is this the best way to do it?
-        self.wikipedia_langs = wikipedia_langs if wikipedia_langs else ["en"]
+
+        self.wikipedia_langs = REGIONS_LANGS[region]
 
         assert relation_id.startswith("P")
 
-    def add_filter(self, filter_type, filter_value):
+    def add_filter(self, filter_name, filter_key):
         filters = []
-        filters_dict = FILTERS_DICTIONARY[filter_type]
+        filters_dict = FILTERS_DICTIONARY[filter_name]
 
-        filters.append(filters_dict[filter_value])
+        filters.append(filters_dict[filter_key])
 
         # Add the common filter for this filter type
         if "common" in filters_dict:
@@ -109,4 +101,94 @@ class Query:
 
     def parse_query(self, find_count=False, limit=None):
         sparql_query = self.build_query(find_count, limit)
-        return get_wikidata_triples(sparql_query)
+        relation_triples = utils.get_wikidata_triples(sparql_query)
+        parsed_data = utils.parse_sparql_results(relation_triples)
+
+        return parsed_data
+
+    def get_data(self, find_count=False, limit=None):
+        print(self.build_query(find_count, limit))
+        parsed_data = self.parse_query(find_count, limit)
+
+        # Query the articles' sizes
+        for lang in self.wikipedia_langs:
+            # Find list of urls
+            article_url_key = f"subject_article_{lang}"
+
+            urls = [
+                triple[article_url_key]
+                for triple in parsed_data
+                if article_url_key in triple
+            ]
+            # Find the articles' sizes of the urls
+            wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
+
+            # Add the size column to the dataframe
+            for triple in parsed_data:
+                if not article_url_key in triple:
+                    size = 0
+                else:
+                    size = wikipedia_sizes_dict.get(triple[article_url_key], 0)
+                triple[f"size_article_{lang}"] = size
+                triple["size"] = max(size, triple.get("size", 0))
+        return parsed_data
+
+
+class GroupedQuery:
+    def __init__(
+        self, relation_id, subject_field, object_field, domain, region,
+    ):
+        self.relation_id = relation_id
+        self.subject_field = subject_field
+        self.object_field = object_field
+        self.domain = domain
+        self.regions = region
+        self.region = "|".join(self.regions)
+        self.lazy_filters = []
+        self.subqueries = None
+
+        assert relation_id.startswith("P")
+
+    def add_filter(self, filter_name, filter_key):
+        self.lazy_filters.append({"filter_name": filter_name, "filter_key": filter_key})
+
+    def form_subqueries(self):
+        self.subqueries = []
+        for region in self.regions:
+            #  Build a subquery
+            subquery = Query(
+                relation_id=self.relation_id,
+                subject_field=self.subject_field,
+                object_field=self.object_field,
+                domain=self.domain,
+                region=region,
+            )
+            # Add the lazy filters
+            for filter in self.lazy_filters:
+                filter_name = filter["filter_name"]
+                filter_key = filter["filter_key"]
+
+                if filter_key == self.regions:
+                    subquery.add_filter(filter_name=filter_name, filter_key=region)
+                else:
+                    subquery.add_filter(filter_name=filter_name, filter_key=filter_key)
+
+            self.subqueries.append(subquery)
+
+    def get_data(self, find_count=False, limit=None):
+        self.form_subqueries()
+        data = []
+        for subquery in self.subqueries:
+            subquery_data = subquery.get_data(find_count, limit)
+            data += subquery_data
+        return data
+
+
+class QueryFactory:
+    def create_query(self, relation_id, subject_field, object_field, domain, region):
+        if type(region) == type([]):
+            return GroupedQuery(
+                relation_id, subject_field, object_field, domain, region
+            )
+        else:
+            return Query(relation_id, subject_field, object_field, domain, region)
