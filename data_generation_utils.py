@@ -27,7 +27,7 @@ def generate_facts_jsonl(df, q, lang, output_filename):
     for i, (_, grouped_df) in enumerate(df.groupby(q.subject_field)):
         triple_dict = form_triple_from_shared_subject(grouped_df, q)
         # TODO: Add the region to the id or any unique identifier to avoid collisions
-        triple_dict["uuid"] = f"{q.relation_id}_{q.domain}_{q.region}_{i}"
+        triple_dict["uuid"] = f"{q.relation_id}_{q.domain}_{q.region_name}_{i}"
 
         triples.append(triple_dict)
 

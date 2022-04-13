@@ -1,3 +1,4 @@
+from ast import parse
 from constants import *
 from filters import *
 import utils
@@ -6,15 +7,10 @@ from query import QueryFactory
 import pandas as pd
 from pathlib import Path
 import os
-
-pd.set_option("display.max_rows", 2000)
-pd.set_option("display.max_colwidth", 2000)
-
-REGION = ARAB_REGION
-SAMPLE_SIZE = 100
+import argparse
 
 
-if __name__ == "__main__":
+def main(REGION, SAMPLE_SIZE, REGION_NAME):
     # Create output data files
     BASE_DATA_DIR = str(Path("data", "cultlama"))
     for lang in LANGS:
@@ -31,6 +27,7 @@ if __name__ == "__main__":
             object_field=COUNTRY,
             domain=domain,
             region=REGION,
+            region_name=REGION_NAME,
         )
         q27.add_filter(PERSON, OCCUPATION)
         q27.add_filter(OCCUPATION, domain)
@@ -44,6 +41,7 @@ if __name__ == "__main__":
             object_field=OCCUPATION,
             domain=domain,
             region=REGION,
+            region_name=REGION_NAME,
         )
         q106.add_filter(OCCUPATION, domain)
         q106.add_filter(PERSON, "country_of_citizenship")
@@ -59,6 +57,7 @@ if __name__ == "__main__":
             object_field=COUNTRY,
             domain=domain,
             region=REGION,
+            region_name=REGION_NAME,
         )
         p495.add_filter("region_country", REGION)
         p495.add_filter(PIECE_OF_WORK, domain)
@@ -70,6 +69,7 @@ if __name__ == "__main__":
         object_field=INSTRUMENT,
         domain=MUSIC,
         region=REGION,
+        region_name=REGION_NAME,
     )
     q1303.add_filter(PERSON, "country_of_citizenship")
     q1303.add_filter("region_country", REGION)
@@ -82,6 +82,7 @@ if __name__ == "__main__":
         object_field=LANGUAGE,
         domain=CINEMA_AND_THEATRE,
         region=REGION,
+        region_name=REGION_NAME,
     )
     q364.add_filter(PIECE_OF_WORK, "country_of_origin")
     q364.add_filter("region_country", REGION)
@@ -90,14 +91,19 @@ if __name__ == "__main__":
     ### SPORTS ###
     # Country of sports clubs
     q17 = query_factory.create_query(
-        "P17", subject_field=CLUB, object_field=COUNTRY, domain=SPORTS, region=REGION,
+        "P17",
+        subject_field=CLUB,
+        object_field=COUNTRY,
+        domain=SPORTS,
+        region=REGION,
+        region_name=REGION_NAME,
     )
     q17.add_filter("region_country", REGION)
     q17.add_filter(SPORTS, "football")
     queries.append(q17)
 
     ### GEOGRAPHY ###
-    for region in [REGION, WORLDWIDE]:
+    for region, region_name in zip([REGION, WORLDWIDE], [REGION_NAME, "WORLDWIDE"]):
         # Capital
         q36 = query_factory.create_query(
             "P36",
@@ -105,6 +111,7 @@ if __name__ == "__main__":
             object_field=CITY,
             domain=GEOGRAPHY,
             region=region,
+            region_name=region_name,
         )
         if region != WORLDWIDE:
             q36.add_filter("region_country", region)
@@ -119,6 +126,7 @@ if __name__ == "__main__":
             object_field=COUNTRY,
             domain=GEOGRAPHY,
             region=region,
+            region_name=region_name,
         )
         if region != WORLDWIDE:
             q1376.add_filter("region_country", region)
@@ -133,6 +141,7 @@ if __name__ == "__main__":
             object_field=CONTINENT,
             domain=GEOGRAPHY,
             region=region,
+            region_name=region_name,
         )
         if region != WORLDWIDE:
             q30.add_filter("region_country", region)
@@ -146,6 +155,7 @@ if __name__ == "__main__":
             object_field=LANGUAGE,
             domain=POLITICS,
             region=region,
+            region_name=region_name,
         )
         if region != WORLDWIDE:
             q37.add_filter("region_country", region)
@@ -205,7 +215,7 @@ if __name__ == "__main__":
         # Export the triples to jsonl files
         for lang in LANGS:
             filename = Path(
-                BASE_DATA_DIR, lang, f"{q.relation_id}_{q.domain}_{q.region}.jsonl"
+                BASE_DATA_DIR, lang, f"{q.relation_id}_{q.domain}_{q.region_name}.jsonl"
             )
             sample_df["sub_label"] = sample_df[q.subject_field].apply(
                 lambda uri: subjects_labels[uri][lang]
@@ -214,3 +224,38 @@ if __name__ == "__main__":
                 lambda uri: objects_labels[uri][lang]
             )
             data_generation_utils.generate_facts_jsonl(sample_df, q, lang, filename)
+
+
+if __name__ == "__main__":
+    REGIONS = {
+        "ARAB_REGION": ARAB_REGION,
+        "WORLDWIDE": WORLDWIDE,
+        "EASTERN_ASIA": EASTERN_ASIA,
+        "WESTERN_EUROPEAN": WESTERN_EUROPEAN,
+        "SOUTH_WESTERN_EUROPE": SOUTH_WESTERN_EUROPE,
+        "NORTH_AMERICA_AND_AUSTRALIA": NORTH_AMERICA_AND_AUSTRALIA,
+    }
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--region",
+        choices=[
+            "ARAB_REGION",
+            "WORLDWIDE",
+            "EASTERN_ASIA",
+            "WESTERN_EUROPEAN",
+            "SOUTH_WESTERN_EUROPE",
+            "NORTH_AMERICA_AND_AUSTRALIA",
+        ],
+        required=True,
+        help="The region representing the facts.",
+    )
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=100,
+        required=True,
+        help="Number of samples to query for each relation.",
+    )
+    args = parser.parse_args()
+    main(REGION=REGIONS[args.region], SAMPLE_SIZE=args.n, REGION_NAME=args.region)

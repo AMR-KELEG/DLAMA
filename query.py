@@ -6,13 +6,21 @@ import utils
 class Query:
     # TODO: Add docstrings
     def __init__(
-        self, relation_id, subject_field, object_field, domain, region, filters=None,
+        self,
+        relation_id,
+        subject_field,
+        object_field,
+        domain,
+        region,
+        region_name,
+        filters=None,
     ):
         self.relation_id = relation_id
         self.subject_field = subject_field
         self.object_field = object_field
         self.domain = domain
         self.region = region
+        self.region_name = region_name
         self.filters = [] if not filters else filters
 
         self.wikipedia_langs = REGIONS_LANGS[region]
@@ -136,14 +144,14 @@ class Query:
 
 class GroupedQuery:
     def __init__(
-        self, relation_id, subject_field, object_field, domain, region,
+        self, relation_id, subject_field, object_field, domain, region, region_name,
     ):
         self.relation_id = relation_id
         self.subject_field = subject_field
         self.object_field = object_field
         self.domain = domain
         self.regions = region
-        self.region = "|".join(self.regions)
+        self.region_name = region_name
         self.lazy_filters = []
         self.subqueries = None
 
@@ -162,6 +170,7 @@ class GroupedQuery:
                 object_field=self.object_field,
                 domain=self.domain,
                 region=region,
+                region_name=self.region_name,
             )
             # Add the lazy filters
             for filter in self.lazy_filters:
@@ -185,10 +194,14 @@ class GroupedQuery:
 
 
 class QueryFactory:
-    def create_query(self, relation_id, subject_field, object_field, domain, region):
+    def create_query(
+        self, relation_id, subject_field, object_field, domain, region, region_name
+    ):
         if type(region) == type([]):
             return GroupedQuery(
-                relation_id, subject_field, object_field, domain, region
+                relation_id, subject_field, object_field, domain, region, region_name
             )
         else:
-            return Query(relation_id, subject_field, object_field, domain, region)
+            return Query(
+                relation_id, subject_field, object_field, domain, region, region_name
+            )
