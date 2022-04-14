@@ -40,6 +40,10 @@ class Query:
         #  Add the filter to the list of filters
         self.filters = self.filters + filters
 
+    def add_subjects_filter(self, subjects_uris):
+        subjects_uris = " ".join([f"wd:{uri}" for uri in subjects_uris])
+        self.filters.append(f"VALUES ?{self.subject_field} {{{subjects_uris}}}.")
+
     def build_query(self, find_count=False, limit=None):
         sparql_query_lines = []
         if find_count:

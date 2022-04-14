@@ -2,7 +2,7 @@ from constants import *
 from filters import *
 import utils
 import data_generation_utils
-from query import QueryFactory
+from query import Query, QueryFactory
 import pandas as pd
 from pathlib import Path
 import os
@@ -223,6 +223,27 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
                         size_upper = size_mid
                 sample_df = sample_df.head(n=(size_lower + size_upper) // 2)
 
+            # Repeat the query to get all the valid objects!
+            subjects_uris = set(sample_df[q.subject_field].tolist())
+            samples_query = Query(
+                q.relation_id,
+                q.subject_field,
+                q.object_field,
+                q.domain,
+                q.region,
+                q.region_name,
+            )
+            samples_query.add_subjects_filter(subjects_uris)
+            samples_data = samples_query.get_data(find_count=False)
+
+            # Form a dataframe to make it easier to add columns
+            samples_df = pd.DataFrame(samples_data)
+
+            subjects_ids = samples_df[samples_query.subject_field].tolist()
+            objects_ids = samples_df[samples_query.object_field].tolist()
+            subjects_labels = utils.get_wikidata_labels(subjects_ids)
+            objects_labels = utils.get_wikidata_labels(objects_ids)
+
             # Export the triples to jsonl files
             for lang in LANGS:
                 filename = Path(
@@ -230,13 +251,15 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
                     lang,
                     f"{q.relation_id}_{q.domain}_{q.region_name}.jsonl",
                 )
-                sample_df["sub_label"] = sample_df[q.subject_field].apply(
+                samples_df["sub_label"] = samples_df[q.subject_field].apply(
                     lambda uri: subjects_labels[uri][lang]
                 )
-                sample_df["obj_label"] = sample_df[q.object_field].apply(
+                samples_df["obj_label"] = samples_df[q.object_field].apply(
                     lambda uri: objects_labels[uri][lang]
                 )
-                data_generation_utils.generate_facts_jsonl(sample_df, q, lang, filename)
+                data_generation_utils.generate_facts_jsonl(
+                    samples_df, q, lang, filename
+                )
 
             logger.info(
                 f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
