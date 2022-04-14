@@ -164,7 +164,7 @@ class GroupedQuery:
         self.subject_field = subject_field
         self.object_field = object_field
         self.domain = domain
-        self.regions = region
+        self.region = region
         self.region_name = region_name
         self.lazy_filters = []
         self.subqueries = None
@@ -176,7 +176,7 @@ class GroupedQuery:
 
     def form_subqueries(self):
         self.subqueries = []
-        for region in self.regions:
+        for region in self.region:
             #  Build a subquery
             subquery = Query(
                 relation_id=self.relation_id,
@@ -191,7 +191,7 @@ class GroupedQuery:
                 filter_name = filter["filter_name"]
                 filter_key = filter["filter_key"]
 
-                if filter_key == self.regions:
+                if filter_key == self.region:
                     subquery.add_filter(filter_name=filter_name, filter_key=region)
                 else:
                     subquery.add_filter(filter_name=filter_name, filter_key=filter_key)

@@ -225,12 +225,12 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
 
             # Repeat the query to get all the valid objects!
             subjects_uris = set(sample_df[q.subject_field].tolist())
-            samples_query = Query(
+            samples_query = query_factory.create_query(
                 q.relation_id,
                 q.subject_field,
                 q.object_field,
                 q.domain,
-                q.region,
+                WORLDWIDE,
                 q.region_name,
             )
             samples_query.add_subjects_filter(subjects_uris)
