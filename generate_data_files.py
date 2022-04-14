@@ -257,6 +257,16 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
             samples_df = samples_df.loc[
                 ~(samples_df["sub_label_missing"] | samples_df["obj_label_missing"]), :
             ]
+
+            #  Filter objects that are instance of each others
+            objects_merging_dict = data_generation_utils.form_objects_merging_dict(
+                samples_df[samples_query.object_field].tolist()
+            )
+            merged_objects_series = samples_df[samples_query.object_field].apply(
+                lambda object_uri: objects_merging_dict[object_uri]
+            )
+            samples_df[samples_query.object_field] = merged_objects_series
+
             # Export the triples to jsonl files
             for lang in LANGS:
                 filename = Path(
@@ -268,7 +278,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
                     lambda uri: subjects_labels[uri][lang]
                 )
                 samples_df["obj_label"] = samples_df[q.object_field].apply(
-                    lambda uri: objects_labels[uri][lang]
+                    lambda uris_list: [objects_labels[uri][lang] for uri in uris_list]
                 )
                 data_generation_utils.generate_facts_jsonl(
                     samples_df, q, lang, filename
