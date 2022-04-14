@@ -46,7 +46,8 @@ class Query:
 
         # TODO: Find a better place to add this filter!
         # Filter out historical countries
-        if self.object_field == COUNTRY:
+        if self.object_field == COUNTRY or self.subject_field == COUNTRY:
+            self.add_filter(GEOGRAPHY, "sovereign_state")
             self.add_filter(GEOGRAPHY, "not_historical_country")
         elif self.object_field == CITY:
             self.add_filter(GEOGRAPHY, "not_ancient_city")
