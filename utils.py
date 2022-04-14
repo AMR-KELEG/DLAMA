@@ -47,7 +47,10 @@ def get_wikidata_labels(wikidata_entities_ids):
     batch_size = 50
     labels = {}
     langs = "|".join(LANGS)
-    for start in tqdm(range(0, len(wikidata_entities_ids), batch_size)):
+    for start in tqdm(
+        range(0, len(wikidata_entities_ids), batch_size),
+        desc="Query labels of Wikidata entities",
+    ):
         wikidata_ids = "|".join(wikidata_entities_ids[start : start + batch_size])
         url = (
             "https://www.wikidata.org/w/api.php?"
@@ -71,7 +74,10 @@ def get_wikipedia_article_sizes(articles_urls, lang):
     batch_size = 50
     # A dictionary of url -> article size
     articles_sizes = {}
-    for start in tqdm(range(0, len(articles_urls), batch_size)):
+    for start in tqdm(
+        range(0, len(articles_urls), batch_size),
+        desc=f"Query sizes of Wikipedia articles in '{lang}'",
+    ):
         # Get the articles' titles from the urls
         # TODO: Find a better format for this dictionary
         titles = {
