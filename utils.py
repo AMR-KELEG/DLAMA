@@ -1,3 +1,4 @@
+from csv import excel_tab
 import re
 import time
 import requests
@@ -90,7 +91,8 @@ def get_wikipedia_article_sizes(articles_urls, lang):
         page_ids = list(pages_responses.keys())
         for page_id in page_ids:
             # "missing" field indicates that the API failed in retrieving the page's size
-            if "missing" not in pages_responses[page_id]:
+            # "invalid" field indicates that the title has problems (e.g.: empty)
+            if not any([k in pages_responses[page_id] for k in ["missing", "invalid"]]):
                 article_size = pages_responses[page_id]["revisions"][0]["size"]
             else:
                 article_size = 0
