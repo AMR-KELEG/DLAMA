@@ -4,16 +4,17 @@ import time
 import requests
 from tqdm import tqdm
 from constants import LANGS
-
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
     "%(levelname)s - %(filename)s:%(funcName)s:line %(lineno)d - %(message)s"
 )
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
 
 
 def get_wikidata_triples(query):

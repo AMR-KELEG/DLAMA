@@ -8,14 +8,16 @@ from pathlib import Path
 import os
 import argparse
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
+ch = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter(
     "%(levelname)s - %(filename)s:%(funcName)s:line %(lineno)d - %(message)s"
 )
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
 
 
 def main(REGION, SAMPLE_SIZE, REGION_NAME):
