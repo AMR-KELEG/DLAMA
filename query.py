@@ -44,6 +44,15 @@ class Query:
         subjects_uris = " ".join([f"wd:{uri}" for uri in subjects_uris])
         self.filters.append(f"VALUES ?{self.subject_field} {{{subjects_uris}}}.")
 
+        # TODO: Find a better place to add this filter!
+        # Filter out historical countries
+        if self.object_field == COUNTRY:
+            self.add_filter(GEOGRAPHY, "not_historical_country")
+        elif self.object_field == CITY:
+            self.add_filter(GEOGRAPHY, "not_ancient_city")
+        elif self.object_field == INSTRUMENT:
+            self.add_filter(MUSIC, "not_voice")
+
     def build_query(self, find_count=False, limit=None):
         sparql_query_lines = []
         if find_count:
