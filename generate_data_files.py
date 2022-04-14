@@ -244,6 +244,19 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
             subjects_labels = utils.get_wikidata_labels(subjects_ids)
             objects_labels = utils.get_wikidata_labels(objects_ids)
 
+            samples_df["sub_label_missing"] = samples_df[
+                samples_query.subject_field
+            ].apply(
+                lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
+            )
+            samples_df["obj_label_missing"] = samples_df[
+                samples_query.object_field
+            ].apply(
+                lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
+            )
+            samples_df = samples_df.loc[
+                ~(samples_df["sub_label_missing"] | samples_df["obj_label_missing"]), :
+            ]
             # Export the triples to jsonl files
             for lang in LANGS:
                 filename = Path(
