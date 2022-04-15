@@ -23,7 +23,7 @@ logger.setLevel(logging.DEBUG)
 REMAINING_RETRIES = 5
 
 
-def main(REGION, SAMPLE_SIZE, REGION_NAME):
+def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     # Create output data files
     BASE_DATA_DIR = str(Path("data", "cultlama"))
     for lang in LANGS:
@@ -176,6 +176,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
         queries.append(q37)
 
     for q in queries:
+        if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
+            continue
         remaining_retries = REMAINING_RETRIES
         while remaining_retries:
             try:
@@ -350,5 +352,17 @@ if __name__ == "__main__":
         required=True,
         help="Number of samples to query for each relation.",
     )
+    parser.add_argument(
+        "--rel",
+        nargs="*",
+        default=None,
+        help="A white-space separated list of subset Wikidata relations to query (e.g.: 'P17 P20')",
+    )
     args = parser.parse_args()
-    main(REGION=REGIONS[args.region], SAMPLE_SIZE=args.n, REGION_NAME=args.region)
+
+    main(
+        REGION=REGIONS[args.region],
+        SAMPLE_SIZE=args.n,
+        REGION_NAME=args.region,
+        RELATIONS_SUBSET=args.rel,
+    )
