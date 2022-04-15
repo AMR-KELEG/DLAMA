@@ -1,3 +1,4 @@
+import time
 from constants import *
 from filters import *
 import utils
@@ -310,6 +311,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
             except Exception as e:
                 logger.error(e)
                 remaining_retries -= 1
+                # Use delay of 30 seconds before retrying!
+                time.sleep(30)
                 if remaining_retries == 0:
                     logger.info(
                         f"Failed to generate '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
