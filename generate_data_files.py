@@ -19,6 +19,8 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)
 
+REMAINING_RETRIES = 5
+
 
 def main(REGION, SAMPLE_SIZE, REGION_NAME):
     # Create output data files
@@ -173,125 +175,145 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME):
         queries.append(q37)
 
     for q in queries:
-        try:
-            data = q.get_data(find_count=False)
+        remaining_retries = REMAINING_RETRIES
+        while remaining_retries:
+            try:
+                data = q.get_data(find_count=False)
 
-            # Form a dataframe to make it easier to add columns
-            df = pd.DataFrame(data)
+                # Form a dataframe to make it easier to add columns
+                df = pd.DataFrame(data)
 
-            # TODO: Think of a better way to keep enough rows for sampling
-            # Sort the triples using the articles' sizes
-            # Keep the top 10*SAMPLE_SIZE rows for sampling
-            sample_df = (
-                df.sort_values(by="size", ascending=False)
-                .loc[:, ["size", q.subject_field, q.object_field,],]
-                .head(n=10 * SAMPLE_SIZE)
-            )
-            sample_df.reset_index(drop=True, inplace=True)
+                # TODO: Think of a better way to keep enough rows for sampling
+                # Sort the triples using the articles' sizes
+                # Keep the top 10*SAMPLE_SIZE rows for sampling
+                sample_df = (
+                    df.sort_values(by="size", ascending=False)
+                    .loc[:, ["size", q.subject_field, q.object_field,],]
+                    .head(n=10 * SAMPLE_SIZE)
+                )
+                sample_df.reset_index(drop=True, inplace=True)
 
-            # TODO: Augment with page views as well?
+                # TODO: Augment with page views as well?
 
-            # TODO: Do this progressively
-            # Query the Wikidata labels
-            subjects_ids = sample_df[q.subject_field].tolist()
-            objects_ids = sample_df[q.object_field].tolist()
-            subjects_labels = utils.get_wikidata_labels(subjects_ids)
-            objects_labels = utils.get_wikidata_labels(objects_ids)
+                # TODO: Do this progressively
+                # Query the Wikidata labels
+                subjects_ids = sample_df[q.subject_field].tolist()
+                objects_ids = sample_df[q.object_field].tolist()
+                subjects_labels = utils.get_wikidata_labels(subjects_ids)
+                objects_labels = utils.get_wikidata_labels(objects_ids)
 
-            # Drop the rows having missing labels
-            sample_df["sub_label_missing"] = sample_df[q.subject_field].apply(
-                lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
-            )
-            sample_df["obj_label_missing"] = sample_df[q.object_field].apply(
-                lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
-            )
-            sample_df = sample_df.loc[
-                ~(sample_df["sub_label_missing"] | sample_df["obj_label_missing"]), :
-            ]
-
-            if len(set(sample_df[q.subject_field].tolist())) > SAMPLE_SIZE:
-                # Find the number of rows to have SAMPLE_SIZE unique subjects
-                size_lower, size_upper = 1, sample_df.shape[0]
-                while size_lower < size_upper:
-                    size_mid = (size_lower + size_upper) // 2
-                    n_subjects_till_mid = len(
-                        set(sample_df.head(size_mid)[q.subject_field].tolist())
+                # Drop the rows having missing labels
+                sample_df["sub_label_missing"] = sample_df[q.subject_field].apply(
+                    lambda uri: any(
+                        [subjects_labels[uri][lang] == None for lang in LANGS]
                     )
-                    if n_subjects_till_mid < SAMPLE_SIZE:
-                        size_lower = size_mid + 1
-                    else:
-                        size_upper = size_mid
-                sample_df = sample_df.head(n=(size_lower + size_upper) // 2)
-
-            # Repeat the query to get all the valid objects!
-            subjects_uris = set(sample_df[q.subject_field].tolist())
-            samples_query = query_factory.create_query(
-                q.relation_id,
-                q.subject_field,
-                q.object_field,
-                q.domain,
-                WORLDWIDE,
-                q.region_name,
-            )
-            samples_query.add_subjects_filter(subjects_uris)
-            samples_data = samples_query.get_data(find_count=False)
-
-            # Form a dataframe to make it easier to add columns
-            samples_df = pd.DataFrame(samples_data)
-
-            subjects_ids = samples_df[samples_query.subject_field].tolist()
-            objects_ids = samples_df[samples_query.object_field].tolist()
-            subjects_labels = utils.get_wikidata_labels(subjects_ids)
-            objects_labels = utils.get_wikidata_labels(objects_ids)
-
-            samples_df["sub_label_missing"] = samples_df[
-                samples_query.subject_field
-            ].apply(
-                lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
-            )
-            samples_df["obj_label_missing"] = samples_df[
-                samples_query.object_field
-            ].apply(
-                lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
-            )
-            samples_df = samples_df.loc[
-                ~(samples_df["sub_label_missing"] | samples_df["obj_label_missing"]), :
-            ]
-
-            #  Filter objects that are instance of each others
-            objects_merging_dict = data_generation_utils.form_objects_merging_dict(
-                samples_df[samples_query.object_field].tolist()
-            )
-            merged_objects_series = samples_df[samples_query.object_field].apply(
-                lambda object_uri: objects_merging_dict[object_uri]
-            )
-            samples_df[samples_query.object_field] = merged_objects_series
-
-            # Export the triples to jsonl files
-            for lang in LANGS:
-                filename = Path(
-                    BASE_DATA_DIR,
-                    lang,
-                    f"{q.relation_id}_{q.domain}_{q.region_name}.jsonl",
                 )
-                samples_df["sub_label"] = samples_df[q.subject_field].apply(
-                    lambda uri: subjects_labels[uri][lang]
+                sample_df["obj_label_missing"] = sample_df[q.object_field].apply(
+                    lambda uri: any(
+                        [objects_labels[uri][lang] == None for lang in LANGS]
+                    )
                 )
-                samples_df["obj_label"] = samples_df[q.object_field].apply(
-                    lambda uris_list: [objects_labels[uri][lang] for uri in uris_list]
-                )
-                data_generation_utils.generate_facts_jsonl(
-                    samples_df, q, lang, filename
-                )
+                sample_df = sample_df.loc[
+                    ~(sample_df["sub_label_missing"] | sample_df["obj_label_missing"]),
+                    :,
+                ]
 
-            logger.info(
-                f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
-            )
-        except Exception as e:
-            logger.error(e)
-            logger.info(
-                f"Failed to generate '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
-            )
+                if len(set(sample_df[q.subject_field].tolist())) > SAMPLE_SIZE:
+                    # Find the number of rows to have SAMPLE_SIZE unique subjects
+                    size_lower, size_upper = 1, sample_df.shape[0]
+                    while size_lower < size_upper:
+                        size_mid = (size_lower + size_upper) // 2
+                        n_subjects_till_mid = len(
+                            set(sample_df.head(size_mid)[q.subject_field].tolist())
+                        )
+                        if n_subjects_till_mid < SAMPLE_SIZE:
+                            size_lower = size_mid + 1
+                        else:
+                            size_upper = size_mid
+                    sample_df = sample_df.head(n=(size_lower + size_upper) // 2)
+
+                # Repeat the query to get all the valid objects!
+                subjects_uris = set(sample_df[q.subject_field].tolist())
+                samples_query = query_factory.create_query(
+                    q.relation_id,
+                    q.subject_field,
+                    q.object_field,
+                    q.domain,
+                    WORLDWIDE,
+                    q.region_name,
+                )
+                samples_query.add_subjects_filter(subjects_uris)
+                samples_data = samples_query.get_data(find_count=False)
+
+                # Form a dataframe to make it easier to add columns
+                samples_df = pd.DataFrame(samples_data)
+
+                subjects_ids = samples_df[samples_query.subject_field].tolist()
+                objects_ids = samples_df[samples_query.object_field].tolist()
+                subjects_labels = utils.get_wikidata_labels(subjects_ids)
+                objects_labels = utils.get_wikidata_labels(objects_ids)
+
+                samples_df["sub_label_missing"] = samples_df[
+                    samples_query.subject_field
+                ].apply(
+                    lambda uri: any(
+                        [subjects_labels[uri][lang] == None for lang in LANGS]
+                    )
+                )
+                samples_df["obj_label_missing"] = samples_df[
+                    samples_query.object_field
+                ].apply(
+                    lambda uri: any(
+                        [objects_labels[uri][lang] == None for lang in LANGS]
+                    )
+                )
+                samples_df = samples_df.loc[
+                    ~(
+                        samples_df["sub_label_missing"]
+                        | samples_df["obj_label_missing"]
+                    ),
+                    :,
+                ]
+
+                #  Filter objects that are instance of each others
+                objects_merging_dict = data_generation_utils.form_objects_merging_dict(
+                    samples_df[samples_query.object_field].tolist()
+                )
+                merged_objects_series = samples_df[samples_query.object_field].apply(
+                    lambda object_uri: objects_merging_dict[object_uri]
+                )
+                samples_df[samples_query.object_field] = merged_objects_series
+
+                # Export the triples to jsonl files
+                for lang in LANGS:
+                    filename = Path(
+                        BASE_DATA_DIR,
+                        lang,
+                        f"{q.relation_id}_{q.domain}_{q.region_name}.jsonl",
+                    )
+                    samples_df["sub_label"] = samples_df[q.subject_field].apply(
+                        lambda uri: subjects_labels[uri][lang]
+                    )
+                    samples_df["obj_label"] = samples_df[q.object_field].apply(
+                        lambda uris_list: [
+                            objects_labels[uri][lang] for uri in uris_list
+                        ]
+                    )
+                    data_generation_utils.generate_facts_jsonl(
+                        samples_df, q, lang, filename
+                    )
+
+                logger.info(
+                    f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
+                )
+                break
+            except Exception as e:
+                logger.error(e)
+                remaining_retries -= 1
+                if remaining_retries == 0:
+                    logger.info(
+                        f"Failed to generate '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
+                    )
 
 
 if __name__ == "__main__":
