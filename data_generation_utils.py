@@ -24,7 +24,7 @@ def form_triple_from_shared_subject(subject_df, q):
     return triple_dict
 
 
-def generate_facts_jsonl(df, q, lang, output_filename):
+def generate_facts_jsonl(df, q, output_filename):
     """TODO"""
     # TODO: Do I need to add the Region as well?
     # TODO: What is the use of lineid, uuid?
@@ -32,7 +32,7 @@ def generate_facts_jsonl(df, q, lang, output_filename):
     # {obj/sub}_uri, {obj/sub}_label, lineid, uuid
 
     triples = []
-    for i, (_, grouped_df) in enumerate(df.groupby(q.subject_field)):
+    for i, (_, grouped_df) in enumerate(df.groupby(q.subject_field, sort=False)):
         triple_dict = form_triple_from_shared_subject(grouped_df, q)
         # TODO: Add the region to the id or any unique identifier to avoid collisions
         triple_dict["uuid"] = f"{q.relation_id}_{q.domain}_{q.region_name}_{i}"

@@ -188,55 +188,17 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
 
                 # TODO: Think of a better way to keep enough rows for sampling
                 # Sort the triples using the articles' sizes
-                # Keep the top 10*SAMPLE_SIZE rows for sampling
+                # Keep the top 3*SAMPLE_SIZE rows for sampling
                 sample_df = (
                     df.sort_values(by="size", ascending=False)
                     .loc[:, ["size", q.subject_field, q.object_field,],]
-                    .head(n=10 * SAMPLE_SIZE)
+                    .head(n=3 * SAMPLE_SIZE)
                 )
+                # TODO: Augment with page views as well?
                 sample_df.reset_index(drop=True, inplace=True)
 
-                # TODO: Augment with page views as well?
-
-                # TODO: Do this progressively
-                # Query the Wikidata labels
-                subjects_ids = sample_df[q.subject_field].tolist()
-                objects_ids = sample_df[q.object_field].tolist()
-                subjects_labels = utils.get_wikidata_labels(subjects_ids)
-                objects_labels = utils.get_wikidata_labels(objects_ids)
-
-                # Drop the rows having missing labels
-                sample_df["sub_label_missing"] = sample_df[q.subject_field].apply(
-                    lambda uri: any(
-                        [subjects_labels[uri][lang] == None for lang in LANGS]
-                    )
-                )
-                sample_df["obj_label_missing"] = sample_df[q.object_field].apply(
-                    lambda uri: any(
-                        [objects_labels[uri][lang] == None for lang in LANGS]
-                    )
-                )
-                sample_df = sample_df.loc[
-                    ~(sample_df["sub_label_missing"] | sample_df["obj_label_missing"]),
-                    :,
-                ]
-
-                if len(set(sample_df[q.subject_field].tolist())) > SAMPLE_SIZE:
-                    # Find the number of rows to have SAMPLE_SIZE unique subjects
-                    size_lower, size_upper = 1, sample_df.shape[0]
-                    while size_lower < size_upper:
-                        size_mid = (size_lower + size_upper) // 2
-                        n_subjects_till_mid = len(
-                            set(sample_df.head(size_mid)[q.subject_field].tolist())
-                        )
-                        if n_subjects_till_mid < SAMPLE_SIZE:
-                            size_lower = size_mid + 1
-                        else:
-                            size_upper = size_mid
-                    sample_df = sample_df.head(n=(size_lower + size_upper) // 2)
-
                 # Repeat the query to get all the valid objects!
-                subjects_uris = set(sample_df[q.subject_field].tolist())
+                subjects_uris = sample_df[q.subject_field].unique().tolist()
                 samples_query = query_factory.create_query(
                     q.relation_id,
                     q.subject_field,
@@ -248,14 +210,25 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                 samples_query.add_subjects_filter(subjects_uris)
                 samples_data = samples_query.get_data(find_count=False)
 
+                # Use the same order based on the size of the Wikipedia articles
+                samples_data = sorted(
+                    samples_data,
+                    key=lambda sample: subjects_uris.index(
+                        sample[samples_query.subject_field]
+                    ),
+                )
+
                 # Form a dataframe to make it easier to add columns
                 samples_df = pd.DataFrame(samples_data)
 
+                # TODO: Do this progressively
+                # Query the Wikidata labels
                 subjects_ids = samples_df[samples_query.subject_field].tolist()
                 objects_ids = samples_df[samples_query.object_field].tolist()
                 subjects_labels = utils.get_wikidata_labels(subjects_ids)
                 objects_labels = utils.get_wikidata_labels(objects_ids)
 
+                # Drop the rows having missing labels
                 samples_df["sub_label_missing"] = samples_df[
                     samples_query.subject_field
                 ].apply(
@@ -277,6 +250,27 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                     ),
                     :,
                 ]
+
+                if (
+                    len(set(samples_df[samples_query.subject_field].tolist()))
+                    > SAMPLE_SIZE
+                ):
+                    # Find the number of rows to have SAMPLE_SIZE unique subjects
+                    size_lower, size_upper = 1, samples_df.shape[0]
+                    while size_lower < size_upper:
+                        size_mid = (size_lower + size_upper) // 2
+                        n_subjects_till_mid = len(
+                            set(
+                                samples_df.head(size_mid)[
+                                    samples_query.subject_field
+                                ].tolist()
+                            )
+                        )
+                        if n_subjects_till_mid < SAMPLE_SIZE:
+                            size_lower = size_mid + 1
+                        else:
+                            size_upper = size_mid
+                    samples_df = samples_df.head(n=(size_lower + size_upper) // 2)
 
                 #  Filter objects that are instance of each others
                 objects_merging_dict = data_generation_utils.form_objects_merging_dict(
@@ -302,9 +296,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                             objects_labels[uri][lang] for uri in uris_list
                         ]
                     )
-                    data_generation_utils.generate_facts_jsonl(
-                        samples_df, q, lang, filename
-                    )
+                    data_generation_utils.generate_facts_jsonl(samples_df, q, filename)
 
                 logger.info(
                     f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
