@@ -128,7 +128,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         )
         if region != WORLDWIDE:
             q36.add_filter("region_country", region)
-        q36.add_filter(GEOGRAPHY, "not_ancient_city")
+        q36.add_filter(GEOGRAPHY, "not_lost_city")
         q36.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q36)
 
@@ -143,7 +143,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         )
         if region != WORLDWIDE:
             q1376.add_filter("region_country", region)
-        q1376.add_filter(GEOGRAPHY, "not_ancient_city")
+        q1376.add_filter(GEOGRAPHY, "not_lost_city")
         q1376.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q1376)
 

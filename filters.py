@@ -52,12 +52,7 @@ FILTERS_DICTIONARY = {
         "not_voice": f"MINUS {{VALUES ?{INSTRUMENT} {{wd:Q17172850}} }} . # Remove instrument 'voice'"
     },
     GEOGRAPHY: {
-        "not_ancient_city": "MINUS # Discard the following\n"
-        f"{{ {{?{CITY} wdt:P31 wd:Q15661340}} # an ancient city\n"
-        "UNION\n"
-        f"{{?{CITY} wdt:P31 wd:Q676050}} # an old town\n"
-        "UNION\n"
-        f"{{?{CITY} wdt:P31 wd:Q2974842}} }} . # a lost city",
+        "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",
         "sovereign_state": f"?{COUNTRY} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
         "US_state": f"?{COUNTRY} wdt:P31 wd:Q35657 . # The country is a US state",

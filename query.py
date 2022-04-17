@@ -50,7 +50,7 @@ class Query:
             self.add_filter(GEOGRAPHY, "sovereign_state")
             self.add_filter(GEOGRAPHY, "not_historical_country")
         elif self.object_field == CITY:
-            self.add_filter(GEOGRAPHY, "not_ancient_city")
+            self.add_filter(GEOGRAPHY, "not_lost_city")
         elif self.object_field == INSTRUMENT:
             self.add_filter(MUSIC, "not_voice")
 
