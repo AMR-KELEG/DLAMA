@@ -1,4 +1,6 @@
 import json
+import time
+from tqdm import tqdm
 from collections import Counter, deque
 from utils import get_wikidata_triples, parse_sparql_results
 
@@ -49,10 +51,33 @@ def generate_facts_jsonl(df, q, output_filename):
 class Graph:
     def __init__(self, nodes_labels):
         self.adj_list = {label: [] for label in nodes_labels}
+        self.node_weights = {label: [] for label in nodes_labels}
 
     def add_edge(self, src, dis):
         # from sub to super
         self.adj_list[src].append(dis)
+
+    def add_node_weight(self, node, weight):
+        self.node_weights[node] = weight
+
+    def find_ancestors(self, src):
+        ancestors = [src]
+
+        visited = dict()
+        queue = deque()
+        visited[src] = True
+        queue.append(src)
+
+        while queue:
+            cur_node = queue.pop()
+            for next_node in self.adj_list[cur_node]:
+                if visited.get(next_node):
+                    continue
+                visited[next_node] = True
+                queue.append(next_node)
+                ancestors.append(next_node)
+
+        return ancestors
 
     def find_isolated_nodes(self, src):
         #  TODO: Handle cycles?
@@ -73,24 +98,47 @@ class Graph:
         return isolated_nodes
 
 
-def form_objects_merging_dict(objects_uris):
+def form_objects_ancestors_lists(objects_uris):
     # Build a graph between these entities
     uris_counts = Counter(objects_uris).most_common()
 
-    # Filter out rare objects?
-    #  Not valid for all relations!
-    uris = [uri for uri, count in uris_counts if count != 1]
+    uris = [uri for uri, count in uris_counts]
     uris_in_query = " ".join([f"wd:{uri}" for uri in uris])
 
-    query = f"""SELECT DISTINCT ?sub_uri ?super_uri
-    WHERE
-    {{
-        VALUES ?sub_uri {{{uris_in_query}}} .
-        VALUES ?super_uri {{{uris_in_query}}} .
-        ?sub_uri wdt:P279+ ?super_uri .
-    }}"""
-
-    data = get_wikidata_triples(query)
+    BATCH_SIZE = 50
+    data = []
+    for sub_batch_start in tqdm(
+        range(0, len(uris), BATCH_SIZE), desc="Query the sub/sup relations"
+    ):
+        sub_uris = " ".join(
+            [
+                f"wd:{uri}"
+                for uri in uris[sub_batch_start : sub_batch_start + BATCH_SIZE]
+            ]
+        )
+        for super_batch_start in tqdm(range(0, len(uris), BATCH_SIZE)):
+            super_uris = " ".join(
+                [
+                    f"wd:{uri}"
+                    for uri in uris[super_batch_start : super_batch_start + BATCH_SIZE]
+                ]
+            )
+            query = f"""SELECT DISTINCT ?sub_uri ?super_uri
+            WHERE
+            {{
+                VALUES ?sub_uri {{{sub_uris}}} .
+                VALUES ?super_uri {{{super_uris}}} .
+                ?sub_uri wdt:P279+ ?super_uri .
+            }}"""
+            remaining_retries = 3
+            while remaining_retries:
+                try:
+                    data += get_wikidata_triples(query)
+                    break
+                except:
+                    time.sleep(10)
+                    remaining_retries -= 1
+            time.sleep(0.1)
     parsed_data = parse_sparql_results(data)
 
     #  Build the graph from sub/super relation edges
@@ -98,5 +146,4 @@ def form_objects_merging_dict(objects_uris):
     for edge in parsed_data:
         graph.add_edge(edge["sub_uri"], edge["super_uri"])
 
-    # TODO: Do I need to filter out outliers as well?
-    return {uri: graph.find_isolated_nodes(uri) for uri in objects_uris}
+    return {uri: graph.find_ancestors(uri) for uri in objects_uris}

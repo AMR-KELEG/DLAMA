@@ -25,7 +25,7 @@ REMAINING_RETRIES = 5
 
 def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     # Create output data files
-    BASE_DATA_DIR = str(Path("data", "cultlama"))
+    BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
     for lang in LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
 
@@ -272,14 +272,10 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                             size_upper = size_mid
                     samples_df = samples_df.head(n=(size_lower + size_upper) // 2)
 
-                #  Filter objects that are instance of each others
-                objects_merging_dict = data_generation_utils.form_objects_merging_dict(
-                    samples_df[samples_query.object_field].tolist()
-                )
-                merged_objects_series = samples_df[samples_query.object_field].apply(
-                    lambda object_uri: objects_merging_dict[object_uri]
-                )
-                samples_df[samples_query.object_field] = merged_objects_series
+                # Make the objects a list instead of a single value
+                samples_df[samples_query.object_field] = samples_df[
+                    samples_query.object_field
+                ].apply(lambda o: [o])
 
                 # Export the triples to jsonl files
                 for lang in LANGS:

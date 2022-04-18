@@ -20,7 +20,7 @@ logger.setLevel(logging.DEBUG)
 def get_wikidata_triples(query):
     """Query wikidata using a SPARQL query"""
     url = "https://query.wikidata.org/sparql"
-    r = requests.get(url, params={"format": "json", "query": query})
+    r = requests.post(url, params={"format": "json", "query": query})
     data = r.json()
     return data["results"]["bindings"]
 
