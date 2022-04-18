@@ -51,6 +51,9 @@ FILTERS_DICTIONARY = {
     MUSIC: {
         "not_voice": f"MINUS {{VALUES ?{INSTRUMENT} {{wd:Q17172850}} }} . # Remove instrument 'voice'"
     },
+    LANGUAGE: {
+        "not_sign_language": f"MINUS {{ ?{LANGUAGE} wdt:P31 wd:Q34228 }} . # Remove sign languages"
+    },
     GEOGRAPHY: {
         "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",

@@ -49,10 +49,12 @@ class Query:
         if self.object_field == COUNTRY or self.subject_field == COUNTRY:
             self.add_filter(GEOGRAPHY, "sovereign_state")
             self.add_filter(GEOGRAPHY, "not_historical_country")
-        elif self.object_field == CITY:
+        if self.object_field == CITY:
             self.add_filter(GEOGRAPHY, "not_lost_city")
-        elif self.object_field == INSTRUMENT:
+        if self.object_field == INSTRUMENT:
             self.add_filter(MUSIC, "not_voice")
+        if self.object_field == LANGUAGE:
+            self.add_filter(LANGUAGE, "not_sign_language")
 
     def build_query(self, find_count=False, limit=None):
         sparql_query_lines = []
