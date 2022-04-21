@@ -189,21 +189,17 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                 # Sort the triples using the articles' sizes
                 df.sort_values(by="size", ascending=False, inplace=True)
 
-                if len(set(df[q.subject_field].tolist())) > SAMPLE_SIZE:
-                    # Find the number of rows to have SAMPLE_SIZE unique subjects
-                    size_lower, size_upper = 1, df.shape[0]
-                    while size_lower < size_upper:
-                        size_mid = (size_lower + size_upper) // 2
-                        n_subjects_till_mid = len(
-                            set(df.head(size_mid)[q.subject_field].tolist())
-                        )
-                        if n_subjects_till_mid < SAMPLE_SIZE:
-                            size_lower = size_mid + 1
-                        else:
-                            size_upper = size_mid
-                    n_subjects = (size_lower + size_upper) // 2
-                    # TODO: Think of a better way to keep enough rows for sampling
-                    df = df.head(n=n_subjects * 2)
+                logger.info(
+                    f"Total number of subjects: {len(df[q.subject_field].unique())}"
+                )
+
+                df.drop_duplicates(subset=[q.subject_field], inplace=True)
+                df.reset_index(drop=True, inplace=True)
+
+                df = df.head(n=SAMPLE_SIZE * 2)
+                logger.info(
+                    f"Total number of subjects for getting labels: {len(df[q.subject_field].unique())}"
+                )
 
                 sample_df = df.loc[
                     :, ["size", q.subject_field, q.object_field,],
@@ -266,8 +262,15 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                     :,
                 ]
 
-                # Sample the SAMPLE_SIZE articles with largest Wikidpedia articles
+                logger.info(
+                    f"Number of subjects after dropping entities with missing labels: {len(samples_df[q.subject_field].unique())}"
+                )
+
                 samples_df = samples_df.head(n=SAMPLE_SIZE)
+
+                logger.info(
+                    f"Final number of subjects: {len(samples_df[q.subject_field].unique())}"
+                )
 
                 # Make the objects a list instead of a single value
                 samples_df[samples_query.object_field] = samples_df[
