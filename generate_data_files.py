@@ -161,7 +161,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q30.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q30)
 
-        # Official lamguage
+        # Official language
         q37 = query_factory.create_query(
             "P37",
             subject_field=COUNTRY,

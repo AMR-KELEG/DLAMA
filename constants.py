@@ -17,29 +17,43 @@ MUSIC = "music"
 GEOGRAPHY = "geography"
 
 # Regions
-ARAB_REGION = "Arab"
-WORLDWIDE = "Worldwide"
-BELGIUM = "Belgium"
-CHINA = "China"
-JAPAN = "Japan"
-NORTH_KOREA = "North Korea"
-SOUTH_KOREA = "South Korea"
-USA = "USA"
-CANADA = "Canada"
+ANDORRA = "Andorra"
 AUSTRALIA = "Australia"
-NEW_ZEALAND = "New Zealand"
-GERMANY = "Germany"
-FRANCE = "France"
-ITALY = "Italy"
-UK = "UK"
-SPAIN = "Spain"
-PORTUGAL = "Portugal"
-LUXEMBOURG = "Luxembourg"
-NETHERLANDS = "Netherlands"
 AUSTRIA = "Austria"
+BELGIUM = "Belgium"
+CANADA = "Canada"
+CHINA = "China"
+FRANCE = "France"
+GERMANY = "Germany"
 IRELAND = "Ireland"
+ITALY = "Italy"
+JAPAN = "Japan"
+LIECHTENSTEIN = "Liechtenstein"
+LUXEMBOURG = "Luxembourg"
+MONACO = "Monaco"
+NETHERLANDS = "Netherlands"
+NEW_ZEALAND = "New Zealand"
+NORTH_KOREA = "North Korea"
+PORTUGAL = "Portugal"
+SAN_MARINO = "San Marino"
+SOUTH_KOREA = "South Korea"
+SPAIN = "Spain"
 SWITZERLAND = "Switzerland"
+UK = "UK"
+USA = "USA"
 
+ARAB_REGION = "Arab"
+EASTERN_ASIA = [CHINA, JAPAN, NORTH_KOREA, SOUTH_KOREA]
+NORTH_AMERICA_AND_AUSTRALIA = [AUSTRALIA, CANADA, NEW_ZEALAND, USA]
+SOUTH_WESTERN_EUROPE = [
+    ITALY,
+    SPAIN,
+    PORTUGAL,
+    ANDORRA,
+    LIECHTENSTEIN,
+    SAN_MARINO,
+    MONACO,
+]
 WESTERN_EUROPEAN = [
     AUSTRIA,
     BELGIUM,
@@ -51,35 +65,36 @@ WESTERN_EUROPEAN = [
     SWITZERLAND,
     UK,
 ]
-
-SOUTH_WESTERN_EUROPE = [ITALY, SPAIN, PORTUGAL]
-NORTH_AMERICA_AND_AUSTRALIA = [AUSTRALIA, CANADA, NEW_ZEALAND, USA]
-EASTERN_ASIA = [CHINA, JAPAN, NORTH_KOREA, SOUTH_KOREA]
+WORLDWIDE = "Worldwide"
 
 #  LANGS for links of wikipedia
 REGIONS_LANGS = {
-    WORLDWIDE: ["en"],
+    ANDORRA: ["ca", "en"],
     ARAB_REGION: ["ar", "en", "fr"],
+    AUSTRALIA: ["en"],
     AUSTRIA: ["de", "en"],
     BELGIUM: ["de", "fr", "nl", "en"],
+    CANADA: ["en", "fr"],
+    CHINA: ["zh", "en"],  # "zh-yue", "zh-classical", "en"],
     FRANCE: ["fr", "en"],
     GERMANY: ["de", "en"],
     IRELAND: ["ga", "en"],
-    LUXEMBOURG: ["lb", "fr", "de", "en"],
-    NETHERLANDS: ["nl", "en"],
-    SWITZERLAND: ["de", "fr", "it", "rm", "en"],
-    UK: ["en", "cy", "sco", "gd"],  # , "ga"],
-    CHINA: ["zh", "en"],  # "zh-yue", "zh-classical", "en"],
-    JAPAN: ["ja", "en"],
-    SOUTH_KOREA: ["ko", "en"],
-    NORTH_KOREA: ["ko", "en"],
-    USA: ["en"],
-    CANADA: ["en", "fr"],
-    AUSTRALIA: ["en"],
-    NEW_ZEALAND: ["en", "mi"],
     ITALY: ["it", "en"],
-    SPAIN: ["es", "ca", "eu", "en"],
+    JAPAN: ["ja", "en"],
+    LIECHTENSTEIN: ["de", "en"],
+    LUXEMBOURG: ["lb", "fr", "de", "en"],
+    MONACO: ["fr", "en"],
+    NETHERLANDS: ["nl", "en"],
+    NEW_ZEALAND: ["en", "mi"],
+    NORTH_KOREA: ["ko", "en"],
     PORTUGAL: ["pt", "en"],
+    SAN_MARINO: ["it", "en"],
+    SOUTH_KOREA: ["ko", "en"],
+    SPAIN: ["es", "en"],
+    SWITZERLAND: ["de", "fr", "it", "rm", "en"],
+    UK: ["en"],  # "cy", "sco", "gd", "ga"],
+    USA: ["en"],
+    WORLDWIDE: ["en"],
 }
 
 # LANGS for labels of fields
