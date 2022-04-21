@@ -59,6 +59,10 @@ FILTERS_DICTIONARY = {
     },
     GEOGRAPHY: {
         "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
+        #  TODO: Make the parameters changeable instead of just constants
+        "big_city": f"?{CITY} wdt:P31/wdt:P279 wd:Q515 . # The city is instance of something that is a subclass of 'City'",
+        "big_city1": f"?{CITY1} wdt:P31/wdt:P279 wd:Q515 . # The city is instance of something that is a subclass of 'City'",
+        "city_belongs_to_sovereign_country": f"?{CITY} wdt:P17 ?{COUNTRY} .",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",
         "sovereign_state": f"?{COUNTRY} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
         "US_state": f"?{COUNTRY} wdt:P31 wd:Q35657 . # The country is a US state",

@@ -175,6 +175,22 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q37.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q37)
 
+    ### POLITICS ###
+    # Sister city
+    q190 = query_factory.create_query(
+        "P190",
+        subject_field=CITY,
+        object_field=CITY1,
+        domain=POLITICS,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q190.add_filter("region_country", REGION)
+    q190.add_filter(GEOGRAPHY, "city_belongs_to_sovereign_country")
+    q190.add_filter(GEOGRAPHY, "big_city")
+    q190.add_filter(GEOGRAPHY, "big_city1")
+    queries.append(q190)
+
     for q in queries:
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
