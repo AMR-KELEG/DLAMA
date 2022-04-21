@@ -186,16 +186,31 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                 # Form a dataframe to make it easier to add columns
                 df = pd.DataFrame(data)
 
-                # TODO: Think of a better way to keep enough rows for sampling
                 # Sort the triples using the articles' sizes
-                # Keep the top 3*SAMPLE_SIZE rows for sampling
-                sample_df = (
-                    df.sort_values(by="size", ascending=False)
-                    .loc[:, ["size", q.subject_field, q.object_field,],]
-                    .head(n=3 * SAMPLE_SIZE)
-                )
-                # TODO: Augment with page views as well?
+                df.sort_values(by="size", ascending=False, inplace=True)
+
+                if len(set(df[q.subject_field].tolist())) > SAMPLE_SIZE:
+                    # Find the number of rows to have SAMPLE_SIZE unique subjects
+                    size_lower, size_upper = 1, df.shape[0]
+                    while size_lower < size_upper:
+                        size_mid = (size_lower + size_upper) // 2
+                        n_subjects_till_mid = len(
+                            set(df.head(size_mid)[q.subject_field].tolist())
+                        )
+                        if n_subjects_till_mid < SAMPLE_SIZE:
+                            size_lower = size_mid + 1
+                        else:
+                            size_upper = size_mid
+                    n_subjects = (size_lower + size_upper) // 2
+                    # TODO: Think of a better way to keep enough rows for sampling
+                    df = df.head(n=n_subjects * 2)
+
+                sample_df = df.loc[
+                    :, ["size", q.subject_field, q.object_field,],
+                ]
                 sample_df.reset_index(drop=True, inplace=True)
+
+                # TODO: Augment with page views as well?
 
                 # Repeat the query to get all the valid objects!
                 subjects_uris = sample_df[q.subject_field].unique().tolist()
@@ -251,26 +266,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                     :,
                 ]
 
-                if (
-                    len(set(samples_df[samples_query.subject_field].tolist()))
-                    > SAMPLE_SIZE
-                ):
-                    # Find the number of rows to have SAMPLE_SIZE unique subjects
-                    size_lower, size_upper = 1, samples_df.shape[0]
-                    while size_lower < size_upper:
-                        size_mid = (size_lower + size_upper) // 2
-                        n_subjects_till_mid = len(
-                            set(
-                                samples_df.head(size_mid)[
-                                    samples_query.subject_field
-                                ].tolist()
-                            )
-                        )
-                        if n_subjects_till_mid < SAMPLE_SIZE:
-                            size_lower = size_mid + 1
-                        else:
-                            size_upper = size_mid
-                    samples_df = samples_df.head(n=(size_lower + size_upper) // 2)
+                # Sample the SAMPLE_SIZE articles with largest Wikidpedia articles
+                samples_df = samples_df.head(n=SAMPLE_SIZE)
 
                 # Make the objects a list instead of a single value
                 samples_df[samples_query.object_field] = samples_df[
