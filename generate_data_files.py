@@ -266,7 +266,25 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                     f"Number of subjects after dropping entities with missing labels: {len(samples_df[q.subject_field].unique())}"
                 )
 
-                samples_df = samples_df.head(n=SAMPLE_SIZE)
+                if len(set(samples_df[q.subject_field].tolist())) > SAMPLE_SIZE:
+                    # Find the number of rows to have SAMPLE_SIZE unique subjects
+                    size_lower, size_upper = 1, samples_df.shape[0]
+                    while size_lower < size_upper:
+                        size_mid = (size_lower + size_upper) // 2 + (
+                            size_lower + size_upper
+                        ) % 2
+                        n_subjects_till_mid = len(
+                            set(samples_df.head(size_mid)[q.subject_field].tolist())
+                        )
+                        if n_subjects_till_mid > SAMPLE_SIZE:
+                            size_upper = size_mid - 1
+                        else:
+                            size_lower = size_mid
+
+                    n_subjects = (size_lower + size_upper) // 2 + (
+                        size_lower + size_upper
+                    ) % 2
+                    samples_df = samples_df.head(n=n_subjects)
 
                 logger.info(
                     f"Final number of subjects: {len(samples_df[q.subject_field].unique())}"
