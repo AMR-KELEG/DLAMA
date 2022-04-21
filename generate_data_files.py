@@ -116,7 +116,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     queries.append(q17)
 
     ### GEOGRAPHY ###
-    for region, region_name in zip([REGION, WORLDWIDE], [REGION_NAME, "WORLDWIDE"]):
+    for region, region_name in zip([REGION], [REGION_NAME]):
         # Capital
         q36 = query_factory.create_query(
             "P36",
