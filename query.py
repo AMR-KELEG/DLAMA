@@ -139,11 +139,15 @@ class Query:
             # Find list of urls
             article_url_key = f"subject_article_{lang}"
 
-            urls = [
-                triple[article_url_key]
-                for triple in parsed_data
-                if article_url_key in triple
-            ]
+            urls = sorted(
+                set(
+                    [
+                        triple[article_url_key]
+                        for triple in parsed_data
+                        if article_url_key in triple
+                    ]
+                )
+            )
             # Find the articles' sizes of the urls
             wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
 
