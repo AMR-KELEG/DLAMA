@@ -61,6 +61,7 @@ FILTERS_DICTIONARY = {
         "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",
         "sovereign_state": f"?{COUNTRY} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
+        "sovereign_state1": f"?{COUNTRY1} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
         "US_state": f"?{COUNTRY} wdt:P31 wd:Q35657 . # The country is a US state",
     },
 }

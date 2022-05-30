@@ -1,6 +1,7 @@
 # Fields
 PERSON = "person"
 COUNTRY = "country"
+COUNTRY1 = "country1"
 CLUB = "club"
 OCCUPATION = "occupation"
 LANGUAGE = "language"

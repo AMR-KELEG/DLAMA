@@ -175,6 +175,21 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q37.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q37)
 
+        # Official language
+        q47 = query_factory.create_query(
+            "P47",
+            subject_field=COUNTRY,
+            object_field=COUNTRY1,
+            domain=POLITICS,
+            region=region,
+            region_name=region_name,
+        )
+        if region != WORLDWIDE:
+            q47.add_filter("region_country", region)
+        q47.add_filter(GEOGRAPHY, "sovereign_state")
+        q47.add_filter(GEOGRAPHY, "sovereign_state1")
+        queries.append(q47)
+
     for q in queries:
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
