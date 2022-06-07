@@ -60,6 +60,11 @@ FILTERS_DICTIONARY = {
     SCIENCE: {
         "is_a_chemical_compound": f"?{CHEMICAL_COMPOUND} wdt:P31 wd:Q11173 . # Is a chemical compound",
     },
+    HISTORY: {
+        "a_touristic_place": f"{{ ?{PLACE} wdt:P31 wd:Q839954 }} # An Archaeological site\n"
+        "UNION\n"
+        f"{{?{PLACE} wdt:P31 wd:Q570116 }} . # A touristic attraction"
+    },
     GEOGRAPHY: {
         "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",
