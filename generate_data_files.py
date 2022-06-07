@@ -61,9 +61,69 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q106.add_filter("region_country", REGION)
         queries.append(q106)
 
+        # Native language
+        q103 = query_factory.create_query(
+            "P103",
+            subject_field=PERSON,
+            object_field=LANGUAGE,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        q103.add_filter(OCCUPATION, domain)
+        q103.add_filter(PERSON, "country_of_citizenship")
+        q103.add_filter(PERSON, OCCUPATION)
+        q103.add_filter("region_country", REGION)
+        queries.append(q103)
+
+        # Languages spoken or published
+        q1412 = query_factory.create_query(
+            "P1412",
+            subject_field=PERSON,
+            object_field=LANGUAGE,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        q1412.add_filter(OCCUPATION, domain)
+        q1412.add_filter(PERSON, "country_of_citizenship")
+        q1412.add_filter(PERSON, OCCUPATION)
+        q1412.add_filter("region_country", REGION)
+        queries.append(q1412)
+
+        # Place of birth
+        q19 = query_factory.create_query(
+            "P19",
+            subject_field=PERSON,
+            object_field=CITY,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        q19.add_filter(OCCUPATION, domain)
+        q19.add_filter(PERSON, OCCUPATION)
+        q19.add_filter(GEOGRAPHY, "lies_in_country")
+        q19.add_filter("region_country", REGION)
+        queries.append(q19)
+
+        # Place of death
+        q20 = query_factory.create_query(
+            "P20",
+            subject_field=PERSON,
+            object_field=CITY,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        q20.add_filter(OCCUPATION, domain)
+        q20.add_filter(PERSON, OCCUPATION)
+        q20.add_filter(GEOGRAPHY, "lies_in_country")
+        q20.add_filter("region_country", REGION)
+        queries.append(q20)
+
     ### Entertainment ###
-    # Country of origin
     for domain in [MUSIC, CINEMA_AND_THEATRE]:
+        # Country of origin
         p495 = query_factory.create_query(
             "P495",
             subject_field=PIECE_OF_WORK,
@@ -76,6 +136,21 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         p495.add_filter(PIECE_OF_WORK, domain)
         queries.append(p495)
 
+        # Language of work or name
+        p407 = query_factory.create_query(
+            "P407",
+            subject_field=PIECE_OF_WORK,
+            object_field=LANGUAGE,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        p407.add_filter(PIECE_OF_WORK, domain)
+        p407.add_filter(PIECE_OF_WORK, "country_of_origin")
+        p407.add_filter("region_country", REGION)
+        queries.append(p407)
+
+    # Instrument
     q1303 = query_factory.create_query(
         "P1303",
         subject_field=PERSON,
@@ -89,6 +164,35 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     q1303.add_filter(MUSIC, "not_voice")
     queries.append(q1303)
 
+    # Genre
+    q136 = query_factory.create_query(
+        "P136",
+        subject_field=PERSON,
+        object_field=GENRE,
+        domain=MUSIC,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q136.add_filter(PERSON, "country_of_citizenship")
+    q136.add_filter(PERSON, OCCUPATION)
+    q136.add_filter(OCCUPATION, MUSIC)
+    q136.add_filter("region_country", REGION)
+    queries.append(q136)
+
+    # Record Label
+    q264 = query_factory.create_query(
+        "P264",
+        subject_field=PERSON,
+        object_field=RECORD_LABEL,
+        domain=MUSIC,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q264.add_filter(PERSON, "country_of_citizenship")
+    q264.add_filter("region_country", REGION)
+    queries.append(q264)
+
+    # Official language of film or tv show
     q364 = query_factory.create_query(
         "P364",
         subject_field=PIECE_OF_WORK,
@@ -100,6 +204,20 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     q364.add_filter(PIECE_OF_WORK, "country_of_origin")
     q364.add_filter("region_country", REGION)
     queries.append(q364)
+
+    # Original Network
+    p449 = query_factory.create_query(
+        "P449",
+        subject_field=PIECE_OF_WORK,
+        object_field=ORIGINAL_NETWORK,
+        domain=domain,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    p449.add_filter(PIECE_OF_WORK, domain)
+    p449.add_filter(PIECE_OF_WORK, "country_of_origin")
+    p449.add_filter("region_country", REGION)
+    queries.append(p449)
 
     ### SPORTS ###
     # Country of sports clubs
@@ -115,8 +233,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     q17.add_filter(SPORTS, "football")
     queries.append(q17)
 
-    ### GEOGRAPHY ###
     for region, region_name in zip([REGION], [REGION_NAME]):
+        ### GEOGRAPHY ###
         # Capital
         q36 = query_factory.create_query(
             "P36",
@@ -161,6 +279,37 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q30.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q30)
 
+        # Shares borders with
+        q47 = query_factory.create_query(
+            "P47",
+            subject_field=COUNTRY,
+            object_field=COUNTRY1,
+            domain=GEOGRAPHY,
+            region=region,
+            region_name=region_name,
+        )
+        if region != WORLDWIDE:
+            q47.add_filter("region_country", region)
+        q47.add_filter(GEOGRAPHY, "sovereign_state")
+        q47.add_filter(GEOGRAPHY, "sovereign_state1")
+        queries.append(q47)
+
+        # Country
+        q17 = query_factory.create_query(
+            "P17",
+            subject_field=PLACE,
+            object_field=COUNTRY,
+            domain=GEOGRAPHY,
+            region=region,
+            region_name=region_name,
+        )
+        if region != WORLDWIDE:
+            q17.add_filter("region_country", region)
+        q17.add_filter(GEOGRAPHY, "sovereign_state")
+        q17.add_filter(GEOGRAPHY, "a_natural_entity")
+        queries.append(q17)
+
+        ### POLITICS ###
         # Official language
         q37 = query_factory.create_query(
             "P37",
@@ -175,9 +324,9 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q37.add_filter(GEOGRAPHY, "sovereign_state")
         queries.append(q37)
 
-        # Official language
-        q47 = query_factory.create_query(
-            "P47",
+        # Diplomatic relations
+        q530 = query_factory.create_query(
+            "P530",
             subject_field=COUNTRY,
             object_field=COUNTRY1,
             domain=POLITICS,
@@ -185,10 +334,40 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
             region_name=region_name,
         )
         if region != WORLDWIDE:
-            q47.add_filter("region_country", region)
-        q47.add_filter(GEOGRAPHY, "sovereign_state")
-        q47.add_filter(GEOGRAPHY, "sovereign_state1")
-        queries.append(q47)
+            q530.add_filter("region_country", region)
+        q530.add_filter(GEOGRAPHY, "sovereign_state")
+        q530.add_filter(GEOGRAPHY, "sovereign_state1")
+        queries.append(q530)
+
+        # Sister city
+        q190 = query_factory.create_query(
+            "P190",
+            subject_field=CITY,
+            object_field=CITY1,
+            domain=POLITICS,
+            region=region,
+            region_name=region_name,
+        )
+        if region != WORLDWIDE:
+            q190.add_filter("region_country", region)
+        q190.add_filter(GEOGRAPHY, "lies_in_country")
+        q190.add_filter(GEOGRAPHY, "big_city")
+        q190.add_filter(GEOGRAPHY, "big_city1")
+        queries.append(q190)
+
+    ### SCIENCE ###
+    # Has part (for chemical compounds)
+    # TODO: What is the effect of the region and the region name?
+    q527 = query_factory.create_query(
+        "P527",
+        subject_field=CHEMICAL_COMPOUND,
+        object_field=CHEMICAL_ELEMENT,
+        domain=SCIENCE,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q527.add_filter(SCIENCE, "is_a_chemical_compound")
+    queries.append(q527)
 
     for q in queries:
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:

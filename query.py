@@ -49,6 +49,9 @@ class Query:
         if self.object_field == COUNTRY or self.subject_field == COUNTRY:
             self.add_filter(GEOGRAPHY, "sovereign_state")
             self.add_filter(GEOGRAPHY, "not_historical_country")
+        if self.object_field == COUNTRY1 or self.subject_field == COUNTRY1:
+            self.add_filter(GEOGRAPHY, "sovereign_state1")
+            self.add_filter(GEOGRAPHY, "not_historical_country1")
         if self.object_field == CITY:
             self.add_filter(GEOGRAPHY, "not_lost_city")
         if self.object_field == INSTRUMENT:
