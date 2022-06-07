@@ -1,7 +1,18 @@
 from constants import *
 from filters import FILTERS_DICTIONARY
 import utils
+import logging
+import sys
+import time
 
+logger = logging.getLogger(__name__)
+ch = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter(
+    "%(levelname)s - %(filename)s:%(funcName)s:line %(lineno)d - %(message)s"
+)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
 
 class Query:
     # TODO: Add docstrings
@@ -133,37 +144,47 @@ class Query:
 
         return parsed_data
 
-    def get_data(self, find_count=False, limit=None):
-        print(self.build_query(find_count, limit))
-        parsed_data = self.parse_query(find_count, limit)
+    def get_data(self, find_count=False, limit=None, no_retries=10):
+        while no_retries:
+            try:
+                print(self.build_query(find_count, limit))
+                parsed_data = self.parse_query(find_count, limit)
 
-        # Query the articles' sizes
-        for lang in self.wikipedia_langs:
-            # Find list of urls
-            article_url_key = f"subject_article_{lang}"
+                # Query the articles' sizes
+                for lang in self.wikipedia_langs:
+                    # Find list of urls
+                    article_url_key = f"subject_article_{lang}"
 
-            urls = sorted(
-                set(
-                    [
-                        triple[article_url_key]
-                        for triple in parsed_data
-                        if article_url_key in triple
-                    ]
-                )
-            )
-            # Find the articles' sizes of the urls
-            wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
+                    urls = sorted(
+                        set(
+                            [
+                                triple[article_url_key]
+                                for triple in parsed_data
+                                if article_url_key in triple
+                            ]
+                        )
+                    )
+                    # Find the articles' sizes of the urls
+                    wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
 
-            # Add the size column to the dataframe
-            for triple in parsed_data:
-                if not article_url_key in triple:
-                    size = 0
-                else:
-                    size = wikipedia_sizes_dict.get(triple[article_url_key], 0)
-                triple[f"size_article_{lang}"] = size
-                triple["size"] = max(size, triple.get("size", 0))
-        return parsed_data
-
+                    # Add the size column to the dataframe
+                    for triple in parsed_data:
+                        if not article_url_key in triple:
+                            size = 0
+                        else:
+                            size = wikipedia_sizes_dict.get(triple[article_url_key], 0)
+                        triple[f"size_article_{lang}"] = size
+                        triple["size"] = max(size, triple.get("size", 0))
+                return parsed_data
+            except Exception as e:
+                logger.error(e)
+                no_retries -= 1
+                # Use delay of 30 seconds before retrying!
+                time.sleep(30)
+                if no_retries == 0:
+                    logger.info(
+                        f"Failed to generate '{self.relation_id}_{self.domain}_{self.region_name}.jsonl'"
+                    )
 
 class GroupedQuery:
     def __init__(
@@ -207,11 +228,11 @@ class GroupedQuery:
 
             self.subqueries.append(subquery)
 
-    def get_data(self, find_count=False, limit=None):
+    def get_data(self, find_count=False, limit=None, no_retries=10):
         self.form_subqueries()
         data = []
         for subquery in self.subqueries:
-            subquery_data = subquery.get_data(find_count, limit)
+            subquery_data = subquery.get_data(find_count, limit, no_retries)
             data += subquery_data
         return data
 
