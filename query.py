@@ -14,6 +14,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)
 
+
 class Query:
     # TODO: Add docstrings
     def __init__(
@@ -65,6 +66,8 @@ class Query:
             self.add_filter(GEOGRAPHY, "not_historical_country1")
         if self.object_field == CITY:
             self.add_filter(GEOGRAPHY, "not_lost_city")
+            self.add_filter(GEOGRAPHY, "city_not_sovereign_state")
+            self.add_filter(GEOGRAPHY, "city_not_historical_state")
         if self.object_field == INSTRUMENT:
             self.add_filter(MUSIC, "not_voice")
         if self.object_field == LANGUAGE:
@@ -165,7 +168,9 @@ class Query:
                         )
                     )
                     # Find the articles' sizes of the urls
-                    wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(urls, lang=lang)
+                    wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(
+                        urls, lang=lang
+                    )
 
                     # Add the size column to the dataframe
                     for triple in parsed_data:
@@ -185,6 +190,7 @@ class Query:
                     logger.info(
                         f"Failed to generate '{self.relation_id}_{self.domain}_{self.region_name}.jsonl'"
                     )
+
 
 class GroupedQuery:
     def __init__(

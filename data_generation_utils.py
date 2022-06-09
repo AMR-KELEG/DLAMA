@@ -4,6 +4,46 @@ from tqdm import tqdm
 from collections import Counter, deque
 from utils import get_wikidata_triples, parse_sparql_results
 
+# TODO: Handle this augmentation in a better way
+#  This is used for P19, P20 only
+def find_macro_terrotories(places):
+    """
+    Args:
+    place - A list of wikidata entity IDs (e.g.: [Q127238, Q79])
+    """
+
+    sparql_query = (
+        """SELECT DISTINCT ?micro_place ?macro_place
+    WHERE
+    {
+        {
+    """
+        f"VALUES ?micro_place {{{' '.join([f'wd:{place}' for place in places])} }} .\n"
+        f"?micro_place (wdt:P131*) ?macro_place . "
+        """
+        }
+        MINUS
+        {
+            { ?macro_place wdt:P31 wd:Q3624078 } # Avoid countries
+            UNION
+            { ?macro_place wdt:P31 wd:Q3024240 } # Avoid historical countries
+        }
+    }"""
+    )
+    # TODO: Do this in a batch query instead of multiple queries
+    relation_triples = get_wikidata_triples(sparql_query)
+    parsed_data = parse_sparql_results(relation_triples)
+    #  Some parsing is needed here
+    micro_to_macro_dict = {}
+    for tuple in parsed_data:
+        micro_place = tuple["micro_place"]
+        macro_place = tuple["macro_place"]
+        if micro_place not in micro_to_macro_dict:
+            micro_to_macro_dict[micro_place] = []
+        micro_to_macro_dict[micro_place].append(macro_place)
+    time.sleep(0.5)
+    return micro_to_macro_dict
+
 
 def form_triple_from_shared_subject(subject_df, q):
     triple_dict = {}

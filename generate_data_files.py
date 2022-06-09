@@ -118,6 +118,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q20.add_filter(OCCUPATION, domain)
         q20.add_filter(PERSON, OCCUPATION)
         q20.add_filter(GEOGRAPHY, "lies_in_country")
+        q20.add_filter(GEOGRAPHY, "city_not_historical_state")
+        q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
         q20.add_filter("region_country", REGION)
         queries.append(q20)
 
@@ -380,9 +382,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         # Sort the triples using the articles' sizes
         df.sort_values(by="size", ascending=False, inplace=True)
 
-        logger.info(
-            f"Total number of subjects: {len(df[q.subject_field].unique())}"
-        )
+        logger.info(f"Total number of subjects: {len(df[q.subject_field].unique())}")
 
         df.drop_duplicates(subset=[q.subject_field], inplace=True)
         df.reset_index(drop=True, inplace=True)
@@ -415,9 +415,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         # Use the same order based on the size of the Wikipedia articles
         samples_data = sorted(
             samples_data,
-            key=lambda sample: subjects_uris.index(
-                sample[samples_query.subject_field]
-            ),
+            key=lambda sample: subjects_uris.index(sample[samples_query.subject_field]),
         )
 
         # Form a dataframe to make it easier to add columns
@@ -431,26 +429,14 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         objects_labels = utils.get_wikidata_labels(objects_ids)
 
         # Drop the rows having missing labels
-        samples_df["sub_label_missing"] = samples_df[
-            samples_query.subject_field
-        ].apply(
-            lambda uri: any(
-                [subjects_labels[uri][lang] == None for lang in LANGS]
-            )
+        samples_df["sub_label_missing"] = samples_df[samples_query.subject_field].apply(
+            lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
         )
-        samples_df["obj_label_missing"] = samples_df[
-            samples_query.object_field
-        ].apply(
-            lambda uri: any(
-                [objects_labels[uri][lang] == None for lang in LANGS]
-            )
+        samples_df["obj_label_missing"] = samples_df[samples_query.object_field].apply(
+            lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
         )
         samples_df = samples_df.loc[
-            ~(
-                samples_df["sub_label_missing"]
-                | samples_df["obj_label_missing"]
-            ),
-            :,
+            ~(samples_df["sub_label_missing"] | samples_df["obj_label_missing"]), :,
         ]
 
         logger.info(
@@ -472,9 +458,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                 else:
                     size_lower = size_mid
 
-            n_subjects = (size_lower + size_upper) // 2 + (
-                size_lower + size_upper
-            ) % 2
+            n_subjects = (size_lower + size_upper) // 2 + (size_lower + size_upper) % 2
             samples_df = samples_df.head(n=n_subjects)
 
         logger.info(
@@ -497,15 +481,14 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
                 lambda uri: subjects_labels[uri][lang]
             )
             samples_df["obj_label"] = samples_df[q.object_field].apply(
-                lambda uris_list: [
-                    objects_labels[uri][lang] for uri in uris_list
-                ]
+                lambda uris_list: [objects_labels[uri][lang] for uri in uris_list]
             )
             data_generation_utils.generate_facts_jsonl(samples_df, q, filename)
 
             logger.info(
                 f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
             )
+
 
 if __name__ == "__main__":
     REGIONS = {
