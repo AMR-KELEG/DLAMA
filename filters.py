@@ -77,7 +77,7 @@ FILTERS_DICTIONARY = {
         "sovereign_state": f"?{COUNTRY} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
         "sovereign_state1": f"?{COUNTRY1} wdt:P31 wd:Q3624078 . # The country is a sovereign country",
         "US_state": f"?{COUNTRY} wdt:P31 wd:Q35657 . # The country is a US state",
-        "a_natural_entity": f"""VALUES ?type {{wd:Q4022 wd:Q23442 wd:Q46831 wd:Q37901 wd:Q1322134 wd:Q23397 wd:Q39816 wd:Q54050 wd:Q39594 wd:Q8514 wd:Q43742 wd:Q34763}} ."""
-        f"""\n?{PLACE} wdt:P31 ?type .""",
+        "a_landform": f"""?{PLACE} wdt:P31/wdt:P279 wd:Q271669 . # An instance of something that is a subclass of landform""",
+        "not_an_archaeological_site": f"MINUS {{?{PLACE} wdt:P31 wd:Q839954}} . # Not an archaeological site"
     },
 }

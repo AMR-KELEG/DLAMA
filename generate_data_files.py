@@ -296,6 +296,23 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q47.add_filter(GEOGRAPHY, "sovereign_state1")
         queries.append(q47)
 
+        # Country (landforms)
+        q17 = query_factory.create_query(
+            "P17",
+            subject_field=PLACE,
+            object_field=COUNTRY,
+            domain=GEOGRAPHY,
+            region=region,
+            region_name=region_name,
+        )
+        if region != WORLDWIDE:
+            q17.add_filter("region_country", region)
+        q17.add_filter(GEOGRAPHY, "sovereign_state")
+        q17.add_filter(GEOGRAPHY, "a_landform")
+        q17.add_filter(GEOGRAPHY, "not_an_archaeological_site")
+        queries.append(q17)
+
+        ### HISTORY ###
         # Country (touristic sites)
         q17 = query_factory.create_query(
             "P17",
