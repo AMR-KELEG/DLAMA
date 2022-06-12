@@ -41,7 +41,7 @@ def find_macro_terrotories(places):
         if micro_place not in micro_to_macro_dict:
             micro_to_macro_dict[micro_place] = []
         micro_to_macro_dict[micro_place].append(macro_place)
-    time.sleep(0.5)
+    time.sleep(5)
     return micro_to_macro_dict
 
 

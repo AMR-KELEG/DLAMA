@@ -50,7 +50,7 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                             data_generation_utils.find_macro_terrotories(
                                 unique_object_uris[i : i + step]
                             )
-                            for i in range(0, len(unique_object_uris), step)
+                            for i in tqdm(range(0, len(unique_object_uris), step))
                         ]
 
                         objects_ancestors_dict = {
