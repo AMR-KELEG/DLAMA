@@ -190,6 +190,7 @@ class Query:
                     logger.info(
                         f"Failed to generate '{self.relation_id}_{self.domain}_{self.region_name}.jsonl'"
                     )
+                    raise (e)
 
 
 class GroupedQuery:
