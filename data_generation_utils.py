@@ -4,7 +4,6 @@ from tqdm import tqdm
 from collections import Counter, deque
 from utils import get_wikidata_triples, parse_sparql_results
 
-# TODO: Handle this augmentation in a better way
 #  This is used for P19, P20 only
 def find_macro_terrotories(places):
     """
@@ -30,7 +29,6 @@ def find_macro_terrotories(places):
         }
     }"""
     )
-    # TODO: Do this in a batch query instead of multiple queries
     relation_triples = get_wikidata_triples(sparql_query)
     parsed_data = parse_sparql_results(relation_triples)
     #  Some parsing is needed here
@@ -68,15 +66,10 @@ def form_triple_from_shared_subject(subject_df, q):
 
 def generate_facts_jsonl(df, q, output_filename):
     """TODO"""
-    # TODO: Do I need to add the Region as well?
-    # TODO: What is the use of lineid, uuid?
-    # Keys:
-    # {obj/sub}_uri, {obj/sub}_label, lineid, uuid
 
     triples = []
     for i, (_, grouped_df) in enumerate(df.groupby(q.subject_field, sort=False)):
         triple_dict = form_triple_from_shared_subject(grouped_df, q)
-        # TODO: Add the region to the id or any unique identifier to avoid collisions
         triple_dict["uuid"] = f"{q.relation_id}_{q.domain}_{q.region_name}_{i}"
 
         triples.append(triple_dict)
@@ -119,24 +112,6 @@ class Graph:
 
         return ancestors
 
-    def find_isolated_nodes(self, src):
-        #  TODO: Handle cycles?
-        isolated_nodes = []
-        visited = dict()
-        queue = deque()
-        queue.append(src)
-        while queue:
-            cur_node = queue.pop()
-            if len(self.adj_list[cur_node]) == 0:
-                isolated_nodes.append(cur_node)
-            else:
-                for next_node in self.adj_list[cur_node]:
-                    if not visited.get(next_node):
-                        queue.append(next_node)
-                        visited[next_node] = True
-
-        return isolated_nodes
-
 
 def form_objects_ancestors_lists(objects_uris):
     # Build a graph between these entities
@@ -147,6 +122,7 @@ def form_objects_ancestors_lists(objects_uris):
 
     BATCH_SIZE = 50
     data = []
+    # Query the sub/super relationship in batches to handle query length limits
     for sub_batch_start in tqdm(
         range(0, len(uris), BATCH_SIZE), desc="Query the sub/sup relations"
     ):
