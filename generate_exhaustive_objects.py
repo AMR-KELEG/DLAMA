@@ -11,6 +11,18 @@ import utils
 import data_generation_utils
 import argparse
 
+import sys
+import logging
+
+logger = logging.getLogger(__name__)
+ch = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter(
+    "%(levelname)s - %(filename)s:%(funcName)s:line %(lineno)d - %(message)s"
+)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+logger.setLevel(logging.DEBUG)
+
 
 def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
     BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
@@ -40,29 +52,41 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
             ]
 
             if relation in ["P19", "P20"]:
-                NO_OF_RETRIES = 5
+                NO_OF_RETRIES = 10
                 while NO_OF_RETRIES:
                     try:
                         # Find all intermediate cities as well that aren't countries
                         step = 50
                         unique_object_uris = sorted(set(objects_uris))
                         objects_ancestors_dicts = [
-                            data_generation_utils.find_macro_terrotories(
+                            data_generation_utils.find_macro_territories(
                                 unique_object_uris[i : i + step]
                             )
                             for i in tqdm(range(0, len(unique_object_uris), step))
                         ]
+                        break
+                    except:
+                        logger.debug(f"Rate limited on finding the macro territories")
+                        time.sleep(10)
+                        NO_OF_RETRIES -= 1
+                        if not NO_OF_RETRIES:
+                            raise (e)
 
-                        objects_ancestors_dict = {
-                            obj_uri: d[obj_uri]
-                            for d in objects_ancestors_dicts
-                            for obj_uri in d
-                        }
-                        objects_uris = [
-                            uri
-                            for k in objects_ancestors_dict
-                            for uri in objects_ancestors_dict[k]
-                        ]
+                objects_ancestors_dict = {
+                    obj_uri: d[obj_uri]
+                    for d in objects_ancestors_dicts
+                    for obj_uri in d
+                }
+                objects_uris = [
+                    uri
+                    for k in objects_ancestors_dict
+                    for uri in objects_ancestors_dict[k]
+                ]
+
+                NO_OF_RETRIES = 10
+                while NO_OF_RETRIES:
+                    try:
+
                         objects_labels = utils.get_wikidata_labels(objects_uris)
 
                         #  Some of the labels will be missing!
@@ -80,11 +104,12 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                             for obj_uri in objects_ancestors_dict
                         }
                         break
-                    except:
-                        print("Rate limited")
-                        time.sleep(5)
+                    except Exception as e:
+                        logger.debug(f"Rate limited on getting the labels")
+                        time.sleep(10)
                         NO_OF_RETRIES -= 1
-
+                        if not NO_OF_RETRIES:
+                            raise (e)
             else:
                 objects_ancestors_dict = data_generation_utils.form_objects_ancestors_lists(
                     set(objects_uris)

@@ -5,7 +5,7 @@ from collections import Counter, deque
 from utils import get_wikidata_triples, parse_sparql_results
 
 #  This is used for P19, P20 only
-def find_macro_terrotories(places):
+def find_macro_territories(places):
     """
     Args:
     place - A list of wikidata entity IDs (e.g.: [Q127238, Q79])
@@ -122,7 +122,7 @@ def form_objects_ancestors_lists(objects_uris):
 
     BATCH_SIZE = 50
     data = []
-    # Query the sub/super relationship in batches to handle query length limits
+    # Query the sub/super relationship in batches to handle query length limits
     for sub_batch_start in tqdm(
         range(0, len(uris), BATCH_SIZE), desc="Query the sub/sup relations"
     ):
