@@ -86,15 +86,20 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                 NO_OF_RETRIES = 10
                 while NO_OF_RETRIES:
                     try:
-
                         objects_labels = utils.get_wikidata_labels(objects_uris)
 
-                        #  Some of the labels will be missing!
+                        #  Some of the labels will be missing for one of more languages!
                         uris_to_labels = {
                             uri: objects_labels[uri][lang]
                             for uri in objects_uris
-                            if objects_labels.get(uri, {}).get(lang, None)
+                            if all(
+                                [
+                                    objects_labels.get(uri, {}).get(l, None)
+                                    for l in constants.LANGS
+                                ]
+                            )
                         }
+
                         objects_ancestors_dict = {
                             obj_uri: [
                                 ancestor
