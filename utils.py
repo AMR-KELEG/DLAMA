@@ -80,7 +80,6 @@ def get_wikipedia_article_sizes(articles_urls, lang):
         desc=f"Query sizes of Wikipedia articles in '{lang}'",
     ):
         # Get the articles' titles from the urls
-        # TODO: Find a better format for this dictionary
         titles = {
             # Replace "_" in titles with " "
             requests.utils.unquote(re.sub("_", " ", url.split("/")[-1])): url

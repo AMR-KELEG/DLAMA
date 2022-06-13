@@ -381,7 +381,6 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
 
     ### SCIENCE ###
     # Has part (for chemical compounds)
-    # TODO: What is the effect of the region and the region name?
     q527 = query_factory.create_query(
         "P527",
         subject_field=CHEMICAL_COMPOUND,

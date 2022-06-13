@@ -68,6 +68,7 @@ class Query:
             self.add_filter(GEOGRAPHY, "not_lost_city")
             self.add_filter(GEOGRAPHY, "city_not_sovereign_state")
             self.add_filter(GEOGRAPHY, "city_not_historical_state")
+            self.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
         if self.object_field == INSTRUMENT:
             self.add_filter(MUSIC, "not_voice")
         if self.object_field == LANGUAGE:
