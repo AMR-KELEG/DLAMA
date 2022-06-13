@@ -26,9 +26,12 @@ def find_macro_territories(places):
             { ?macro_place wdt:P31 wd:Q3624078 } # Avoid countries
             UNION
             { ?macro_place wdt:P31 wd:Q3024240 } # Avoid historical countries
+            UNION
+            { ?macro_place wdt:P31 wd:Q3336843 } # Avoid countries within the UK
         }
     }"""
     )
+
     relation_triples = get_wikidata_triples(sparql_query)
     parsed_data = parse_sparql_results(relation_triples)
     #  Some parsing is needed here

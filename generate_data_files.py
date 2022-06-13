@@ -103,6 +103,9 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q19.add_filter(OCCUPATION, domain)
         q19.add_filter(PERSON, OCCUPATION)
         q19.add_filter(GEOGRAPHY, "lies_in_country")
+        q19.add_filter(GEOGRAPHY, "city_not_historical_state")
+        q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
+        q19.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
         q19.add_filter("region_country", REGION)
         queries.append(q19)
 
@@ -120,6 +123,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         q20.add_filter(GEOGRAPHY, "lies_in_country")
         q20.add_filter(GEOGRAPHY, "city_not_historical_state")
         q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
+        q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
         q20.add_filter("region_country", REGION)
         queries.append(q20)
 
