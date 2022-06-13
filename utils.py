@@ -86,6 +86,12 @@ def get_wikipedia_article_sizes(articles_urls, lang):
             requests.utils.unquote(re.sub("_", " ", url.split("/")[-1])): url
             for url in articles_urls[start : start + batch_size]
         }
+        # Filter out titles having "&" as they cause problems for Wikipedia's API!
+        titles = {
+            normalized_title: titles[normalized_title]
+            for normalized_title in titles
+            if "&" not in normalized_title
+        }
         titles_to_query = "|".join(titles.keys())
         url = (
             f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
