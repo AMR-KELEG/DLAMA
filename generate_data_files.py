@@ -10,6 +10,7 @@ import os
 import argparse
 import logging
 import sys
+import time
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler(sys.stdout)
@@ -395,6 +396,10 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
     for q in queries:
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
+        logger.info(
+            f"Querying data for '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
+        )
+        start_time = time.time()
         data = q.get_data(find_count=False, no_retries=NO_RETRIES)
 
         # Form a dataframe to make it easier to add columns
@@ -540,6 +545,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
             logger.info(
                 f"Successfully generated '{q.relation_id}_{q.domain}_{q.region_name}.jsonl'"
             )
+        logger.info(f"Time elapsed is: {time.time() - start_time} seconds")
 
 
 if __name__ == "__main__":
