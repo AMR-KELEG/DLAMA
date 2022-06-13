@@ -386,8 +386,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         subject_field=CHEMICAL_COMPOUND,
         object_field=CHEMICAL_ELEMENT,
         domain=SCIENCE,
-        region=REGION,
-        region_name=REGION_NAME,
+        region=WORLDWIDE,
+        region_name=WORLDWIDE,
     )
     q527.add_filter(SCIENCE, "is_a_chemical_compound")
     queries.append(q527)
