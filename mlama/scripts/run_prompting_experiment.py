@@ -63,7 +63,7 @@ def run_experiments(
         # Build the list of candidate objects
         if use_cultlama:
             # Load all objects from cultlama
-            data_files = glob.glob(f"./data/*lama*/{language}/{relation_name}_*.jsonl")
+            data_files = glob.glob(f"./data/cultlama/{language}/{relation_name}_*.jsonl")
         else:
             # Load all objects from mlama
             data_files = glob.glob(f"./data/mlama1.1/{language}/{relation_name}.jsonl")
@@ -86,6 +86,7 @@ def run_experiments(
         configuration_parameters["template"] = relation["template"]
 
         if use_cultlama:
+            # The relation can have multiple subsets
             relation_files = str(Path(data_path_pre, f"{relation_name}_*.jsonl"))
         else:
             relation_files = str(Path(data_path_pre, f"{relation_name}.jsonl"))
