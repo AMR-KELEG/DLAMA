@@ -96,9 +96,30 @@ def get_wikipedia_article_sizes(articles_urls, lang):
             f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
             f"{titles_to_query}&prop=revisions&rvprop=size"
         )
-        response = requests.get(url).json()
-        time.sleep(0.1)
-        pages_responses = response["query"]["pages"]
+        try:
+            response = requests.get(url).json()
+            pages_responses = response["query"]["pages"]
+            time.sleep(0.1)
+        except Exception as e:
+            # The url can be too long
+            logger.debug(e)
+            logger.info("Falling back to batch size of 10 articles.")
+            pages_responses = {}
+            titles_to_query_list = sorted(titles.keys())
+            smaller_batch_size = 10
+            for i in range(0, len(titles_to_query_list), smaller_batch_size):
+                titles_to_query = "|".join(
+                    titles_to_query_list[i : i + smaller_batch_size]
+                )
+                url = (
+                    f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
+                    f"{titles_to_query}&prop=revisions&rvprop=size"
+                )
+                pages_responses = dict(
+                    list(pages_responses.items())
+                    + list(response["query"]["pages"].items())
+                )
+                time.sleep(0.1)
 
         page_ids = list(pages_responses.keys())
         for page_id in page_ids:
