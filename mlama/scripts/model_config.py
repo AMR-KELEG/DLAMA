@@ -1,5 +1,6 @@
 AR_LMs = []
 EN_LMs = []
+KO_LMs = []
 for model_label, hf_model_name in (
     ("mbert_base_cased", "bert-base-multilingual-cased"),
     ("mbert_base_uncased", "bert-base-multilingual-uncased"),
@@ -90,3 +91,21 @@ EN_LMs.append(
         "bert_model_dir": None,
     }
 )
+
+for model_label, hf_model_name in (
+    ("mbert_base_cased", "bert-base-multilingual-cased"),
+    ("mbert_base_uncased", "bert-base-multilingual-uncased"),
+    ("mbert_large_cased", "bert-large-multilingual-cased"),
+    ("mbert_large_uncased", "bert-large-multilingual-uncased"),
+    ("kykim_bert_base", "kykim/bert-kor-base"),
+    ("klue_bert_base", "klue/bert-base"),
+):
+    KO_LMs.append(
+        {
+            "lm": "bert",
+            "label": model_label,
+            "model_name": "bert",
+            "bert_model_name": hf_model_name,
+            "bert_model_dir": None,
+        }
+    )

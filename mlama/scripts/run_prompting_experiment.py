@@ -63,7 +63,9 @@ def run_experiments(
         # Build the list of candidate objects
         if use_cultlama:
             # Load all objects from cultlama
-            data_files = glob.glob(f"./data/cultlama/{language}/{relation_name}_*.jsonl")
+            data_files = glob.glob(
+                f"./data/cultlama/{language}/{relation_name}_*.jsonl"
+            )
         else:
             # Load all objects from mlama
             data_files = glob.glob(f"./data/mlama1.1/{language}/{relation_name}.jsonl")
@@ -165,7 +167,9 @@ def main():
 
     args = parser.parse_args()
     language = args.lang
-    language_models = AR_LMs if language == "ar" else EN_LMs
+    language_models = (
+        AR_LMs if language == "ar" else EN_LMs if language == "en" else KO_LMs
+    )
     data_path_pre = str(Path("./data/mlama1.1/", language))
 
     # Load the templates file and point to other files
