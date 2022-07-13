@@ -1,8 +1,56 @@
-# cultlama
+# CultLAMA
 Build relation triples that are more representative to the culture of specific regions as 
 opposed to LAMA which is more biased towards western entities.
 
-## Relation predicates and domains currently supported within cultlama
+
+- [CultLAMA](#cultlama)
+  - [Usage](#usage)
+    - [1. Create conda environment and install requirements](#1-create-conda-environment-and-install-requirements)
+    - [2. Download mLAMA](#2-download-mlama)
+    - [3. Build CultLAMA](#3-build-cultlama)
+    - [4. Run the experiments](#4-run-the-experiments)
+  - [Domains and their respective relation predicates currently supported within CultLAMA](#domains-and-their-respective-relation-predicates-currently-supported-within-cultlama)
+  - [References](#references)
+  - [Acknowledgements](#acknowledgements)
+
+## Usage
+### 1. Create conda environment and install requirements
+```
+conda create -n cultlama -y python=3.7 && conda activate cultlama
+pip install -r requirements.txt
+```
+
+### 2. Download mLAMA
+- mLAMA is needed since its templates are used for prompting the models.
+- Note: Run the following commands from the root directory of the repository.
+```bash
+wget http://cistern.cis.lmu.de/mlama/mlama1.1.zip
+unzip mlama1.1.zip
+rm mlama1.1.zip
+mv mlama1.1 mlama/data/mlama1.1/
+```
+
+### 3. Build CultLAMA
+```
+# Navigate to the cultlama directory
+cd cultlama/
+
+# Query raw triples from Wikidata to (data/cultlama_raw/ directory)
+python generate_data_files.py --region REG --n N --rel LIST_OF_RELATIONS
+
+# Generate exhaustive lists of objects for the queried subjects to (data/cultlama/ directory)
+python generate_exhaustive_objects.py --rel LIST_OF_RELATIONS
+
+```
+
+### 4. Run the experiments
+- Note: The scripts within the `mlama` subdirectory are forked from https://github.com/norakassner/mlama and adapted accordingly.
+```bash
+cd ../mlama # Navigate to the mlama directory within the repository
+python scripts/run_prompting_experiment.py --lang "ar" --cultlama
+```
+
+## Domains and their respective relation predicates currently supported within CultLAMA
 | Domain | Relation|
 |---|---|
 |Cinema and theatre | P19 (Place of birth)|
@@ -46,53 +94,6 @@ opposed to LAMA which is more biased towards western entities.
 || P103 (Native language)|
 || P106 (Occupation)|
 || P1412 (Languages spoken or published)|
-||
-## Usage
-
-### 1. Create conda environment and install requirements
-```
-conda create -n cultlama -y python=3.7 && conda activate cultlama
-pip install -r requirements.txt
-```
-
-### 2. Download mlama (optional)
-```bash
-wget http://cistern.cis.lmu.de/mlama/mlama1.1.zip
-unzip mlama1.1.zip
-rm mlama1.1.zip
-mv mlama1.1 mlama/data/mlama1.1/
-```
-
-### 3. Build cultlama
-```
-# Navigate to the cultlama directory
-cd cultlama/
-
-# Query raw triples from Wikidata to (data/cultlama_raw/ directory)
-python generate_data_files.py --region REG --n N --rel LIST_OF_RELATIONS
-
-# Generate exhaustive lists of objects for the queried subjects to (data/cultlama/ directory)
-python generate_exhaustive_objects.py --rel LIST_OF_RELATIONS
-
-```
-
-### 4. Run the experiments
-The scripts within the `mlama` subdirectory are forked from https://github.com/norakassner/mlama and adapted accordingly.
-```bash
-cd mlama
-python scripts/run_prompting_experiment.py --lang "ar"
-# TODO: Run the evaluation script
-```
-
-## Extending cultlama
-It should be fairly possible to extend the dataset to new cultures and languages.
-
-### Adding a new culture
-TODO
-
-### Querying labels of facts in different regions
-TODO
-
 
 ## References
 ```bibtex
