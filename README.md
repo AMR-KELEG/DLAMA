@@ -3,8 +3,50 @@ Build relation triples that are more representative to the culture of specific r
 opposed to LAMA which is more biased towards western entities.
 
 ## Relation predicates and domains currently supported within cultlama
-TODO
-
+| Domain | Relation|
+|---|---|
+|Cinema and theatre | P19 (Place of birth)|
+|| P20 (Place of death)|
+|| P27 (Country of citizenship)|
+|| P103 (Native language)|
+|| P106 (Occupation)|
+|| P364 (Original language of work)|
+|| P449 (Original network)|
+|| P495 (Country of origin)|
+|| P1412 (Languages spoken or published)|
+|Geography | P17 (Country)|
+|| P30 (Continent)|
+|| P36 (Capital)|
+|| P47 (Shares border with)|
+|| P1376 (Capital of)|
+|History | P17 (Country)|
+|Music | P19 (Place of birth)|
+|| P20 (Place of death)|
+|| P27 (Country of citizenship)|
+|| P103 (Native language)|
+|| P106 (Occupation)|
+|| P136 (Genre)|
+|| P264 (Record label)|
+|| P495 (Country of origin)|
+|| P1303 (Instrument)|
+|| P1412 (Languages spoken or published)|
+|Politics | P19 (Place of birth)|
+|| P20 (Place of death)|
+|| P27 (Country of citizenship)|
+|| P37 (Official language)|
+|| P103 (Native language)|
+|| P106 (Occupation)|
+|| P190 (Sister city)|
+|| P530 (Diplomatic relation)|
+|| P1412 (Languages spoken or published)|
+|Sports | P17 (Country)|
+|| P19 (Place of birth)|
+|| P20 (Place of death)|
+|| P27 (Country of citizenship)|
+|| P103 (Native language)|
+|| P106 (Occupation)|
+|| P1412 (Languages spoken or published)|
+||
 ## Usage
 
 ### 1. Create conda environment and install requirements
