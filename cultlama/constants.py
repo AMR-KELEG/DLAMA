@@ -51,9 +51,21 @@ SPAIN = "Spain"
 SWITZERLAND = "Switzerland"
 UK = "UK"
 USA = "USA"
+HONG_KONG = "Hong Kong"
+MACAU = "Macau"
+TAIWAN = "Taiwan"
+MONGOLIA = "Mongolia"
+
 
 ARAB_REGION = "Arab"
-EASTERN_ASIA = [CHINA, JAPAN, NORTH_KOREA, SOUTH_KOREA]
+EASTERN_ASIA = [
+    CHINA,
+    JAPAN,
+    NORTH_KOREA,
+    SOUTH_KOREA,
+    TAIWAN,
+    MONGOLIA,
+]
 NORTH_AMERICA_AND_AUSTRALIA = [AUSTRALIA, CANADA, NEW_ZEALAND, USA]
 SOUTH_WESTERN_EUROPE = [
     ITALY,
@@ -105,6 +117,10 @@ REGIONS_LANGS = {
     UK: ["en"],  # "cy", "sco", "gd", "ga"],
     USA: ["en"],
     WORLDWIDE: ["en"],
+    HONG_KONG: ["zh", "en"],
+    MACAU: ["zh", "en"],
+    TAIWAN: ["zh", "en"],
+    MONGOLIA: ["zh", "en"],
 }
 
 # LANGS for labels of fields

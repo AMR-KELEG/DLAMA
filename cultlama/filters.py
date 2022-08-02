@@ -39,6 +39,8 @@ FILTERS_DICTIONARY = {
         SWITZERLAND: f"VALUES ?{COUNTRY} {{wd:Q39}} . # Country is Switzerland",
         UK: f"VALUES ?{COUNTRY} {{wd:Q145}} . # Country is UK",
         USA: f"VALUES ?{COUNTRY} {{wd:Q30}} . # Country is USA",
+        TAIWAN: f"VALUES ?{COUNTRY} {{wd:Q865}} . # Country is Taiwan",
+        MONGOLIA: f"VALUES ?{COUNTRY} {{wd:Q711}} . # Country is Mongolia",
     },
     PERSON: {
         "country_of_citizenship": f"?{PERSON} wdt:P27 ?{COUNTRY} . # The person has a country of citizenship",
