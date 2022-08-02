@@ -41,6 +41,13 @@ FILTERS_DICTIONARY = {
         USA: f"VALUES ?{COUNTRY} {{wd:Q30}} . # Country is USA",
         TAIWAN: f"VALUES ?{COUNTRY} {{wd:Q865}} . # Country is Taiwan",
         MONGOLIA: f"VALUES ?{COUNTRY} {{wd:Q711}} . # Country is Mongolia",
+        INDONESIA: f"VALUES ?{COUNTRY} {{wd:Q252}} . # Country is Indonesia",
+        MALAYSIA: f"VALUES ?{COUNTRY} {{wd:Q833}} . # Country is Malaysia",
+        THAILAND: f"VALUES ?{COUNTRY} {{wd:Q869}} . # Country is Thailand",
+        VIETNAM: f"VALUES ?{COUNTRY} {{wd:Q881}} . # Country is Vietnam",
+        PHILIPPINES: f"VALUES ?{COUNTRY} {{wd:Q928}} . # Country is Philippines",
+        MYANMAR: f"VALUES ?{COUNTRY} {{wd:Q836}} . # Country is Myanmar",
+        SINGAPORE: f"VALUES ?{COUNTRY} {{wd:Q334}} . # Country is Singapore",
     },
     PERSON: {
         "country_of_citizenship": f"?{PERSON} wdt:P27 ?{COUNTRY} . # The person has a country of citizenship",

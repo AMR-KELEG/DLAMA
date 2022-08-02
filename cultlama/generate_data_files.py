@@ -567,6 +567,7 @@ if __name__ == "__main__":
             "WESTERN_EUROPEAN",
             "SOUTH_WESTERN_EUROPE",
             "NORTH_AMERICA_AND_AUSTRALIA",
+            "ASIA",
         ],
         required=True,
         help="The region representing the facts.",

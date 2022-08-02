@@ -51,11 +51,19 @@ SPAIN = "Spain"
 SWITZERLAND = "Switzerland"
 UK = "UK"
 USA = "USA"
+
 HONG_KONG = "Hong Kong"
 MACAU = "Macau"
 TAIWAN = "Taiwan"
 MONGOLIA = "Mongolia"
 
+INDONESIA = "Indonesia"
+MALAYSIA = "Malaysia"
+MYANMAR = "Myanmar"
+PHILIPPINES = "Philippines"
+THAILAND = "Thailand"
+VIETNAM = "Vietnam"
+SINGAPORE = "Singapore"
 
 ARAB_REGION = "Arab"
 EASTERN_ASIA = [
@@ -66,6 +74,19 @@ EASTERN_ASIA = [
     TAIWAN,
     MONGOLIA,
 ]
+
+SOUTHERN_EAST_ASIA = [
+    INDONESIA,
+    MALAYSIA,
+    MYANMAR,
+    PHILIPPINES,
+    THAILAND,
+    VIETNAM,
+    SINGAPORE,
+]
+
+ASIA = EASTERN_ASIA + SOUTHERN_EAST_ASIA
+
 NORTH_AMERICA_AND_AUSTRALIA = [AUSTRALIA, CANADA, NEW_ZEALAND, USA]
 SOUTH_WESTERN_EUROPE = [
     ITALY,
@@ -121,6 +142,13 @@ REGIONS_LANGS = {
     MACAU: ["zh", "en"],
     TAIWAN: ["zh", "en"],
     MONGOLIA: ["zh", "en"],
+    INDONESIA: ["id", "en"],
+    MALAYSIA: ["ms", "en"],
+    MYANMAR: ["my", "en"],
+    PHILIPPINES: ["en"],
+    THAILAND: ["th", "en"],
+    VIETNAM: ["vi", "en"],
+    SINGAPORE: ["ms", "en"],
 }
 
 # LANGS for labels of fields
