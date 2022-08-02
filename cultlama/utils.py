@@ -115,6 +115,7 @@ def get_wikipedia_article_sizes(articles_urls, lang):
                     f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
                     f"{titles_to_query}&prop=revisions&rvprop=size"
                 )
+                response = requests.get(url).json()
                 pages_responses = dict(
                     list(pages_responses.items())
                     + list(response["query"]["pages"].items())
