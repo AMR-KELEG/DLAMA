@@ -10,7 +10,7 @@ from modules import build_model_by_name
 import pprint
 import json
 import sys
-from model_config import AR_LMs, EN_LMs
+from model_config import AR_LMs, EN_LMs, KO_LMs
 from utils import load_jsonl
 from eval_utils import run_evaluation
 from pathlib import Path
