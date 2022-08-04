@@ -65,6 +65,16 @@ THAILAND = "Thailand"
 VIETNAM = "Vietnam"
 SINGAPORE = "Singapore"
 
+ARGENTINA = "Argentina"
+BOLIVIA = "Bolivia"
+CHILE = "Chile"
+COLOMBIA = "Colombia"
+ECUADOR = "Ecuador"
+PARAGUAY = "Paraguay"
+PERU = "Peru"
+URUGUAY = "Uruguay"
+VENEZUELA = "Venezuela"
+
 ARAB_REGION = "Arab"
 EASTERN_ASIA = [
     CHINA,
@@ -110,6 +120,18 @@ WESTERN_EUROPEAN = [
 ]
 WORLDWIDE = "Worldwide"
 
+SOUTH_AMERICA = [
+    ARGENTINA,
+    BOLIVIA,
+    CHILE,
+    COLOMBIA,
+    ECUADOR,
+    PARAGUAY,
+    PERU,
+    URUGUAY,
+    VENEZUELA,
+]
+
 #  LANGS for links of wikipedia
 REGIONS_LANGS = {
     ANDORRA: ["ca", "en"],
@@ -149,6 +171,15 @@ REGIONS_LANGS = {
     THAILAND: ["th", "en"],
     VIETNAM: ["vi", "en"],
     SINGAPORE: ["ms", "en"],
+    ARGENTINA: ["es", "en"],
+    BOLIVIA: ["es", "en"],
+    CHILE: ["es", "en"],
+    COLOMBIA: ["es", "en"],
+    ECUADOR: ["es", "en"],
+    PARAGUAY: ["es", "en"],
+    PERU: ["es", "en"],
+    URUGUAY: ["es", "en"],
+    VENEZUELA: ["es", "en"],
 }
 
 # LANGS for labels of fields

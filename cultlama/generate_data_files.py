@@ -556,6 +556,7 @@ if __name__ == "__main__":
         "WESTERN_EUROPEAN": WESTERN_EUROPEAN,
         "SOUTH_WESTERN_EUROPE": SOUTH_WESTERN_EUROPE,
         "NORTH_AMERICA_AND_AUSTRALIA": NORTH_AMERICA_AND_AUSTRALIA,
+        "SOUTH_AMERICA": SOUTH_AMERICA,
     }
 
     parser = argparse.ArgumentParser()
@@ -569,6 +570,7 @@ if __name__ == "__main__":
             "SOUTH_WESTERN_EUROPE",
             "NORTH_AMERICA_AND_AUSTRALIA",
             "ASIA",
+            "SOUTH_AMERICA",
         ],
         required=True,
         help="The region representing the facts.",
