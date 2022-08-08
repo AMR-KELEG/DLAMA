@@ -10,7 +10,7 @@ from modules import build_model_by_name
 import pprint
 import json
 import sys
-from model_config import AR_LMs, EN_LMs, KO_LMs
+from model_config import LANG_TO_LMs
 from utils import load_jsonl
 from eval_utils import run_evaluation
 from pathlib import Path
@@ -167,9 +167,8 @@ def main():
 
     args = parser.parse_args()
     language = args.lang
-    language_models = (
-        AR_LMs if language == "ar" else EN_LMs if language == "en" else KO_LMs
-    )
+    language_models = LANG_TO_LMs[language]
+
     data_path_pre = str(Path("./data/mlama1.1/", language))
 
     # Load the templates file and point to other files
