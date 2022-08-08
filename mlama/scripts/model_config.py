@@ -68,5 +68,15 @@ KO_LMs = prepare_lms_configuration(
     )
 )
 
+ES_LMs = prepare_lms_configuration(
+    (
+        ("mbert_base_cased", "bert-base-multilingual-cased"),
+        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
+        ("mbert_large_cased", "bert-large-multilingual-cased"),
+        ("mbert_large_uncased", "bert-large-multilingual-uncased"),
+        ("beto_cased", "dccuchile/bert-base-spanish-wwm-cased"),
+        ("beto_uncased", "dccuchile/bert-base-spanish-wwm-uncased"),
+    )
+)
 
-LANG_TO_LMs = {"ar": AR_LMs, "en": EN_LMs, "ko": KO_LMs}
+LANG_TO_LMs = {"ar": AR_LMs, "en": EN_LMs, "es": ES_LMs, "ko": KO_LMs}
