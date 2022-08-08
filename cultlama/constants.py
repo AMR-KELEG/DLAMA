@@ -76,9 +76,9 @@ URUGUAY = "Uruguay"
 VENEZUELA = "Venezuela"
 
 ARAB_REGION = "Arab"
+
+
 EASTERN_ASIA = [
-    CHINA,
-    JAPAN,
     NORTH_KOREA,
     SOUTH_KOREA,
     TAIWAN,

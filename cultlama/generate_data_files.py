@@ -552,6 +552,9 @@ if __name__ == "__main__":
         "ARAB_REGION": ARAB_REGION,
         "WORLDWIDE": WORLDWIDE,
         "EASTERN_ASIA": EASTERN_ASIA,
+        "SOUTHERN_EAST_ASIA": SOUTHERN_EAST_ASIA,
+        "JAPAN": JAPAN,
+        "CHINA": CHINA,
         "ASIA": ASIA,
         "WESTERN_EUROPEAN": WESTERN_EUROPEAN,
         "SOUTH_WESTERN_EUROPE": SOUTH_WESTERN_EUROPE,
@@ -562,16 +565,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--region",
-        choices=[
-            "ARAB_REGION",
-            "WORLDWIDE",
-            "EASTERN_ASIA",
-            "WESTERN_EUROPEAN",
-            "SOUTH_WESTERN_EUROPE",
-            "NORTH_AMERICA_AND_AUSTRALIA",
-            "ASIA",
-            "SOUTH_AMERICA",
-        ],
+        choices=list(REGIONS.keys()),
         required=True,
         help="The region representing the facts.",
     )
