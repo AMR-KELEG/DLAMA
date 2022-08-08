@@ -24,10 +24,10 @@ logger.setLevel(logging.DEBUG)
 NO_RETRIES = 5
 
 
-def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
+def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
     # Create output data files
     BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
-    for lang in LANGS:
+    for lang in LIST_OF_LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
 
     ### ALL DOMAINS ###
@@ -457,8 +457,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
             # Query the Wikidata labels
             subjects_ids = samples_df[samples_query.subject_field].tolist()
             objects_ids = samples_df[samples_query.object_field].tolist()
-            subjects_labels = utils.get_wikidata_labels(subjects_ids)
-            objects_labels = utils.get_wikidata_labels(objects_ids)
+            subjects_labels = utils.get_wikidata_labels(subjects_ids, LIST_OF_LANGS)
+            objects_labels = utils.get_wikidata_labels(objects_ids, LIST_OF_LANGS)
 
             # Add the labels to their respective dictionaries
             all_subjects_labels = dict(
@@ -472,12 +472,16 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
             samples_df["sub_label_missing"] = samples_df[
                 samples_query.subject_field
             ].apply(
-                lambda uri: any([subjects_labels[uri][lang] == None for lang in LANGS])
+                lambda uri: any(
+                    [subjects_labels[uri][lang] == None for lang in LIST_OF_LANGS]
+                )
             )
             samples_df["obj_label_missing"] = samples_df[
                 samples_query.object_field
             ].apply(
-                lambda uri: any([objects_labels[uri][lang] == None for lang in LANGS])
+                lambda uri: any(
+                    [objects_labels[uri][lang] == None for lang in LIST_OF_LANGS]
+                )
             )
             samples_df = samples_df.loc[
                 ~(samples_df["sub_label_missing"] | samples_df["obj_label_missing"]), :,
@@ -525,7 +529,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET):
         ].apply(lambda o: [o])
 
         # Export the triples to jsonl files
-        for lang in LANGS:
+        for lang in LIST_OF_LANGS:
             filename = Path(
                 BASE_DATA_DIR,
                 lang,
@@ -582,6 +586,13 @@ if __name__ == "__main__":
         default=None,
         help="A white-space separated list of subset Wikidata relations to query (e.g.: 'P17 P20')",
     )
+    parser.add_argument(
+        "--langs",
+        nargs="*",
+        default=None,
+        required=True,
+        help="A white-space separated list of Wikipedia languages (e.g.: 'en ko')",
+    )
     args = parser.parse_args()
 
     main(
@@ -589,4 +600,5 @@ if __name__ == "__main__":
         SAMPLE_SIZE=args.n,
         REGION_NAME=args.region,
         RELATIONS_SUBSET=args.rel,
+        LIST_OF_LANGS=args.langs,
     )

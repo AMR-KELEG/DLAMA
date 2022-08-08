@@ -181,6 +181,3 @@ REGIONS_LANGS = {
     URUGUAY: ["es", "en"],
     VENEZUELA: ["es", "en"],
 }
-
-# LANGS for labels of fields
-LANGS = ["ar", "en"]

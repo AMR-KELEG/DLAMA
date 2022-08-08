@@ -36,10 +36,10 @@ mv mlama1.1 mlama/data/mlama1.1/
 cd cultlama/
 
 # Query raw triples from Wikidata to (data/cultlama_raw/ directory)
-python generate_data_files.py --region REG --n N --rel LIST_OF_RELATIONS
+python generate_data_files.py --region REG --n N --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
 
 # Generate exhaustive lists of objects for the queried subjects to (data/cultlama/ directory)
-python generate_exhaustive_objects.py --rel LIST_OF_RELATIONS
+python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
 
 ```
 

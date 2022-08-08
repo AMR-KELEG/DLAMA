@@ -3,7 +3,6 @@ import re
 import glob
 import json
 import time
-import constants
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
@@ -24,14 +23,14 @@ logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)
 
 
-def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
+def generate_exhaustive_objects_lists(LIST_OF_RELATIONS, LIST_OF_LANGUAGES):
     BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
     OUTPUT_DATA_DIR = str(Path("data", "cultlama"))
-    for lang in constants.LANGS:
+    for lang in LIST_OF_LANGUAGES:
         os.makedirs(Path(OUTPUT_DATA_DIR, lang), exist_ok=True)
 
     # TODO: Don't repeat the same query multiple times for each language!
-    for lang in constants.LANGS:
+    for lang in LIST_OF_LANGUAGES:
         files = glob.glob(str(Path(BASE_DATA_DIR, lang, "*")))
         relations = [re.findall(r"P[0-9]+", file)[0] for file in files]
         relations = [r for r in relations if r in LIST_OF_RELATIONS]
@@ -86,7 +85,9 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                 NO_OF_RETRIES = 10
                 while NO_OF_RETRIES:
                     try:
-                        objects_labels = utils.get_wikidata_labels(objects_uris)
+                        objects_labels = utils.get_wikidata_labels(
+                            objects_uris, LIST_OF_LANGUAGES
+                        )
 
                         #  Some of the labels will be missing for one of more languages!
                         uris_to_labels = {
@@ -95,7 +96,7 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                             if all(
                                 [
                                     objects_labels.get(uri, {}).get(l, None)
-                                    for l in constants.LANGS
+                                    for l in LIST_OF_LANGUAGES
                                 ]
                             )
                         }
@@ -152,8 +153,8 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS):
                             of.write("\n")
 
 
-def main(LIST_OF_RELATIONS):
-    generate_exhaustive_objects_lists(LIST_OF_RELATIONS)
+def main(LIST_OF_RELATIONS, LIST_OF_LANGUAGES):
+    generate_exhaustive_objects_lists(LIST_OF_RELATIONS, LIST_OF_LANGUAGES)
 
 
 if __name__ == "__main__":
@@ -164,5 +165,12 @@ if __name__ == "__main__":
         default=None,
         help="A white-space separated list of subset Wikidata relations to query (e.g.: 'P17 P20')",
     )
+    parser.add_argument(
+        "--langs",
+        nargs="*",
+        default=None,
+        required=True,
+        help="A white-space separated list of Wikipedia languages (e.g.: 'en ko')",
+    )
     args = parser.parse_args()
-    main(args.rel)
+    main(args.rel, args.langs)

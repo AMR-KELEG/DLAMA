@@ -3,7 +3,6 @@ import re
 import time
 import requests
 from tqdm import tqdm
-from constants import LANGS
 import logging
 import sys
 
@@ -43,11 +42,11 @@ def parse_sparql_results(results_list):
     return parsed_results
 
 
-def get_wikidata_labels(wikidata_entities_ids):
+def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
     """Get labels of wikidata entities using their IDs"""
     batch_size = 50
     labels = {}
-    langs = "|".join(LANGS)
+    langs = "|".join(list_of_languages)
     for start in tqdm(
         range(0, len(wikidata_entities_ids), batch_size),
         desc="Query labels of Wikidata entities",
@@ -65,7 +64,7 @@ def get_wikidata_labels(wikidata_entities_ids):
         for entity in data:
             labels[entity] = {
                 lang: data[entity].get("labels", {}).get(lang, {}).get("value", None)
-                for lang in LANGS
+                for lang in list_of_languages
             }
     return labels
 
