@@ -7,3 +7,7 @@ scipy
 tqdm
 termcolor==1.1.0
 colorama==0.4.1
+
+sentencepiece
+fugashi
+unidic-lite
