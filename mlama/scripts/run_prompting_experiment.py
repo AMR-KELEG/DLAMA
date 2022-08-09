@@ -164,6 +164,11 @@ def main():
         default=None,
         help="Specify a set of Wikidata relations to evaluate on",
     )
+    parser.add_argument(
+        "--dataset_dir",
+        required=True,
+        help="Directory containing jsonl files of tuples",
+    )
 
     args = parser.parse_args()
     language = args.lang
@@ -185,7 +190,7 @@ def main():
 
     run_experiment_on_list_of_lms(
         relations_templates,
-        data_path_pre if not args.cultlama else str(Path("./data/cultlama/", language)),
+        str(Path(args.dataset_dir, language)),
         language,
         language_models,
         use_cultlama=args.cultlama,
