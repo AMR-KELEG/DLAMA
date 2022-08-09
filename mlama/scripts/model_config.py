@@ -57,6 +57,12 @@ EN_LMs = prepare_lms_configuration(
     )
 )
 
+JA_LMs = prepare_lms_configuration(
+    (
+        ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
+    )
+)
+
 KO_LMs = prepare_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
@@ -79,4 +85,17 @@ ES_LMs = prepare_lms_configuration(
     )
 )
 
-LANG_TO_LMs = {"ar": AR_LMs, "en": EN_LMs, "es": ES_LMs, "ko": KO_LMs}
+ZH_LMs = prepare_lms_configuration(
+    (
+        ("chinese_bert_base", "bert-base-chinese"),
+    )
+)
+
+LANG_TO_LMs = {
+    "ar": AR_LMs,
+    "en": EN_LMs,
+    "es": ES_LMs,
+    "ja": JA_LMs,
+    "ko": KO_LMs,
+    "zh": ZH_LMs,
+}
