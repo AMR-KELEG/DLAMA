@@ -1,6 +1,7 @@
 import copy
 import glob
 import json
+from tqdm import tqdm
 from utils import get_wikidata_labels
 from os import makedirs
 from pathlib import Path
@@ -18,7 +19,7 @@ def main(BASE_DIR, other_lang):
     makedirs(str(Path(BASE_DIR, other_lang)), exist_ok=True)
     files = sorted([f for f in glob.glob(str(Path(BASE_DIR, "en", "*")))])
 
-    for file in files:
+    for file in tqdm(files):
         samples = load_file(file)
         subjects_uris = [s["sub_uri"] for s in samples]
         objects_uris = [obj_uri for s in samples for obj_uri in s["obj_uri"]]
@@ -31,15 +32,17 @@ def main(BASE_DIR, other_lang):
         translated_samples = []
         for sample in samples:
             sub_uri, obj_uris = sample["sub_uri"], sample["obj_uri"]
-            if sub_uri not in subjects_labels:
+            if not subjects_labels[sub_uri]:
                 continue
             translated_sample = copy.deepcopy(sample)
             translated_sample["sub_label"] = subjects_labels[sub_uri][other_lang]
             obj_uris = [obj_uri for obj_uri in obj_uris if obj_uri in objects_labels]
             translated_sample["obj_label"] = [
-                objects_labels[obj_uri][other_lang] for obj_uri in obj_uris
+                objects_labels[obj_uri][other_lang] for obj_uri in obj_uris if objects_labels[obj_uri][other_lang]
             ]
-            translated_sample["obj_uri"] = obj_uris
+            translated_sample["obj_uri"] = [obj_uri for obj_uri in obj_uris if objects_labels[obj_uri][other_lang]]
+            if not translated_sample["obj_uri"]:
+                continue
             translated_samples.append(translated_sample)
 
         # Export translated file
