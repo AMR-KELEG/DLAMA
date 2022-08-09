@@ -59,6 +59,7 @@ EN_LMs = prepare_lms_configuration(
 
 JA_LMs = prepare_lms_configuration(
     (
+        ("tohoku_bert_base", "cl-tohoku/bert-base-japanese-v2"),
         ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
     )
 )
