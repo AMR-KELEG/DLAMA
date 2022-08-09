@@ -73,8 +73,8 @@ class Bert(Base_Connector):
         # ... to get hidden states
         try:
             self.bert_model = self.masked_bert_model.bert
-            self.pad_id = self.inverse_vocab[BERT_PAD]
-            self.unk_index = self.inverse_vocab[BERT_UNK]
+            self.pad_id = self.inverse_vocab[self.tokenizer._pad_token]
+            self.unk_index = self.inverse_vocab[self.tokenizer._unk_token]
         except:
             self.bert_model = self.masked_bert_model.roberta
             self.pad_id = self.inverse_vocab[ROBERTA_PAD]
