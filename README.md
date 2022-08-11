@@ -47,7 +47,7 @@ python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF
 - Note: The scripts within the `mlama` subdirectory are forked from https://github.com/norakassner/mlama and adapted accordingly.
 ```bash
 cd ../mlama # Navigate to the mlama directory within the repository
-python scripts/run_prompting_experiment.py --lang "ar" --cultlama
+python scripts/run_prompting_experiment.py --lang "ar" --cultlama --dataset_dir DATASET_BASE_DIR
 ```
 
 ## Domains and their respective relation predicates currently supported within CultLAMA
