@@ -62,16 +62,19 @@ def run_experiments(
 
         # Build the list of candidate objects
         if use_cultlama:
-            # Load all objects from cultlama
-            data_files = glob.glob(
-                f"./data/cultlama/{language}/{relation_name}_*.jsonl"
-            )
+            # The relation can have multiple subsets
+            relation_files_path = str(Path(data_path_pre, f"{relation_name}_*.jsonl"))
         else:
-            # Load all objects from mlama
-            data_files = glob.glob(f"./data/mlama1.1/{language}/{relation_name}.jsonl")
+            relation_files_path = str(Path(data_path_pre, f"{relation_name}.jsonl"))
+
+        relation_files = [f for f in glob.glob(relation_files_path)]
+
+        if not relation_files:
+            print("Relation {} excluded.".format(relation["relation"]))
+            continue
 
         relation_triples = []
-        for file in set(data_files):
+        for file in set(relation_files):
             with open(file, "r") as f:
                 relation_triples += [json.loads(line) for line in f]
 
@@ -86,18 +89,7 @@ def run_experiments(
 
         configuration_parameters = deepcopy(BASIC_CONFIGURATION_PARAMETERS)
         configuration_parameters["template"] = relation["template"]
-
-        if use_cultlama:
-            # The relation can have multiple subsets
-            relation_files = str(Path(data_path_pre, f"{relation_name}_*.jsonl"))
-        else:
-            relation_files = str(Path(data_path_pre, f"{relation_name}.jsonl"))
-
-        if glob.glob(relation_files):
-            configuration_parameters["dataset_filename"] = relation_files
-        else:
-            print("Relation {} excluded.".format(relation["relation"]))
-            continue
+        configuration_parameters["dataset_filename"] = relation_files_path
 
         configuration_parameters["full_logdir"] = str(
             Path(
