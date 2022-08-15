@@ -21,8 +21,6 @@ AR_LMs = prepare_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
-        ("mbert_large_cased", "bert-large-multilingual-cased"),
-        ("mbert_large_uncased", "bert-large-multilingual-uncased"),
         ("arabert_base_v0.1", "aubmindlab/bert-base-arabertv01"),
         ("arabert_base_v0.2", "aubmindlab/bert-base-arabertv02"),
         ("arabert_large_v0.2", "aubmindlab/bert-large-arabertv02"),
@@ -46,8 +44,6 @@ EN_LMs = prepare_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
-        ("mbert_large_cased", "bert-large-multilingual-cased"),
-        ("mbert_large_uncased", "bert-large-multilingual-uncased"),
         ("gigabert_v3", "lanwuwei/GigaBERT-v3-Arabic-and-English"),
         ("gigabert_v4", "lanwuwei/GigaBERT-v4-Arabic-and-English"),
         ("bert-base_cased", "bert-base-cased"),
@@ -68,8 +64,6 @@ KO_LMs = prepare_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
-        ("mbert_large_cased", "bert-large-multilingual-cased"),
-        ("mbert_large_uncased", "bert-large-multilingual-uncased"),
         ("kykim_bert_base", "kykim/bert-kor-base"),
         ("klue_bert_base", "klue/bert-base"),
     )
@@ -77,12 +71,10 @@ KO_LMs = prepare_lms_configuration(
 
 ES_LMs = prepare_lms_configuration(
     (
-        ("mbert_base_cased", "bert-base-multilingual-cased"),
-        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
-        ("mbert_large_cased", "bert-large-multilingual-cased"),
-        ("mbert_large_uncased", "bert-large-multilingual-uncased"),
         ("beto_cased", "dccuchile/bert-base-spanish-wwm-cased"),
         ("beto_uncased", "dccuchile/bert-base-spanish-wwm-uncased"),
+        ("mbert_base_cased", "bert-base-multilingual-cased"),
+        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
     )
 )
 
