@@ -55,7 +55,16 @@ EN_LMs = prepare_lms_configuration(
 
 JA_LMs = prepare_lms_configuration(
     (
-        ("tohoku_bert_base", "cl-tohoku/bert-base-japanese-v2"),
+        ("mbert_base_cased", "bert-base-multilingual-cased"),
+        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
+        ("tohoku_bert_base", "cl-tohoku/bert-base-japanese"),
+        ("tohoku_bert_base_v2", "cl-tohoku/bert-base-japanese-v2"),
+        ("tohoku_bert_base_char", "cl-tohoku/bert-base-japanese-char"),
+        ("tohoku_bert_base_char_v2", "cl-tohoku/bert-base-japanese-char-v2"),
+        ("tohoku_bert_large", "cl-tohoku/bert-large-japanese"),
+        ("tohoku_bert_large_char", "cl-tohoku/bert-large-japanese-char"),
+        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
+        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
         ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
     )
 )
@@ -80,6 +89,8 @@ ES_LMs = prepare_lms_configuration(
 
 ZH_LMs = prepare_lms_configuration(
     (
+        ("mbert_base_cased", "bert-base-multilingual-cased"),
+        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
         ("chinese_bert_base", "bert-base-chinese"),
     )
 )
