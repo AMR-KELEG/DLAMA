@@ -153,12 +153,9 @@ def compute_P_scores(
         p for p in sorted(df["predicate"].unique()) if p not in skip_predicates
     ]
 
-    if aggregation_method == "split_by_region":
+    if aggregation_method == "split_by_predicate":
         results = []
         for relation_predicate in relation_predicates:
-            relation_predicate_metrics = {}
-            relation_predicate_metrics["predicate"] = relation_predicate
-
             scores = {}
             for region in regions:
                 region_df = df[
@@ -171,10 +168,37 @@ def compute_P_scores(
             scores["P@1_aggregated"] = compute_P_at_1(relation_df)
             scores["Support_aggregated"] = relation_df.shape[0]
 
-            relation_predicate_metrics["P@1"] = scores
-            results.append(relation_predicate_metrics)
+            scores["predicate"] = relation_predicate
+            scores["domain"] = relation_predicate
+            # relation_predicate_metrics[relation_predicate] = scores
+            results.append(scores)
 
         return results
 
+    domains = [d for d in sorted(df["domain"].unique())]
+
     if aggregation_method == "split_by_domain":
-        pass
+        results = []
+        for domain in domains:
+            for relation_predicate in relation_predicates:
+                scores = {}
+                domain_df = df[df["domain"] == domain]
+                for region in regions:
+                    predicate_region_df = domain_df[
+                        (domain_df["predicate"] == relation_predicate)
+                        & (domain_df["region"] == region)
+                    ]
+                    if predicate_region_df.shape[0]:
+                        scores[f"P@1_{region}"] = compute_P_at_1(predicate_region_df)
+                        scores[f"Support_{region}"] = predicate_region_df.shape[0]
+
+                relation_df = domain_df[domain_df["predicate"] == relation_predicate]
+                if relation_df.shape[0]:
+                    scores["P@1_aggregated"] = compute_P_at_1(relation_df)
+                    scores["Support_aggregated"] = relation_df.shape[0]
+
+                    scores["predicate"] = relation_predicate
+                    scores["domain"] = domain
+                    results.append(scores)
+
+        return results
