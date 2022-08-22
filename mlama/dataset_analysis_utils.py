@@ -1,6 +1,44 @@
+import re
+import json
 import math
+from pathlib import Path
 from natsort import natsorted
 from collections import Counter
+
+
+def load_wikidata_predicates_names():
+    """Load Wikidata predicate names."""
+
+    with open("data/wikidata-predicates.json", "r") as f:
+        data = json.load(f)
+        relation_id_to_name = {k: v for k, v in data["rows"]}
+
+    return relation_id_to_name
+
+
+def load_jsonl_file(filename):
+    with open(filename, "r") as f:
+        return [json.loads(l) for l in f]
+
+
+def load_predicates_in_dataset(dataset_dir):
+    """Load the list of predicates within a dataset."""
+    dataset_files = [f.name for f in Path(dataset_dir).glob("P*")]
+    predicates = [re.findall(r"^P\d+", f)[0] for f in dataset_files]
+    # TODO: Don't ignore P527
+    return natsorted(set([p for p in predicates if p != "P527"]))
+
+
+def normalize_region_name(region):
+    """Unify subregion names into a single normalized name."""
+    # TODO: Fix this!
+    if any([r in region for r in ["ASIA", "JAPAN", "CHINA"]]):
+        return "ASIA"
+    if "ARAB" in region:
+        return region
+    if "SOUTH_AMERICA" in region:
+        return "SOUTH_AMERICA"
+    return "WEST"
 
 
 def compute_entropy(relation_triples):

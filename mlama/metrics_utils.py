@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from natsort import natsorted
+from dataset_analysis_utils import normalize_region_name
 
 #  TODO: Load this list from the constants.py file within cultlama
 DOMAINS = [
@@ -16,18 +17,6 @@ DOMAINS = [
     "science",
     "geography",
 ]
-
-
-def normalize_region_name(region):
-    """Unify subregion names into a single normalized name."""
-    # TODO: Fix this!
-    if any([r in region for r in ["ASIA", "JAPAN", "CHINA"]]):
-        return "ASIA"
-    if "ARAB" in region:
-        return region
-    if "SOUTH_AMERICA" in region:
-        return "SOUTH_AMERICA"
-    return "WEST"
 
 
 def load_predicate_results(results_dir, relation_id, model_name, lang):
