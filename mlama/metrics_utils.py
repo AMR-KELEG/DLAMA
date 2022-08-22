@@ -4,6 +4,7 @@ import pickle
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from natsort import natsorted
 
 #  TODO: Load this list from the constants.py file within cultlama
 DOMAINS = [
@@ -150,7 +151,7 @@ def compute_P_scores(
         return scores
 
     relation_predicates = [
-        p for p in sorted(df["predicate"].unique()) if p not in skip_predicates
+        p for p in natsorted(df["predicate"].unique()) if p not in skip_predicates
     ]
 
     if aggregation_method == "split_by_predicate":
@@ -170,7 +171,6 @@ def compute_P_scores(
 
             scores["predicate"] = relation_predicate
             scores["domain"] = relation_predicate
-            # relation_predicate_metrics[relation_predicate] = scores
             results.append(scores)
 
         return results
@@ -180,9 +180,9 @@ def compute_P_scores(
     if aggregation_method == "split_by_domain":
         results = []
         for domain in domains:
+            domain_df = df[df["domain"] == domain]
             for relation_predicate in relation_predicates:
                 scores = {}
-                domain_df = df[df["domain"] == domain]
                 for region in regions:
                     predicate_region_df = domain_df[
                         (domain_df["predicate"] == relation_predicate)
@@ -200,5 +200,21 @@ def compute_P_scores(
                     scores["predicate"] = relation_predicate
                     scores["domain"] = domain
                     results.append(scores)
+
+            # TODO: Avoid copy-pasting here!
+            scores = {}
+            for region in regions:
+                domain_region_df = domain_df[(domain_df["region"] == region)]
+                if domain_region_df.shape[0]:
+                    scores[f"P@1_{region}"] = compute_P_at_1(domain_region_df)
+                    scores[f"Support_{region}"] = domain_region_df.shape[0]
+
+            if domain_df.shape[0]:
+                scores["P@1_aggregated"] = compute_P_at_1(domain_df)
+                scores["Support_aggregated"] = domain_df.shape[0]
+
+                scores["predicate"] = "Aggregated"
+                scores["domain"] = domain
+                results.append(scores)
 
         return results
