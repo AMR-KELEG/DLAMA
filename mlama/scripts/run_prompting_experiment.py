@@ -142,6 +142,7 @@ def run_experiment_on_list_of_lms(
         except Exception as e:
             print(e)
             print(f'Failed for: {lm["label"]}', file=sys.stderr)
+            raise (e)
 
 
 def main():
