@@ -161,6 +161,12 @@ def main():
         required=True,
         help="Directory containing jsonl files of tuples",
     )
+    parser.add_argument(
+        "--templates_file_path",
+        required=False,
+        default=None,
+        help="The path of the templates file",
+    )
 
     args = parser.parse_args()
     language = args.lang
@@ -168,10 +174,11 @@ def main():
 
     data_path_pre = str(Path("./data/mlama1.1/", language))
 
-    # Load the templates file and point to other files
-    # TODO: Make a change here to use another templates file here
-    # after adding an argument
-    relations_templates = load_jsonl(Path(data_path_pre, "templates.jsonl"))
+    # Load the templates file
+    if args.templates_file_path:
+        relations_templates = load_jsonl(args.templates_file_path)
+    else:
+        relations_templates = load_jsonl(Path(data_path_pre, "templates.jsonl"))
 
     if args.rel:
         relations_templates = [
