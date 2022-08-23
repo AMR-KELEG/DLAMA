@@ -12,6 +12,10 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, BasicTokenizer
 
 
 class CustomBaseTokenizer(BasicTokenizer):
+    def __init__(self, do_lower_case=True, never_split=None, tokenize_chinese_chars=True, strip_accents=None, MASK_TOKEN=None):
+        super().__init__(do_lower_case, never_split, tokenize_chinese_chars, strip_accents)
+        self.MASK_TOKEN = MASK_TOKEN
+
     def tokenize(self, text):
         """Tokenizes a piece of text."""
         text = self._clean_text(text)
@@ -25,12 +29,11 @@ class CustomBaseTokenizer(BasicTokenizer):
         orig_tokens = text.split()
         split_tokens = []
         for token in orig_tokens:
-
             # pass MASK forward
-            if MASK in token:
-                split_tokens.append(MASK)
-                if token != MASK:
-                    remaining_chars = token.replace(MASK, "").strip()
+            if self.MASK_TOKEN in token:
+                split_tokens.append(self.MASK_TOKEN)
+                if token != self.MASK_TOKEN:
+                    remaining_chars = token.replace(self.MASK_TOKEN, "").strip()
                     if remaining_chars:
                         split_tokens.append(remaining_chars)
                 continue
@@ -53,16 +56,11 @@ class Bert(Base_Connector):
         if "uncased" in bert_model_name:
             do_lower_case = True
 
-        # Load pre-trained model tokenizer (vocabulary)
+        # Load pre-trained model tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(bert_model_name)
 
-        # original vocab
-        self.map_indices = None
-        self.vocab = list(self.tokenizer.get_vocab())
-        self._init_inverse_vocab()
-
         # Add custom tokenizer to avoid splitting the ['MASK'] token
-        custom_basic_tokenizer = CustomBaseTokenizer(do_lower_case=do_lower_case)
+        custom_basic_tokenizer = CustomBaseTokenizer(do_lower_case=do_lower_case, MASK_TOKEN=self.tokenizer.mask_token)
         self.tokenizer.basic_tokenizer = custom_basic_tokenizer
 
         # Load pre-trained model (weights)
@@ -73,20 +71,17 @@ class Bert(Base_Connector):
         # ... to get hidden states
         try:
             self.bert_model = self.masked_bert_model.bert
-            self.pad_id = self.inverse_vocab[self.tokenizer._pad_token]
-            self.unk_index = self.inverse_vocab[self.tokenizer._unk_token]
         except:
             self.bert_model = self.masked_bert_model.roberta
-            self.pad_id = self.inverse_vocab[ROBERTA_PAD]
-            self.unk_index = self.inverse_vocab[ROBERTA_UNK]
+
+        self.pad_id = self.tokenizer.pad_token_id
+        self.mask_id = self.tokenizer.mask_token_id
+        self.sep_id = self.tokenizer.sep_token_id
+        self.unk_id = self.tokenizer.unk_token_id
 
     def get_id(self, string):
         tokenized_text = self.tokenizer.tokenize(string)
         indexed_string = self.tokenizer.convert_tokens_to_ids(tokenized_text)
-        if self.map_indices is not None:
-            # map indices to subset of the vocabulary
-            indexed_string = self.convert_ids(indexed_string)
-
         return indexed_string
 
     def __get_input_tensors_batch(self, sentences_list):
@@ -142,12 +137,7 @@ class Bert(Base_Connector):
                 final_attention_mask = torch.cat(
                     (final_attention_mask, attention_tensor), dim=0
                 )
-        # print(final_tokens_tensor)
-        # print(final_segments_tensor)
-        # print(final_attention_mask)
-        # print(final_tokens_tensor.shape)
-        # print(final_segments_tensor.shape)
-        # print(final_attention_mask.shape)
+
         return (
             final_tokens_tensor,
             final_segments_tensor,
@@ -168,10 +158,7 @@ class Bert(Base_Connector):
         first_segment_id = np.zeros(len(first_tokenized_sentence), dtype=int).tolist()
 
         # add [SEP] token at the end
-        try:
-            first_tokenized_sentence.append(BERT_SEP)
-        except:
-            first_tokenized_sentence.append(ROBERTA_SEP)
+        first_tokenized_sentence.append(self.tokenizer.sep_token)
         first_segment_id.append(0)
 
         if len(sentences) > 1:
@@ -181,10 +168,7 @@ class Bert(Base_Connector):
             ).tolist()
 
             # add [SEP] token at the end
-            try:
-                second_tokenized_sentece.append(BERT_SEP)
-            except:
-                second_tokenized_sentece.append(ROBERTA_SEP)
+            second_tokenized_sentece.append(self.tokenizer.sep_token)
             second_segment_id.append(1)
 
             tokenized_text = first_tokenized_sentence + second_tokenized_sentece
@@ -194,17 +178,15 @@ class Bert(Base_Connector):
             segments_ids = first_segment_id
 
         # add [CLS] token at the beginning
-        try:
-            tokenized_text.insert(0, BERT_CLS)
-        except:
-            tokenized_text.insert(0, ROBERTA_CLS)
+        tokenized_text.insert(0, self.tokenizer.cls_token)
+
         segments_ids.insert(0, 0)
 
         # look for masked indices
         masked_indices = []
         for i in range(len(tokenized_text)):
             token = tokenized_text[i]
-            if token == MASK:
+            if token == self.tokenizer.mask_token:
                 masked_indices.append(i)
 
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
@@ -214,16 +196,6 @@ class Bert(Base_Connector):
         segments_tensors = torch.tensor([segments_ids])
 
         return tokens_tensor, segments_tensors, masked_indices, tokenized_text
-
-    def __get_token_ids_from_tensor(self, indexed_string):
-        token_ids = []
-        if self.map_indices is not None:
-            # map indices to subset of the vocabulary
-            indexed_string = self.convert_ids(indexed_string)
-            token_ids = np.asarray(indexed_string)
-        else:
-            token_ids = indexed_string
-        return token_ids
 
     #  TODO: Move this to a configuration file
     def _cuda(self):
@@ -256,7 +228,7 @@ class Bert(Base_Connector):
             log_probs = F.log_softmax(logits, dim=-1).cpu()
         token_ids_list = []
         for indexed_string in tokens_tensor.numpy():
-            token_ids_list.append(self.__get_token_ids_from_tensor(indexed_string))
+            token_ids_list.append(indexed_string)
 
         return log_probs, token_ids_list, masked_indices_list
 

@@ -86,8 +86,6 @@ class Base_Connector:
         """
         pass
 
-    def _init_inverse_vocab(self):
-        self.inverse_vocab = {w: i for i, w in enumerate(self.vocab)}
 
     def try_cuda(self):
         """Move model to GPU if one is available."""
@@ -102,25 +100,6 @@ class Base_Connector:
     def _cuda(self):
         """Move model to GPU."""
         raise NotImplementedError
-
-    def init_indices_for_filter_logprobs(self, vocab_subset, logger=None):
-        index_list = []
-        new_vocab_subset = []
-        for word in vocab_subset:
-            if word in self.inverse_vocab:
-                inverse_id = self.inverse_vocab[word]
-                index_list.append(inverse_id)
-                new_vocab_subset.append(word)
-            else:
-                msg = "word {} from vocab_subset not in model vocabulary!".format(word)
-                if logger is not None:
-                    logger.warning(msg)
-                else:
-                    print("WARNING: {}".format(msg))
-
-        # 1. gather correct indices
-        indices = torch.as_tensor(index_list)
-        return indices, index_list
 
     def filter_logprobs(self, log_probs, indices):
         new_log_probs = log_probs.index_select(dim=2, index=indices)
