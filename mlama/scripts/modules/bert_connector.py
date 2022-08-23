@@ -186,7 +186,9 @@ class Bert(Base_Connector):
         masked_indices = []
         for i in range(len(tokenized_text)):
             token = tokenized_text[i]
-            if token == self.tokenizer.mask_token:
+            # TODO: Use ids instead?
+            # The token is stripped to handle Roberta adding a whitespace before <mask>!
+            if token.strip() == self.tokenizer.mask_token:
                 masked_indices.append(i)
 
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
