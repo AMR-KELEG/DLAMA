@@ -10,6 +10,9 @@ opposed to LAMA which is more biased towards western entities.
     - [3. Build CultLAMA](#3-build-cultlama)
     - [4. Run the experiments](#4-run-the-experiments)
   - [Domains and their respective relation predicates currently supported within CultLAMA](#domains-and-their-respective-relation-predicates-currently-supported-within-cultlama)
+  - [Results](#results)
+    - [CultLAMA-v1 (Arab and Western facts)](#cultlama-v1-arab-and-western-facts)
+    - [CultLAMA-v1 (Asian and Western facts)](#cultlama-v1-asian-and-western-facts)
   - [References](#references)
   - [Acknowledgements](#acknowledgements)
 
@@ -94,6 +97,67 @@ python scripts/run_prompting_experiment.py --lang "ar" --cultlama --dataset_dir 
 || P103 (Native language)|
 || P106 (Occupation)|
 || P1412 (Languages spoken or published)|
+
+## Results
+### CultLAMA-v1 (Arab and Western facts)
+
+| Langugage of Prompt   | Model Name                     |   P@1 Arab Facts (N=5140)|   P@1 Western Facts (N=5340)|   P@1 All facts (N=10480)|
+|:-----------|:-------------------------------|:-----------:|:-----------:|:-----------------:|
+| Arabic     | DarijaBERT           |      3.852 |      7.004 🔼|            5.458 |
+|     | DziriBERT            |     15.506 🔼|      8.071 |           11.718 |
+|     | mBERT-base (cased)   |     10.486 |     13.165 🔼|           11.851 |
+|     | CAMeL-DA             |     27.257 🔼|      1.536 |           14.151 |
+|     | CAMeL-MIX            |     15.914 🔼|     14.532 |           15.21  |
+|     | mBERT-base (uncased) |     16.654 |     17.041 🔼|           16.851 |
+|     | MARBERT (v2)         |     26.012 🔼|      9.625 |           17.662 |
+|     | GigaBERT_v4          |     20.117 🔼|     18.202 |           19.141 |
+|     | Arabic BERT-base     |     29.572 🔼|     10.824 |           20.019 |
+|     | CAMeL-MSA            |     24.825 🔼|     17.285 |           20.983 |
+|     | MARBERT              |     34.825 🔼|     15.712 |           25.086 |
+|     | AraBERT-base (v0.2)  |     26.498 🔼|     24.757 |           25.611 |
+|     | AraBERT-base (v0.1)  |     31.887 🔼|     20.243 |           25.954 |
+|     | AraBERT-large (v0.2) |     26.809 🔼|     25.3   |           26.04  |
+|     | ArabicBERT-large     |     34.942 🔼|     21.142 |           27.91  |
+|     | QARiB                |     33.891 🔼|     23.633 |           28.664 |
+|     | ARBERT               |     32.626 🔼|     26.217 |           29.361 |
+|     | GigaBERT (v3)        |     37.899 🔼|     22.959 |           30.286 |
+| English    | GigaBERT_v4          |     21.693 |     33.614  🔼|           27.767 |
+|     | GigaBERT (v3)        |     21.537 |     34.569 🔼|           28.177 |
+|     | BERT-base (uncased)  |     21.537 |     35.019 🔼|           28.406 |
+|     | BERT-large (uncased) |     23.638 |     34.569 🔼|           29.208 |
+|     | BERT-large (cased)   |     26.109 |     36.161 🔼|           31.231 |
+|     | mBERT-base (uncased) |     23.191 |     41.311 🔼|           32.424 |
+|     | BERT-base (cased)    |     26.342 |     38.577 🔼|           32.576 |
+|     | mBERT-base (cased)   |     21.829 |     45.562 🔼|           33.922 |
+
+### CultLAMA-v1 (Asian and Western facts)
+Note: Manual inspection and updating was done for the Mandarin prompts by a native speaker.
+
+| Langugage of Prompt   | Model Name                     |   P@1 Asian Facts (N=4959)|   P@1 Western Facts (N=5339)|   P@1 All facts (N=10298)|
+|:-----------|:-------------------------------|:-----------:|:-----------:|:-----------------:|
+| English    | BERT-base (uncased)            |     33.535 |     35.437 🔼 |           34.521 |
+|    | BERT-large (uncased)           |     34.765 |     35.025 🔼 |           34.9   |
+|    | BERT-large (cased)             |     35.612 |     35.868 🔼 |           35.745 |
+|    | BERT-base (cased)              |     33.757 |     38.659 🔼 |           36.298 |
+|    | mBERT-base (uncased)           |     32.023 |     41.843 🔼 |           37.114 |
+|    | mBERT-base (cased)             |     34.745 |     45.177 🔼 |           40.153 |
+| Mandarin   | mBERT-base (cased)             |     10.889 🔼 |      9.871 |           10.361 |
+|    | mBERT-base (uncased)           |     16.616 🔼 |     12.1   |           14.275 |
+|    | ChineseBERT-base               |     18.673 🔼 |     16.164 |           17.372 |
+| Japanese   | mBERT-base (uncased)           |     17.161 🔼 |      7.286 |           12.041 |
+|    | TohokuBERT-base (char)         |     17.725 🔼 |     13.055 |           15.304 |
+|    | TohokuBERT-base (char v2)      |     11.272 |     19.816 🔼 |           15.702 |
+|    | JapaneseBERT-base              |     15.064 |     20.996 🔼 |           18.139 |
+|    | mBERT-base (cased)             |     21.436 🔼 |     18.936 |           20.14  |
+|    | TohokuBERT-large (char)        |     17.443 |     24.031 🔼 |           20.858 |
+|    | TohokuBERT-base_v2             |     22.847 |     35.662 🔼 |           29.491 |
+|    | TohokuBERT-base                |     23.573 |     35.999 🔼 |           30.016 |
+|    | TohokuBERT-large               |     21.738 |     39.464 🔼 |           30.928 |
+|    | TohokuBERT-base (word masking) |     22.081 |     40.026 🔼 |           31.385 |
+| Korean     | KykimBERT-base                 |     17.483 🔼 |     14.179 |           15.77  |
+|      | mBERT-base (uncased)           |     17.241 |     17.943 🔼 |           17.605 |
+|      | mBERT-base (cased)             |     13.914 |     31.748 🔼 |           23.16  |
+|      | KlueBERT-base                  |     23.21  |     29.631 🔼 |           26.539 |
 
 ## References
 ```bibtex
