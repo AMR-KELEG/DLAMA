@@ -57,6 +57,13 @@ FILTERS_DICTIONARY = {
         PERU: f"VALUES ?{COUNTRY} {{wd:Q419}} . # Country is Peru",
         URUGUAY: f"VALUES ?{COUNTRY} {{wd:Q77}} . # Country is Uruguay",
         VENEZUELA: f"VALUES ?{COUNTRY} {{wd:Q717}} . # Country is Venezuela",
+        # Southern Africa countries
+        BOTSWANA: f"VALUES ?{COUNTRY} {{wd:Q963}} . # Country is Botswana",
+        ESWATINI: f"VALUES ?{COUNTRY} {{wd:Q1050}} . # Country is Eswatini",
+        LESOTHO: f"VALUES ?{COUNTRY} {{wd:Q1013}} . # Country is Lesotho",
+        MADAGASCAR: f"VALUES ?{COUNTRY} {{wd:Q1019}} . # Country is Madagascar",
+        NAMIBIA: f"VALUES ?{COUNTRY} {{wd:Q1030}} . # Country is Namibia",
+        SOUTH_AFRICA: f"VALUES ?{COUNTRY} {{wd:Q258}} . # Country is South Africa",
     },
     PERSON: {
         "country_of_citizenship": f"?{PERSON} wdt:P27 ?{COUNTRY} . # The person has a country of citizenship",

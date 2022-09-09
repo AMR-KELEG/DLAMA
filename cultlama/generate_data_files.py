@@ -564,6 +564,7 @@ if __name__ == "__main__":
         "SOUTH_WESTERN_EUROPE": SOUTH_WESTERN_EUROPE,
         "NORTH_AMERICA_AND_AUSTRALIA": NORTH_AMERICA_AND_AUSTRALIA,
         "SOUTH_AMERICA": SOUTH_AMERICA,
+        "SOUTHERN_AFRICA": SOUTHERN_AFRICA,
     }
 
     parser = argparse.ArgumentParser()

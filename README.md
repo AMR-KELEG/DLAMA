@@ -2,7 +2,6 @@
 Build relation triples that are more representative to the culture of specific regions as 
 opposed to LAMA which is more biased towards western entities.
 
-
 - [CultLAMA](#cultlama)
   - [Usage](#usage)
     - [1. Create conda environment and install requirements](#1-create-conda-environment-and-install-requirements)
@@ -13,6 +12,7 @@ opposed to LAMA which is more biased towards western entities.
   - [Results](#results)
     - [CultLAMA-v1 (Arab and Western facts)](#cultlama-v1-arab-and-western-facts)
     - [CultLAMA-v1 (Asian and Western facts)](#cultlama-v1-asian-and-western-facts)
+  - [Adding new countries/regions to CultLAMA](#adding-new-countriesregions-to-cultlama)
   - [References](#references)
   - [Acknowledgements](#acknowledgements)
 
@@ -158,6 +158,91 @@ Note: Manual inspection and updating was done for the Mandarin prompts by a nati
 |      | mBERT-base (uncased)           |     17.241 |     17.943 🔼 |           17.605 |
 |      | mBERT-base (cased)             |     13.914 |     31.748 🔼 |           23.16  |
 |      | KlueBERT-base                  |     23.21  |     29.631 🔼 |           26.539 |
+
+
+## Adding new countries/regions to CultLAMA
+
+1. Add the list of country names to `cultlama/constants.py`.
+```
+BOTSWANA = "Botswana"
+ESWATINI = "Eswatini"
+LESOTHO = "Lesotho"
+MADAGASCAR = "Madagascar"
+NAMIBIA = "Namibia"
+SOUTH_AFRICA = "South Africa"
+```
+
+2. Create a list of the new countries representing the region in `cultlama/constants.py`.
+```
+SOUTHERN_AFRICA = [
+    BOTSWANA,
+    ESWATINI,
+    LESOTHO,
+    MADAGASCAR,
+    NAMIBIA,
+    SOUTH_AFRICA,
+]
+```
+
+3. Add the languages of Wikipedia that are related to each country to the `REGIONS_LANGS` variable in `cultlama/constants.py`.
+```
+REGIONS_LANGS ={
+    ...
+    BOTSWANA: ["en"],
+    ESWATINI: ["en"],
+    LESOTHO: ["en"],
+    MADAGASCAR: ["fr"],
+    NAMIBIA: ["en"],
+    SOUTH_AFRICA: ["af", "zu", "en"],
+    ...
+}
+```
+
+4. Add the Wikidata URIs for each country to the `"region_country"` key of the `FILTERS_DICTIONARY` variable in `cultlama/filters.py`.
+```
+    "region_country": {
+        ...
+        BOTSWANA: f"VALUES ?{COUNTRY} {{wd:Q963}} . # Country is Botswana",
+        ESWATINI: f"VALUES ?{COUNTRY} {{wd:Q1050}} . # Country is Eswatini",
+        LESOTHO: f"VALUES ?{COUNTRY} {{wd:Q1013}} . # Country is Lesotho",
+        MADAGASCAR: f"VALUES ?{COUNTRY} {{wd:Q1019}} . # Country is Madagascar",
+        NAMIBIA: f"VALUES ?{COUNTRY} {{wd:Q1030}} . # Country is Namibia",
+        SOUTH_AFRICA: f"VALUES ?{COUNTRY} {{wd:Q258}} . # Country is South Africa",
+    },
+```
+
+5. Add the region as a new region in the `REGIONS` dictionary of `cultlama/generate_data_files.py`.
+```
+  REGIONS ={
+    ...
+    "SOUTHERN_AFRICA": SOUTHERN_AFRICA,
+  }
+```
+
+6. Query facts related to the new region
+```
+$ python cultlama/generate_data_files.py --region SOUTHERN_AFRICA --n 6 --rel P36 --langs fr en
+$ python cultlama/generate_exhaustive_objects.py --rel P36 --langs en fr
+```
+
+7. Inspect the queried facts
+```
+$ cat data/cultlama/en/P36_geography_SOUTHERN_AFRICA.jsonl
+{"sub_uri": "Q258", "obj_uri": ["Q37701", "Q3926", "Q5465"], "sub_label": "South Africa", "obj_label": ["Bloemfontein", "Pretoria", "Cape Town"], "uuid": "P36_geography_SOUTHERN_AFRICA_0"}
+{"sub_uri": "Q1019", "obj_uri": ["Q3915"], "sub_label": "Madagascar", "obj_label": ["Antananarivo"], "uuid": "P36_geography_SOUTHERN_AFRICA_1"}
+{"sub_uri": "Q1030", "obj_uri": ["Q3935"], "sub_label": "Namibia", "obj_label": ["Windhoek"], "uuid": "P36_geography_SOUTHERN_AFRICA_2"}
+{"sub_uri": "Q963", "obj_uri": ["Q3919"], "sub_label": "Botswana", "obj_label": ["Gaborone"], "uuid": "P36_geography_SOUTHERN_AFRICA_3"}
+{"sub_uri": "Q1050", "obj_uri": ["Q101418", "Q3904"], "sub_label": "Eswatini", "obj_label": ["Lobamba", "Mbabane"], "uuid": "P36_geography_SOUTHERN_AFRICA_4"}
+{"sub_uri": "Q1013", "obj_uri": ["Q3909"], "sub_label": "Lesotho", "obj_label": ["Maseru"], "uuid": "P36_geography_SOUTHERN_AFRICA_5"}
+
+$ cat data/cultlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
+{"sub_uri": "Q258", "obj_uri": ["Q37701", "Q3926", "Q5465"], "sub_label": "Afrique du Sud", "obj_label": ["Bloemfontein", "Pretoria", "Le Cap"], "uuid": "P36_geography_SOUTHERN_AFRICA_0"}
+{"sub_uri": "Q1019", "obj_uri": ["Q3915"], "sub_label": "Madagascar", "obj_label": ["Antananarivo"], "uuid": "P36_geography_SOUTHERN_AFRICA_1"}
+{"sub_uri": "Q1030", "obj_uri": ["Q3935"], "sub_label": "Namibie", "obj_label": ["Windhoek"], "uuid": "P36_geography_SOUTHERN_AFRICA_2"}
+{"sub_uri": "Q963", "obj_uri": ["Q3919"], "sub_label": "Botswana", "obj_label": ["Gaborone"], "uuid": "P36_geography_SOUTHERN_AFRICA_3"}
+{"sub_uri": "Q1050", "obj_uri": ["Q101418", "Q3904"], "sub_label": "Eswatini", "obj_label": ["Lobamba", "Mbabané"], "uuid": "P36_geography_SOUTHERN_AFRICA_4"}
+{"sub_uri": "Q1013", "obj_uri": ["Q3909"], "sub_label": "Lesotho", "obj_label": ["Maseru"], "uuid": "P36_geography_SOUTHERN_AFRICA_5"}
+```
 
 ## References
 ```bibtex
