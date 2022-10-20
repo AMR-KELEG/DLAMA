@@ -26,7 +26,7 @@ MUSIC = "music"
 GEOGRAPHY = "geography"
 SCIENCE = "science"
 
-# Regions
+# Countries
 ANDORRA = "Andorra"
 AUSTRALIA = "Australia"
 AUSTRIA = "Austria"
@@ -82,8 +82,8 @@ MADAGASCAR = "Madagascar"
 NAMIBIA = "Namibia"
 SOUTH_AFRICA = "South Africa"
 
+# Regions
 ARAB_REGION = "Arab"
-
 
 EASTERN_ASIA = [
     NORTH_KOREA,
@@ -148,7 +148,7 @@ SOUTHERN_AFRICA = [
     SOUTH_AFRICA,
 ]
 
-#  LANGS for links of wikipedia
+#  LANGS for links of wikipedia pages
 REGIONS_LANGS = {
     ANDORRA: ["ca", "en"],
     ARAB_REGION: ["ar", "en", "fr"],
@@ -156,7 +156,7 @@ REGIONS_LANGS = {
     AUSTRIA: ["de", "en"],
     BELGIUM: ["de", "fr", "nl", "en"],
     CANADA: ["en", "fr"],
-    CHINA: ["zh", "en"],  # "zh-yue", "zh-classical", "en"],
+    CHINA: ["zh", "en"],  # "zh-yue", "zh-classical"],
     FRANCE: ["fr", "en"],
     GERMANY: ["de", "en"],
     IRELAND: ["ga", "en"],
