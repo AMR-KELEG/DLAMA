@@ -7,7 +7,7 @@ import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
 import utils
-import data_generation_utils
+import data_augmentation_utils
 import argparse
 
 import sys
@@ -58,7 +58,7 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS, LIST_OF_LANGUAGES):
                         step = 50
                         unique_object_uris = sorted(set(objects_uris))
                         objects_ancestors_dicts = [
-                            data_generation_utils.find_macro_territories(
+                            data_augmentation_utils.find_macro_territories(
                                 unique_object_uris[i : i + step]
                             )
                             for i in tqdm(range(0, len(unique_object_uris), step))
@@ -117,8 +117,8 @@ def generate_exhaustive_objects_lists(LIST_OF_RELATIONS, LIST_OF_LANGUAGES):
                         if not NO_OF_RETRIES:
                             raise (e)
             else:
-                objects_ancestors_dict = data_generation_utils.form_objects_ancestors_lists(
-                    set(objects_uris)
+                objects_ancestors_dict = data_augmentation_utils.augment_objects_with_ancestors(
+                    objects_uris
                 )
 
                 uris_to_labels = {
