@@ -1,4 +1,3 @@
-from csv import excel_tab
 import re
 import time
 import requests
@@ -51,21 +50,28 @@ def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
         range(0, len(wikidata_entities_ids), batch_size),
         desc="Query labels of Wikidata entities",
     ):
-        wikidata_ids = "|".join(wikidata_entities_ids[start : start + batch_size])
+        ids = wikidata_entities_ids[start : start + batch_size]
+        wikidata_ids = "|".join([id for id in ids if not id.startswith("http")])
         url = (
             "https://www.wikidata.org/w/api.php?"
             "action=wbgetentities"
             f"&ids={wikidata_ids}"
             f"&languages={langs}&format=json&props=labels"
         )
+
         r = requests.get(url)
         data = r.json()["entities"]
         time.sleep(0.1)
+
         for entity in data:
             labels[entity] = {
                 lang: data[entity].get("labels", {}).get(lang, {}).get("value", None)
                 for lang in list_of_languages
             }
+
+        # Skipped entities
+        for entity in [id for id in ids if id.startswith("http")]:
+            labels[entity] = {lang: None for lang in list_of_languages}
     return labels
 
 
