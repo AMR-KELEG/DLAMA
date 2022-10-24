@@ -79,30 +79,30 @@ class Query:
         if find_count:
             fields_to_return = "SELECT (COUNT(*) as ?count)"
         else:
-            fields_to_return = (
-                f"SELECT DISTINCT ?{self.subject_field} ?{self.object_field} "
-            )
+            fields_to_return = f"SELECT ?{self.subject_field} ?{self.object_field} "
             fields_to_return += "".join(
                 [f"?subject_article_{lang} " for lang in self.wikipedia_langs]
             )
 
         sparql_query_lines.append(fields_to_return)
         sparql_query_lines.append("WHERE\n{")
-
+        filters_added = [False for _ in range(len(self.filters))]
         # Add filters specifying specific values
-        for f in self.filters:
+        for i, f in enumerate(self.filters):
             if "VALUES" in f:
+                filters_added[i] = True
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
         # Add filters related to object only
-        for f in self.filters:
+        for i, f in enumerate(self.filters):
             if (
                 "VALUES" not in f
                 and "MINUS" not in f
                 and self.object_field in f
                 and self.subject_field not in f
             ):
+                filters_added[i] = True
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
@@ -112,24 +112,20 @@ class Query:
         )
 
         # Add filters related to subject only
-        for f in self.filters:
+        for i, f in enumerate(self.filters):
             if (
                 "VALUES" not in f
                 and "MINUS" not in f
                 and self.object_field not in f
                 and self.subject_field in f
             ):
+                filters_added[i] = True
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
         #  Add the remaining filters
-        for f in self.filters:
-            if (
-                "VALUES" not in f
-                and "MINUS" in f
-                or not (self.object_field in f and self.subject_field not in f)
-                and not (self.object_field not in f and self.subject_field in f)
-            ):
+        for f, filter_added in zip(self.filters, filters_added):
+            if not filter_added:
                 for l in f.split("\n"):
                     sparql_query_lines.append(f"\t{l.strip()}")
 
@@ -162,6 +158,10 @@ class Query:
             try:
                 print(self.build_query(find_count, limit))
                 parsed_data = self.parse_query(find_count, limit)
+                parsed_data = [
+                    dict(y) for y in set(tuple(x.items()) for x in parsed_data)
+                ]
+                parsed_data = sorted(parsed_data, key=lambda d: d[self.subject_field])
 
                 # Query the articles' sizes
                 for lang in self.wikipedia_langs:

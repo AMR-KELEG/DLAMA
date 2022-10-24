@@ -1,9 +1,10 @@
 import time
 from constants import *
+from query import QueryFactory
 from filters import *
 import utils
 import data_generation_utils
-from query import Query, QueryFactory
+import cultlama_queries
 import pandas as pd
 from pathlib import Path
 import os
@@ -30,369 +31,9 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
     for lang in LIST_OF_LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
 
-    ### ALL DOMAINS ###
-    queries = []
     query_factory = QueryFactory()
-    for domain in [CINEMA_AND_THEATRE, POLITICS, SPORTS, MUSIC]:
-        # Country of citizenship
-        q27 = query_factory.create_query(
-            "P27",
-            subject_field=PERSON,
-            object_field=COUNTRY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q27.add_filter(PERSON, OCCUPATION)
-        q27.add_filter(OCCUPATION, domain)
-        q27.add_filter("region_country", REGION)
-        queries.append(q27)
 
-        # Occupation
-        q106 = query_factory.create_query(
-            "P106",
-            subject_field=PERSON,
-            object_field=OCCUPATION,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q106.add_filter(OCCUPATION, domain)
-        q106.add_filter(PERSON, "country_of_citizenship")
-        q106.add_filter("region_country", REGION)
-        queries.append(q106)
-
-        # Native language
-        q103 = query_factory.create_query(
-            "P103",
-            subject_field=PERSON,
-            object_field=LANGUAGE,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q103.add_filter(OCCUPATION, domain)
-        q103.add_filter(PERSON, "country_of_citizenship")
-        q103.add_filter(PERSON, OCCUPATION)
-        q103.add_filter("region_country", REGION)
-        queries.append(q103)
-
-        # Languages spoken or published
-        q1412 = query_factory.create_query(
-            "P1412",
-            subject_field=PERSON,
-            object_field=LANGUAGE,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q1412.add_filter(OCCUPATION, domain)
-        q1412.add_filter(PERSON, "country_of_citizenship")
-        q1412.add_filter(PERSON, OCCUPATION)
-        q1412.add_filter("region_country", REGION)
-        queries.append(q1412)
-
-        # Place of birth
-        q19 = query_factory.create_query(
-            "P19",
-            subject_field=PERSON,
-            object_field=CITY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q19.add_filter(OCCUPATION, domain)
-        q19.add_filter(PERSON, OCCUPATION)
-        q19.add_filter(GEOGRAPHY, "lies_in_country")
-        q19.add_filter(GEOGRAPHY, "city_not_historical_state")
-        q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
-        q19.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
-        q19.add_filter("region_country", REGION)
-        queries.append(q19)
-
-        # Place of death
-        q20 = query_factory.create_query(
-            "P20",
-            subject_field=PERSON,
-            object_field=CITY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q20.add_filter(OCCUPATION, domain)
-        q20.add_filter(PERSON, OCCUPATION)
-        q20.add_filter(GEOGRAPHY, "lies_in_country")
-        q20.add_filter(GEOGRAPHY, "city_not_historical_state")
-        q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
-        q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
-        q20.add_filter("region_country", REGION)
-        queries.append(q20)
-
-    ### Entertainment ###
-    for domain in [MUSIC, CINEMA_AND_THEATRE]:
-        # Country of origin
-        p495 = query_factory.create_query(
-            "P495",
-            subject_field=PIECE_OF_WORK,
-            object_field=COUNTRY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        p495.add_filter("region_country", REGION)
-        p495.add_filter(PIECE_OF_WORK, domain)
-        queries.append(p495)
-
-        # Language of work or name
-        p407 = query_factory.create_query(
-            "P407",
-            subject_field=PIECE_OF_WORK,
-            object_field=LANGUAGE,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        p407.add_filter(PIECE_OF_WORK, domain)
-        p407.add_filter(PIECE_OF_WORK, "country_of_origin")
-        p407.add_filter("region_country", REGION)
-        queries.append(p407)
-
-    # Instrument
-    q1303 = query_factory.create_query(
-        "P1303",
-        subject_field=PERSON,
-        object_field=INSTRUMENT,
-        domain=MUSIC,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    q1303.add_filter(PERSON, "country_of_citizenship")
-    q1303.add_filter("region_country", REGION)
-    q1303.add_filter(MUSIC, "not_voice")
-    queries.append(q1303)
-
-    # Genre
-    q136 = query_factory.create_query(
-        "P136",
-        subject_field=PERSON,
-        object_field=GENRE,
-        domain=MUSIC,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    q136.add_filter(PERSON, "country_of_citizenship")
-    q136.add_filter(PERSON, OCCUPATION)
-    q136.add_filter(OCCUPATION, MUSIC)
-    q136.add_filter("region_country", REGION)
-    queries.append(q136)
-
-    # Record Label
-    q264 = query_factory.create_query(
-        "P264",
-        subject_field=PERSON,
-        object_field=RECORD_LABEL,
-        domain=MUSIC,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    q264.add_filter(PERSON, "country_of_citizenship")
-    q264.add_filter("region_country", REGION)
-    queries.append(q264)
-
-    # Official language of film or tv show
-    q364 = query_factory.create_query(
-        "P364",
-        subject_field=PIECE_OF_WORK,
-        object_field=LANGUAGE,
-        domain=CINEMA_AND_THEATRE,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    q364.add_filter(PIECE_OF_WORK, "country_of_origin")
-    q364.add_filter("region_country", REGION)
-    queries.append(q364)
-
-    # Original Network
-    p449 = query_factory.create_query(
-        "P449",
-        subject_field=PIECE_OF_WORK,
-        object_field=ORIGINAL_NETWORK,
-        domain=domain,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    p449.add_filter(PIECE_OF_WORK, domain)
-    p449.add_filter(PIECE_OF_WORK, "country_of_origin")
-    p449.add_filter("region_country", REGION)
-    queries.append(p449)
-
-    ### SPORTS ###
-    # Country of sports clubs
-    q17 = query_factory.create_query(
-        "P17",
-        subject_field=CLUB,
-        object_field=COUNTRY,
-        domain=SPORTS,
-        region=REGION,
-        region_name=REGION_NAME,
-    )
-    q17.add_filter("region_country", REGION)
-    q17.add_filter(SPORTS, "football")
-    queries.append(q17)
-
-    for region, region_name in zip([REGION], [REGION_NAME]):
-        ### GEOGRAPHY ###
-        # Capital
-        q36 = query_factory.create_query(
-            "P36",
-            subject_field=COUNTRY,
-            object_field=CITY,
-            domain=GEOGRAPHY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q36.add_filter("region_country", region)
-        q36.add_filter(GEOGRAPHY, "not_lost_city")
-        q36.add_filter(GEOGRAPHY, "sovereign_state")
-        queries.append(q36)
-
-        # Capital of
-        q1376 = query_factory.create_query(
-            "P1376",
-            subject_field=CITY,
-            object_field=COUNTRY,
-            domain=GEOGRAPHY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q1376.add_filter("region_country", region)
-        q1376.add_filter(GEOGRAPHY, "not_lost_city")
-        q1376.add_filter(GEOGRAPHY, "sovereign_state")
-        queries.append(q1376)
-
-        #  Continent
-        q30 = query_factory.create_query(
-            "P30",
-            subject_field=COUNTRY,
-            object_field=CONTINENT,
-            domain=GEOGRAPHY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q30.add_filter("region_country", region)
-        q30.add_filter(GEOGRAPHY, "sovereign_state")
-        queries.append(q30)
-
-        # Shares borders with
-        q47 = query_factory.create_query(
-            "P47",
-            subject_field=COUNTRY,
-            object_field=COUNTRY1,
-            domain=GEOGRAPHY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q47.add_filter("region_country", region)
-        q47.add_filter(GEOGRAPHY, "sovereign_state")
-        q47.add_filter(GEOGRAPHY, "sovereign_state1")
-        queries.append(q47)
-
-        # Country (landforms)
-        q17 = query_factory.create_query(
-            "P17",
-            subject_field=PLACE,
-            object_field=COUNTRY,
-            domain=GEOGRAPHY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q17.add_filter("region_country", region)
-        q17.add_filter(GEOGRAPHY, "sovereign_state")
-        q17.add_filter(GEOGRAPHY, "a_landform")
-        q17.add_filter(GEOGRAPHY, "not_an_archaeological_site")
-        queries.append(q17)
-
-        ### HISTORY ###
-        # Country (touristic sites)
-        q17 = query_factory.create_query(
-            "P17",
-            subject_field=PLACE,
-            object_field=COUNTRY,
-            domain=HISTORY,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q17.add_filter("region_country", region)
-        q17.add_filter(GEOGRAPHY, "sovereign_state")
-        q17.add_filter(HISTORY, "a_touristic_place")
-        queries.append(q17)
-
-        ### POLITICS ###
-        # Official language
-        q37 = query_factory.create_query(
-            "P37",
-            subject_field=COUNTRY,
-            object_field=LANGUAGE,
-            domain=POLITICS,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q37.add_filter("region_country", region)
-        q37.add_filter(GEOGRAPHY, "sovereign_state")
-        queries.append(q37)
-
-        # Diplomatic relations
-        q530 = query_factory.create_query(
-            "P530",
-            subject_field=COUNTRY,
-            object_field=COUNTRY1,
-            domain=POLITICS,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q530.add_filter("region_country", region)
-        q530.add_filter(GEOGRAPHY, "sovereign_state")
-        q530.add_filter(GEOGRAPHY, "sovereign_state1")
-        queries.append(q530)
-
-        # Sister city
-        q190 = query_factory.create_query(
-            "P190",
-            subject_field=CITY,
-            object_field=CITY1,
-            domain=POLITICS,
-            region=region,
-            region_name=region_name,
-        )
-        if region != WORLDWIDE:
-            q190.add_filter("region_country", region)
-        q190.add_filter(GEOGRAPHY, "lies_in_country")
-        q190.add_filter(GEOGRAPHY, "big_city")
-        q190.add_filter(GEOGRAPHY, "big_city1")
-        queries.append(q190)
-
-    ### SCIENCE ###
-    # Has part (for chemical compounds)
-    q527 = query_factory.create_query(
-        "P527",
-        subject_field=CHEMICAL_COMPOUND,
-        object_field=CHEMICAL_ELEMENT,
-        domain=SCIENCE,
-        region=WORLDWIDE,
-        region_name=WORLDWIDE,
-    )
-    q527.add_filter(SCIENCE, "is_a_chemical_compound")
-    queries.append(q527)
-
-    for q in queries:
+    for q in cultlama_queries.populate_queries(REGION, REGION_NAME):
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
         logger.info(
@@ -408,55 +49,36 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
         df.sort_values(by="size", ascending=False, inplace=True)
 
         logger.info(f"Total number of subjects: {len(df[q.subject_field].unique())}")
-
-        df.drop_duplicates(subset=[q.subject_field], inplace=True)
         df.reset_index(drop=True, inplace=True)
+        subjects_uris = df[q.subject_field].unique().tolist()
 
         # Start finding all the valid objects and the labels progressively
         BATCH_SIZE = 50
         complete_samples_df = None
         all_subjects_labels = {}
         all_objects_labels = {}
-        for i in range(0, df.shape[0], BATCH_SIZE):
-            batch_df = df.iloc[i : i + BATCH_SIZE]
+        for i in range(0, len(subjects_uris), BATCH_SIZE):
+            batch_start_index = df[df[q.subject_field] == subjects_uris[i]].index[-1]
+            batch_end_index = df[
+                df[q.subject_field]
+                == subjects_uris[min(i + BATCH_SIZE - 1, len(subjects_uris) - 1)]
+            ].index[-1]
+
+            batch_df = df.loc[batch_start_index:batch_end_index]
             logger.info(
                 f"Total number of subjects within the batch for getting labels: {len(batch_df[q.subject_field])}"
             )
 
-            sample_df = batch_df.loc[
+            samples_df = batch_df.loc[
                 :, ["size", q.subject_field, q.object_field,],
             ]
-            sample_df.reset_index(drop=True, inplace=True)
+            samples_df.reset_index(drop=True, inplace=True)
 
             # TODO: Augment with page views as well?
 
-            # Repeat the query to get all the valid objects!
-            subjects_uris = sample_df[q.subject_field].unique().tolist()
-            samples_query = query_factory.create_query(
-                q.relation_id,
-                q.subject_field,
-                q.object_field,
-                q.domain,
-                WORLDWIDE,
-                q.region_name,
-            )
-            samples_query.add_subjects_filter(subjects_uris)
-            samples_data = samples_query.get_data(find_count=False)
-
-            # Use the same order based on the size of the Wikipedia articles
-            samples_data = sorted(
-                samples_data,
-                key=lambda sample: subjects_uris.index(
-                    sample[samples_query.subject_field]
-                ),
-            )
-
-            # Form a dataframe to make it easier to add columns
-            samples_df = pd.DataFrame(samples_data)
-
             # Query the Wikidata labels
-            subjects_ids = samples_df[samples_query.subject_field].tolist()
-            objects_ids = samples_df[samples_query.object_field].tolist()
+            subjects_ids = samples_df[q.subject_field].tolist()
+            objects_ids = samples_df[q.object_field].tolist()
             subjects_labels = utils.get_wikidata_labels(subjects_ids, LIST_OF_LANGS)
             objects_labels = utils.get_wikidata_labels(objects_ids, LIST_OF_LANGS)
 
@@ -469,16 +91,12 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
             )
 
             # Drop the rows having missing labels
-            samples_df["sub_label_missing"] = samples_df[
-                samples_query.subject_field
-            ].apply(
+            samples_df["sub_label_missing"] = samples_df[q.subject_field].apply(
                 lambda uri: any(
                     [subjects_labels[uri][lang] == None for lang in LIST_OF_LANGS]
                 )
             )
-            samples_df["obj_label_missing"] = samples_df[
-                samples_query.object_field
-            ].apply(
+            samples_df["obj_label_missing"] = samples_df[q.object_field].apply(
                 lambda uri: any(
                     [objects_labels[uri][lang] == None for lang in LIST_OF_LANGS]
                 )
@@ -524,9 +142,9 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
         )
 
         # Make the objects a list instead of a single value
-        complete_samples_df[samples_query.object_field] = complete_samples_df[
-            samples_query.object_field
-        ].apply(lambda o: [o])
+        complete_samples_df[q.object_field] = complete_samples_df[q.object_field].apply(
+            lambda o: [o]
+        )
 
         # Export the triples to jsonl files
         for lang in LIST_OF_LANGS:
@@ -565,6 +183,7 @@ if __name__ == "__main__":
         "NORTH_AMERICA_AND_AUSTRALIA": NORTH_AMERICA_AND_AUSTRALIA,
         "SOUTH_AMERICA": SOUTH_AMERICA,
         "SOUTHERN_AFRICA": SOUTHERN_AFRICA,
+        "WESTERN_COUNTRIES": WESTERN_COUNTRIES,
     }
 
     parser = argparse.ArgumentParser()
