@@ -244,6 +244,11 @@ $ cat data/cultlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
 {"sub_uri": "Q1013", "obj_uri": ["Q3909"], "sub_label": "Lesotho", "obj_label": ["Maseru"], "uuid": "P36_geography_SOUTHERN_AFRICA_5"}
 ```
 
+## Utilities
+- Script to quantify the percentage of tuples related to the 21 Western countries (for the predicates that have persons or places as their subjects 
+and/or objects)
+`python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --output_stats_file mLAMA_stats.jsonl`
+
 ## References
 ```bibtex
 @inproceedings{kassner2021multilingual,

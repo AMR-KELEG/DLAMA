@@ -15,10 +15,22 @@ logger.addHandler(ch)
 logger.setLevel(logging.DEBUG)
 
 
+def graceful_get_wikidata_triples(query, max_retries=5):
+    graceful_delay = 1
+    while max_retries > 0:
+        try:
+            return get_wikidata_triples(query)
+        except Exception as e:
+            print(e)
+            time.sleep(graceful_delay)
+            max_retries -= 1
+            graceful_delay *= 2
+
+
 def get_wikidata_triples(query):
     """Query wikidata using a SPARQL query"""
     url = "https://query.wikidata.org/sparql"
-    r = requests.post(url, params={"format": "json", "query": query})
+    r = requests.post(url, params={"format": "json"}, data={"query": query})
     data = r.json()
     return data["results"]["bindings"]
 
