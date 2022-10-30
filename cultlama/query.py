@@ -80,6 +80,9 @@ class Query:
             fields_to_return = "SELECT (COUNT(*) as ?count)"
         else:
             fields_to_return = f"SELECT ?{self.subject_field} ?{self.object_field} "
+            # Avoid returning the same field twice as it causes SPAQRL errors
+            if "country" not in [self.subject_field, self.object_field]:
+                fields_to_return += "?country "
             fields_to_return += "".join(
                 [f"?subject_article_{lang} " for lang in self.wikipedia_langs]
             )

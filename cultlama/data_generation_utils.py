@@ -10,17 +10,25 @@ def form_triple_from_shared_subject(subject_df, q):
     sub_uri = subject_df[q.subject_field].iloc[0]
     obj_uri = subject_df[q.object_field].tolist()
     sub_label = subject_df["sub_label"].iloc[0]
+    sub_article_sizes = subject_df["size"].tolist()
+
+    try:
+        assert len(set(sub_article_sizes)) == 1
+    except:
+        print(set(sub_article_sizes))
+
     obj_label_dict = {
         uri: label
         for uri, label in zip(
-            sum(subject_df[q.object_field].tolist(), []),
-            sum(subject_df["obj_label"].tolist(), []),
+            subject_df[q.object_field].tolist(), subject_df["obj_label"].tolist(),
         )
     }
     triple_dict["sub_uri"] = sub_uri
-    triple_dict["obj_uri"] = sorted(set(sum(obj_uri, [])))
+    triple_dict["obj_uri"] = sorted(set(obj_uri))
     triple_dict["sub_label"] = sub_label
     triple_dict["obj_label"] = [obj_label_dict[uri] for uri in triple_dict["obj_uri"]]
+    triple_dict["country"] = sorted(set(subject_df["country"].tolist()))
+    triple_dict["size"] = max(sub_article_sizes)
 
     return triple_dict
 

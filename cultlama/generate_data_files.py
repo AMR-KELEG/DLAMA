@@ -31,8 +31,6 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
     for lang in LIST_OF_LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
 
-    query_factory = QueryFactory()
-
     for q in cultlama_queries.populate_queries(REGION, REGION_NAME):
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
@@ -44,6 +42,9 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
 
         # Form a dataframe to make it easier to add columns
         df = pd.DataFrame(data)
+
+        #  Filter out Wikidata triples having no articles on Wikipedia
+        df = df[df["size"] != 0].reset_index(drop=True)
 
         # Sort the triples using the articles' sizes
         df.sort_values(by="size", ascending=False, inplace=True)
@@ -58,22 +59,23 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
         all_subjects_labels = {}
         all_objects_labels = {}
         for i in range(0, len(subjects_uris), BATCH_SIZE):
-            batch_start_index = df[df[q.subject_field] == subjects_uris[i]].index[-1]
+            batch_start_index = df[df[q.subject_field] == subjects_uris[i]].index[0]
             batch_end_index = df[
                 df[q.subject_field]
                 == subjects_uris[min(i + BATCH_SIZE - 1, len(subjects_uris) - 1)]
             ].index[-1]
 
-            batch_df = df.loc[batch_start_index:batch_end_index]
+            columns = ["size", q.subject_field, q.object_field] + (
+                ["country"]
+                if "country" not in [q.subject_field, q.object_field]
+                else []
+            )
+            samples_df = df.loc[batch_start_index:batch_end_index, columns]
             logger.info(
-                f"Total number of subjects within the batch for getting labels: {len(batch_df[q.subject_field])}"
+                f"Total number of subjects within the batch for getting labels: {len(samples_df[q.subject_field])}"
             )
 
-            samples_df = batch_df.loc[
-                :, ["size", q.subject_field, q.object_field,],
-            ]
             samples_df.reset_index(drop=True, inplace=True)
-
             # TODO: Augment with page views as well?
 
             # Query the Wikidata labels
@@ -90,7 +92,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
                 list(all_objects_labels.items()) + list(objects_labels.items())
             )
 
-            # Drop the rows having missing labels
+            # Drop the rows having missing labels in any of the languages specified
             samples_df["sub_label_missing"] = samples_df[q.subject_field].apply(
                 lambda uri: any(
                     [subjects_labels[uri][lang] == None for lang in LIST_OF_LANGS]
@@ -114,6 +116,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
             else:
                 complete_samples_df = pd.concat([complete_samples_df, samples_df])
 
+            # Pick the top SAMPLE_SIZE tuples in case the queried tuples exceed the limit
             if len(set(complete_samples_df[q.subject_field].tolist())) > SAMPLE_SIZE:
                 # Find the number of rows to have SAMPLE_SIZE unique subjects
                 size_lower, size_upper = 1, complete_samples_df.shape[0]
@@ -141,11 +144,6 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
             f"Final number of subjects: {len(complete_samples_df[q.subject_field].unique())}"
         )
 
-        # Make the objects a list instead of a single value
-        complete_samples_df[q.object_field] = complete_samples_df[q.object_field].apply(
-            lambda o: [o]
-        )
-
         # Export the triples to jsonl files
         for lang in LIST_OF_LANGS:
             filename = Path(
@@ -158,9 +156,8 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
             ].apply(lambda uri: all_subjects_labels[uri][lang])
             complete_samples_df["obj_label"] = complete_samples_df[
                 q.object_field
-            ].apply(
-                lambda uris_list: [all_objects_labels[uri][lang] for uri in uris_list]
-            )
+            ].apply(lambda uri: all_objects_labels[uri][lang])
+
             data_generation_utils.generate_facts_jsonl(complete_samples_df, q, filename)
 
             logger.info(
