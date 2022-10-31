@@ -247,7 +247,6 @@ class Bert(Base_Connector):
             logger.debug("\n{}\n".format(tokenized_text_list))
 
         with torch.no_grad():
-            torch.cuda.empty_cache()
             logits = self.masked_bert_model(
                 input_ids=tokens_tensor.to(self._model_device),
                 token_type_ids=segments_tensor.to(self._model_device),
@@ -277,7 +276,6 @@ class Bert(Base_Connector):
         ) = self.__get_input_tensors_batch(sentences_list)
 
         with torch.no_grad():
-            torch.cuda.empty_cache()
             all_encoder_layers, _ = self.bert_model(
                 tokens_tensor.to(self._model_device),
                 segments_tensor.to(self._model_device),
