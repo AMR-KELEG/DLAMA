@@ -21,6 +21,7 @@ def run_experiments(
     relations_templates,
     data_path_pre,
     language,
+    device,
     input_param={
         "lm": "bert",
         "label": "bert_large",
@@ -127,7 +128,7 @@ def run_experiments(
 
 
 def run_experiment_on_list_of_lms(
-    relations_templates, data_path_pre, language, language_models, use_cultlama
+    relations_templates, data_path_pre, language, language_models, use_cultlama, device
 ):
     for lm in language_models:
         print(lm["label"])
@@ -138,6 +139,7 @@ def run_experiment_on_list_of_lms(
                 language,
                 input_param=lm,
                 use_cultlama=use_cultlama,
+                device=device,
             )
         except Exception as e:
             print(e)
@@ -167,6 +169,9 @@ def main():
         default=None,
         help="The path of the templates file",
     )
+    parser.add_argument(
+        "--device", required=False, default="cpu", help="GPU's device ID to use",
+    )
 
     args = parser.parse_args()
     language = args.lang
@@ -193,6 +198,7 @@ def main():
         language,
         language_models,
         use_cultlama=args.cultlama,
+        device=args.device,
     )
 
 

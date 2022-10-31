@@ -45,8 +45,8 @@ class CustomBaseTokenizer(BasicTokenizer):
 
 
 class Bert(Base_Connector):
-    def __init__(self, bert_model_name):
-        super().__init__()
+    def __init__(self, bert_model_name, device):
+        super().__init__(device)
 
         # When using a cased model, make sure to pass do_lower_case=False directly to BaseTokenizer
         do_lower_case = False
@@ -227,7 +227,7 @@ class Bert(Base_Connector):
 
     #  TODO: Move this to a configuration file
     def _cuda(self):
-        self.masked_bert_model.cuda("cuda:3")
+        self.masked_bert_model.cuda(self._model_device)
 
     def get_batch_generation(self, sentences_list, logger=None, try_cuda=True):
         if not sentences_list:
