@@ -20,7 +20,6 @@ def populate_queries(REGION, REGION_NAME):
             region_name=REGION_NAME,
         )
         q27.add_filter(PERSON, OCCUPATION)
-        # q27.add_filter(OCCUPATION, domain)
         q27.add_filter("region_country", REGION)
         CultLAMA_queries.append(q27)
 
@@ -33,7 +32,6 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        # q106.add_filter(OCCUPATION, domain)
         q106.add_filter(PERSON, "country_of_citizenship")
         q106.add_filter("region_country", REGION)
         CultLAMA_queries.append(q106)
@@ -47,7 +45,6 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        # q103.add_filter(OCCUPATION, domain)
         q103.add_filter(PERSON, "country_of_citizenship")
         q103.add_filter(PERSON, OCCUPATION)
         q103.add_filter("region_country", REGION)
@@ -62,7 +59,6 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        # q1412.add_filter(OCCUPATION, domain)
         q1412.add_filter(PERSON, "country_of_citizenship")
         q1412.add_filter(PERSON, OCCUPATION)
         q1412.add_filter("region_country", REGION)
@@ -77,7 +73,6 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        # q19.add_filter(OCCUPATION, domain)
         q19.add_filter(PERSON, OCCUPATION)
         q19.add_filter(GEOGRAPHY, "lies_in_country")
         q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
@@ -94,13 +89,24 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        # q20.add_filter(OCCUPATION, domain)
         q20.add_filter(PERSON, OCCUPATION)
         q20.add_filter(GEOGRAPHY, "lies_in_country")
         q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
         q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
         q20.add_filter("region_country", REGION)
         CultLAMA_queries.append(q20)
+
+        # Country of a place
+        q17 = query_factory.create_query(
+            "P17",
+            subject_field=PLACE,
+            object_field=COUNTRY,
+            domain=domain,
+            region=REGION,
+            region_name=REGION_NAME,
+        )
+        q17.add_filter("region_country", REGION)
+        CultLAMA_queries.append(q17)
 
         ### Entertainment ###
         for domain in [MUSIC, CINEMA_AND_THEATRE]:
@@ -114,7 +120,6 @@ def populate_queries(REGION, REGION_NAME):
                 region_name=REGION_NAME,
             )
             p495.add_filter("region_country", REGION)
-            p495.add_filter(PIECE_OF_WORK, domain)
             CultLAMA_queries.append(p495)
 
             # Language of work or name
@@ -126,7 +131,6 @@ def populate_queries(REGION, REGION_NAME):
                 region=REGION,
                 region_name=REGION_NAME,
             )
-            p407.add_filter(PIECE_OF_WORK, domain)
             p407.add_filter(PIECE_OF_WORK, "country_of_origin")
             p407.add_filter("region_country", REGION)
             CultLAMA_queries.append(p407)
@@ -142,7 +146,6 @@ def populate_queries(REGION, REGION_NAME):
         )
         q1303.add_filter(PERSON, "country_of_citizenship")
         q1303.add_filter("region_country", REGION)
-        q1303.add_filter(MUSIC, "not_voice")
         CultLAMA_queries.append(q1303)
 
         # Genre
@@ -156,7 +159,6 @@ def populate_queries(REGION, REGION_NAME):
         )
         q136.add_filter(PERSON, "country_of_citizenship")
         q136.add_filter(PERSON, OCCUPATION)
-        q136.add_filter(OCCUPATION, MUSIC)
         q136.add_filter("region_country", REGION)
         CultLAMA_queries.append(q136)
 
@@ -195,24 +197,9 @@ def populate_queries(REGION, REGION_NAME):
             region=REGION,
             region_name=REGION_NAME,
         )
-        p449.add_filter(PIECE_OF_WORK, domain)
         p449.add_filter(PIECE_OF_WORK, "country_of_origin")
         p449.add_filter("region_country", REGION)
         CultLAMA_queries.append(p449)
-
-        ### SPORTS ###
-        # Country of sports clubs
-        q17 = query_factory.create_query(
-            "P17",
-            subject_field=CLUB,
-            object_field=COUNTRY,
-            domain=SPORTS,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q17.add_filter("region_country", REGION)
-        q17.add_filter(SPORTS, "football")
-        CultLAMA_queries.append(q17)
 
         for region, region_name in zip([REGION], [REGION_NAME]):
             ### GEOGRAPHY ###
@@ -227,7 +214,6 @@ def populate_queries(REGION, REGION_NAME):
             )
             if region != WORLDWIDE:
                 q36.add_filter("region_country", region)
-            q36.add_filter(GEOGRAPHY, "not_lost_city")
             q36.add_filter(GEOGRAPHY, "sovereign_state")
             CultLAMA_queries.append(q36)
 
@@ -242,7 +228,6 @@ def populate_queries(REGION, REGION_NAME):
             )
             if region != WORLDWIDE:
                 q1376.add_filter("region_country", region)
-            q1376.add_filter(GEOGRAPHY, "not_lost_city")
             q1376.add_filter(GEOGRAPHY, "sovereign_state")
             CultLAMA_queries.append(q1376)
 
@@ -274,38 +259,6 @@ def populate_queries(REGION, REGION_NAME):
             q47.add_filter(GEOGRAPHY, "sovereign_state")
             q47.add_filter(GEOGRAPHY, "sovereign_state1")
             CultLAMA_queries.append(q47)
-
-            # Country (landforms)
-            q17 = query_factory.create_query(
-                "P17",
-                subject_field=PLACE,
-                object_field=COUNTRY,
-                domain=GEOGRAPHY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q17.add_filter("region_country", region)
-            q17.add_filter(GEOGRAPHY, "sovereign_state")
-            q17.add_filter(GEOGRAPHY, "a_landform")
-            q17.add_filter(GEOGRAPHY, "not_an_archaeological_site")
-            CultLAMA_queries.append(q17)
-
-            ### HISTORY ###
-            # Country (touristic sites)
-            q17 = query_factory.create_query(
-                "P17",
-                subject_field=PLACE,
-                object_field=COUNTRY,
-                domain=HISTORY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q17.add_filter("region_country", region)
-            q17.add_filter(GEOGRAPHY, "sovereign_state")
-            q17.add_filter(HISTORY, "a_touristic_place")
-            CultLAMA_queries.append(q17)
 
             ### POLITICS ###
             # Official language
