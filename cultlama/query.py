@@ -16,7 +16,8 @@ logger.setLevel(logging.DEBUG)
 
 
 class Query:
-    # TODO: Add docstrings
+    """A Wikidata SPARQL query object."""
+
     def __init__(
         self,
         relation_id,
@@ -39,42 +40,31 @@ class Query:
 
         assert relation_id.startswith("P")
 
-    def add_filter(self, filter_name, filter_key):
+    def add_filter(self, filter_domain, filter_name):
+        """Populate the list of filters to be used for the query.
+
+        Args:
+            filter_domain: The main domain of the filter of FILTERS_DICTIONARY.
+            filter_name: The name of the filter to use within the domain.
+        """
         filters = []
-        filters_dict = FILTERS_DICTIONARY[filter_name]
+        filters_dict = FILTERS_DICTIONARY[filter_domain]
 
-        filters.append(filters_dict[filter_key])
-
-        # Add the common filter for this filter type
-        if "common" in filters_dict:
-            filters.append(filters_dict["common"])
+        filters.append(filters_dict[filter_name])
 
         #  Add the filter to the list of filters
         self.filters = self.filters + filters
 
-    def add_subjects_filter(self, subjects_uris):
-        subjects_uris = " ".join([f"wd:{uri}" for uri in subjects_uris])
-        self.filters.append(f"VALUES ?{self.subject_field} {{{subjects_uris}}}.")
-
-        # TODO: Find a better place to add this filter!
-        # Filter out historical countries
-        if self.object_field == COUNTRY or self.subject_field == COUNTRY:
-            self.add_filter(GEOGRAPHY, "sovereign_state")
-            self.add_filter(GEOGRAPHY, "not_historical_country")
-        if self.object_field == COUNTRY1 or self.subject_field == COUNTRY1:
-            self.add_filter(GEOGRAPHY, "sovereign_state1")
-            self.add_filter(GEOGRAPHY, "not_historical_country1")
-        if self.object_field == CITY:
-            self.add_filter(GEOGRAPHY, "not_lost_city")
-            self.add_filter(GEOGRAPHY, "city_not_sovereign_state")
-            self.add_filter(GEOGRAPHY, "city_not_historical_state")
-            self.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
-        if self.object_field == INSTRUMENT:
-            self.add_filter(MUSIC, "not_voice")
-        if self.object_field == LANGUAGE:
-            self.add_filter(LANGUAGE, "not_sign_language")
-
     def build_query(self, find_count=False, limit=None):
+        """Form the query while ordering the filters in an optimized way.
+
+        Args:
+            find_count: Only return the count of the entries fulfilling the conditions.
+            limit: The number of entries to return.
+
+        Returns:
+            A SPARQL query in the form of a string.
+        """
         sparql_query_lines = []
         if find_count:
             fields_to_return = "SELECT (COUNT(*) as ?count)"
@@ -150,6 +140,15 @@ class Query:
         return "\n".join(sparql_query_lines).expandtabs(4)
 
     def parse_query(self, find_count=False, limit=None):
+        """Execute the SPARQL query.
+
+        Args:
+            find_count: Only return the count of the entries fulfilling the conditions.
+            limit: The number of entries to return.
+
+        Returns:
+            A list of dictionaries representing the results.
+        """
         sparql_query = self.build_query(find_count, limit)
         relation_triples = utils.get_wikidata_triples(sparql_query)
         parsed_data = utils.parse_sparql_results(relation_triples)
@@ -157,6 +156,16 @@ class Query:
         return parsed_data
 
     def get_data(self, find_count=False, limit=None, no_retries=10):
+        """Execute the SPARQL query with the ability to retry in case of failure.
+
+        Args:
+            find_count: Only return the count of the entries fulfilling the conditions.
+            limit: The number of entries to return.
+            no_retries: The number of times to retry executing the query before giving up.
+
+        Returns:
+            A list of dictionaries representing the results.
+        """
         while no_retries:
             try:
                 print(self.build_query(find_count, limit))
@@ -207,6 +216,8 @@ class Query:
 
 
 class GroupedQuery:
+    """An object of a list of Wikidata SPARQL queries."""
+
     def __init__(
         self, relation_id, subject_field, object_field, domain, region, region_name,
     ):
@@ -216,39 +227,64 @@ class GroupedQuery:
         self.domain = domain
         self.region = region
         self.region_name = region_name
-        self.lazy_filters = []
+        self.lazy_filters = (
+            []
+        )  # Lazy filters are filters that are used only on forming each subquery
         self.subqueries = None
 
         assert relation_id.startswith("P")
 
-    def add_filter(self, filter_name, filter_key):
-        self.lazy_filters.append({"filter_name": filter_name, "filter_key": filter_key})
+    def add_filter(self, filter_domain, filter_name):
+        """Populate the list of filters to be used for the query.
+
+        Args:
+            filter_domain: The main domain of the filter of FILTERS_DICTIONARY.
+            filter_name: The name of the filter to use within the domain.
+        """
+        self.lazy_filters.append(
+            {"filter_domain": filter_domain, "filter_name": filter_name}
+        )
 
     def form_subqueries(self):
+        """Form separate SPARQL queries for each country within the region."""
         self.subqueries = []
-        for region in self.region:
+        for country in self.region:
             #  Build a subquery
             subquery = Query(
                 relation_id=self.relation_id,
                 subject_field=self.subject_field,
                 object_field=self.object_field,
                 domain=self.domain,
-                region=region,
+                region=country,
                 region_name=self.region_name,
             )
             # Add the lazy filters
             for filter in self.lazy_filters:
+                filter_domain = filter["filter_domain"]
                 filter_name = filter["filter_name"]
-                filter_key = filter["filter_key"]
 
-                if filter_key == self.region:
-                    subquery.add_filter(filter_name=filter_name, filter_key=region)
+                if filter_name == self.region:
+                    subquery.add_filter(
+                        filter_domain=filter_domain, filter_name=country
+                    )
                 else:
-                    subquery.add_filter(filter_name=filter_name, filter_key=filter_key)
+                    subquery.add_filter(
+                        filter_domain=filter_domain, filter_name=filter_name
+                    )
 
             self.subqueries.append(subquery)
 
     def get_data(self, find_count=False, limit=None, no_retries=10):
+        """Execute the SPARQL subqueries in series.
+
+        Args:
+            find_count: Only return the count of the entries fulfilling the conditions.
+            limit: The number of entries to return.
+            no_retries: The number of times to retry executing the query before giving up.
+
+        Returns:
+            A list of dictionaries representing the results for the whole region.
+        """
         self.form_subqueries()
         data = []
         for subquery in self.subqueries:
@@ -258,13 +294,17 @@ class GroupedQuery:
 
 
 class QueryFactory:
+    """A class for forming queries based on the type of the region used."""
+
     def create_query(
         self, relation_id, subject_field, object_field, domain, region, region_name
     ):
+        #  The region is a list of countries
         if type(region) == type([]):
             return GroupedQuery(
                 relation_id, subject_field, object_field, domain, region, region_name
             )
+        #  The region is a single country/ a single group of countries (e.g.: Arab region)
         else:
             return Query(
                 relation_id, subject_field, object_field, domain, region, region_name
