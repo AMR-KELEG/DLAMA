@@ -94,7 +94,7 @@ FILTERS_DICTIONARY = {
         "not_lost_city": f"MINUS {{?{CITY} wdt:P31 wd:Q2974842}} . # A lost city",
         "not_historical_country": f"MINUS {{?{COUNTRY} wdt:P31 wd:Q3024240}} . # Discard historical countries",
         "not_historical_country1": f"MINUS {{?{COUNTRY1} wdt:P31 wd:Q3024240}} . # Discard historical countries",
-        "lies_in_country": f"?{CITY} (wdt:P131|wdt:P17) ?{COUNTRY} . # city lies in country",
+        "city_lies_in_country": f"?{CITY} (wdt:P131|wdt:P17) ?{COUNTRY} . # city lies in country",
         "big_city": f"?{CITY} wdt:P31 wd:Q1549591 . # A big city",
         "big_city1": f"?{CITY1} wdt:P31 wd:Q1549591 . # A big city",
         "city_not_sovereign_state": f"MINUS {{?{CITY} wdt:P31 wd:Q3624078 }} . # The city is not a sovereign country",

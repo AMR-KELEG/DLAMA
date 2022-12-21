@@ -4,319 +4,321 @@ from query import QueryFactory
 
 
 def populate_queries(REGION, REGION_NAME):
+    """Form the queries with their respective filters.
+
+    Args:
+        REGION: A single country/ group of countries or a list of countries.
+        REGION_NAME: A string to be used for naming the results files of the queries after execution.
+
+    Returns:
+        A list of SPAQRL query objects.
+    """
     ### ALL DOMAINS ###
     CultLAMA_queries = []
     query_factory = QueryFactory()
 
-    # for domain in [CINEMA_AND_THEATRE, POLITICS, SPORTS, MUSIC]:
-    for domain in ["general"]:
-        # Country of citizenship
-        q27 = query_factory.create_query(
-            "P27",
-            subject_field=PERSON,
-            object_field=COUNTRY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q27.add_filter(PERSON, OCCUPATION)
-        q27.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q27)
+    # TODO: Reconsider whether having a domain for each query is useful.
+    DOMAIN = "general"
 
-        # Occupation
-        q106 = query_factory.create_query(
-            "P106",
-            subject_field=PERSON,
-            object_field=OCCUPATION,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q106.add_filter(PERSON, "country_of_citizenship")
-        q106.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q106)
+    # Country of citizenship
+    q27 = query_factory.create_query(
+        "P27",
+        subject_field=PERSON,
+        object_field=COUNTRY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q27.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q27)
 
-        # Native language
-        q103 = query_factory.create_query(
-            "P103",
-            subject_field=PERSON,
-            object_field=LANGUAGE,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q103.add_filter(PERSON, "country_of_citizenship")
-        q103.add_filter(PERSON, OCCUPATION)
-        q103.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q103)
+    # Occupation
+    q106 = query_factory.create_query(
+        "P106",
+        subject_field=PERSON,
+        object_field=OCCUPATION,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q106.add_filter(PERSON, "country_of_citizenship")
+    q106.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q106)
 
-        # Languages spoken or published
-        q1412 = query_factory.create_query(
-            "P1412",
-            subject_field=PERSON,
-            object_field=LANGUAGE,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q1412.add_filter(PERSON, "country_of_citizenship")
-        q1412.add_filter(PERSON, OCCUPATION)
-        q1412.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q1412)
+    # Native language
+    q103 = query_factory.create_query(
+        "P103",
+        subject_field=PERSON,
+        object_field=LANGUAGE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q103.add_filter(PERSON, "country_of_citizenship")
+    q103.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q103)
 
-        # Place of birth
-        q19 = query_factory.create_query(
-            "P19",
-            subject_field=PERSON,
-            object_field=CITY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q19.add_filter(PERSON, OCCUPATION)
-        q19.add_filter(GEOGRAPHY, "lies_in_country")
-        q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
-        q19.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
-        q19.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q19)
+    # Languages spoken or published
+    q1412 = query_factory.create_query(
+        "P1412",
+        subject_field=PERSON,
+        object_field=LANGUAGE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q1412.add_filter(PERSON, "country_of_citizenship")
+    q1412.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q1412)
 
-        # Place of death
-        q20 = query_factory.create_query(
-            "P20",
-            subject_field=PERSON,
-            object_field=CITY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q20.add_filter(PERSON, OCCUPATION)
-        q20.add_filter(GEOGRAPHY, "lies_in_country")
-        q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
-        q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
-        q20.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q20)
+    # Place of birth
+    q19 = query_factory.create_query(
+        "P19",
+        subject_field=PERSON,
+        object_field=CITY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q19.add_filter(GEOGRAPHY, "city_lies_in_country")
+    q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
+    q19.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
+    q19.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q19)
 
-        # Country of a place
-        q17 = query_factory.create_query(
-            "P17",
-            subject_field=PLACE,
-            object_field=COUNTRY,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q17.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q17)
+    # Place of death
+    q20 = query_factory.create_query(
+        "P20",
+        subject_field=PERSON,
+        object_field=CITY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q20.add_filter(GEOGRAPHY, "city_lies_in_country")
+    q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
+    q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
+    q20.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q20)
 
-        ### Entertainment ###
-        for domain in [MUSIC, CINEMA_AND_THEATRE]:
-            # Country of origin
-            p495 = query_factory.create_query(
-                "P495",
-                subject_field=PIECE_OF_WORK,
-                object_field=COUNTRY,
-                domain=domain,
-                region=REGION,
-                region_name=REGION_NAME,
-            )
-            p495.add_filter("region_country", REGION)
-            CultLAMA_queries.append(p495)
+    # Country of a place
+    q17 = query_factory.create_query(
+        "P17",
+        subject_field=PLACE,
+        object_field=COUNTRY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q17.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q17)
 
-            # Language of work or name
-            p407 = query_factory.create_query(
-                "P407",
-                subject_field=PIECE_OF_WORK,
-                object_field=LANGUAGE,
-                domain=domain,
-                region=REGION,
-                region_name=REGION_NAME,
-            )
-            p407.add_filter(PIECE_OF_WORK, "country_of_origin")
-            p407.add_filter("region_country", REGION)
-            CultLAMA_queries.append(p407)
+    ### Entertainment ###
+    # Country of origin
+    p495 = query_factory.create_query(
+        "P495",
+        subject_field=PIECE_OF_WORK,
+        object_field=COUNTRY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    p495.add_filter("region_country", REGION)
+    CultLAMA_queries.append(p495)
 
-        # Instrument
-        q1303 = query_factory.create_query(
-            "P1303",
-            subject_field=PERSON,
-            object_field=INSTRUMENT,
-            domain=MUSIC,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q1303.add_filter(PERSON, "country_of_citizenship")
-        q1303.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q1303)
+    # Language of work or name
+    p407 = query_factory.create_query(
+        "P407",
+        subject_field=PIECE_OF_WORK,
+        object_field=LANGUAGE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    p407.add_filter(PIECE_OF_WORK, "country_of_origin")
+    p407.add_filter("region_country", REGION)
+    CultLAMA_queries.append(p407)
 
-        # Genre
-        q136 = query_factory.create_query(
-            "P136",
-            subject_field=PERSON,
-            object_field=GENRE,
-            domain=MUSIC,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q136.add_filter(PERSON, "country_of_citizenship")
-        q136.add_filter(PERSON, OCCUPATION)
-        q136.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q136)
+    # Instrument
+    q1303 = query_factory.create_query(
+        "P1303",
+        subject_field=PERSON,
+        object_field=INSTRUMENT,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q1303.add_filter(PERSON, "country_of_citizenship")
+    q1303.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q1303)
 
-        # Record Label
-        q264 = query_factory.create_query(
-            "P264",
-            subject_field=PERSON,
-            object_field=RECORD_LABEL,
-            domain=MUSIC,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q264.add_filter(PERSON, "country_of_citizenship")
-        q264.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q264)
+    # Genre
+    q136 = query_factory.create_query(
+        "P136",
+        subject_field=PERSON,
+        object_field=GENRE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q136.add_filter(PERSON, "country_of_citizenship")
+    q136.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q136)
 
-        # Official language of film or tv show
-        q364 = query_factory.create_query(
-            "P364",
-            subject_field=PIECE_OF_WORK,
-            object_field=LANGUAGE,
-            domain=CINEMA_AND_THEATRE,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        q364.add_filter(PIECE_OF_WORK, "country_of_origin")
-        q364.add_filter("region_country", REGION)
-        CultLAMA_queries.append(q364)
+    # Record Label
+    q264 = query_factory.create_query(
+        "P264",
+        subject_field=PERSON,
+        object_field=RECORD_LABEL,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q264.add_filter(PERSON, "country_of_citizenship")
+    q264.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q264)
 
-        # Original Network
-        p449 = query_factory.create_query(
-            "P449",
-            subject_field=PIECE_OF_WORK,
-            object_field=ORIGINAL_NETWORK,
-            domain=domain,
-            region=REGION,
-            region_name=REGION_NAME,
-        )
-        p449.add_filter(PIECE_OF_WORK, "country_of_origin")
-        p449.add_filter("region_country", REGION)
-        CultLAMA_queries.append(p449)
+    # Official language of film or tv show
+    q364 = query_factory.create_query(
+        "P364",
+        subject_field=PIECE_OF_WORK,
+        object_field=LANGUAGE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    q364.add_filter(PIECE_OF_WORK, "country_of_origin")
+    q364.add_filter("region_country", REGION)
+    CultLAMA_queries.append(q364)
 
-        for region, region_name in zip([REGION], [REGION_NAME]):
-            ### GEOGRAPHY ###
-            # Capital
-            q36 = query_factory.create_query(
-                "P36",
-                subject_field=COUNTRY,
-                object_field=CITY,
-                domain=GEOGRAPHY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q36.add_filter("region_country", region)
-            q36.add_filter(GEOGRAPHY, "sovereign_state")
-            CultLAMA_queries.append(q36)
+    # Original Network
+    p449 = query_factory.create_query(
+        "P449",
+        subject_field=PIECE_OF_WORK,
+        object_field=ORIGINAL_NETWORK,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    p449.add_filter(PIECE_OF_WORK, "country_of_origin")
+    p449.add_filter("region_country", REGION)
+    CultLAMA_queries.append(p449)
 
-            # Capital of
-            q1376 = query_factory.create_query(
-                "P1376",
-                subject_field=CITY,
-                object_field=COUNTRY,
-                domain=GEOGRAPHY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q1376.add_filter("region_country", region)
-            q1376.add_filter(GEOGRAPHY, "sovereign_state")
-            CultLAMA_queries.append(q1376)
+    ### GEOGRAPHY ###
+    # Capital
+    q36 = query_factory.create_query(
+        "P36",
+        subject_field=COUNTRY,
+        object_field=CITY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q36.add_filter("region_country", REGION)
+    q36.add_filter(GEOGRAPHY, "sovereign_state")
+    CultLAMA_queries.append(q36)
 
-            #  Continent
-            q30 = query_factory.create_query(
-                "P30",
-                subject_field=COUNTRY,
-                object_field=CONTINENT,
-                domain=GEOGRAPHY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q30.add_filter("region_country", region)
-            q30.add_filter(GEOGRAPHY, "sovereign_state")
-            CultLAMA_queries.append(q30)
+    # Capital of
+    q1376 = query_factory.create_query(
+        "P1376",
+        subject_field=CITY,
+        object_field=COUNTRY,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q1376.add_filter("region_country", REGION)
+    q1376.add_filter(GEOGRAPHY, "sovereign_state")
+    CultLAMA_queries.append(q1376)
 
-            # Shares borders with
-            q47 = query_factory.create_query(
-                "P47",
-                subject_field=COUNTRY,
-                object_field=COUNTRY1,
-                domain=GEOGRAPHY,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q47.add_filter("region_country", region)
-            q47.add_filter(GEOGRAPHY, "sovereign_state")
-            q47.add_filter(GEOGRAPHY, "sovereign_state1")
-            CultLAMA_queries.append(q47)
+    #  Continent
+    q30 = query_factory.create_query(
+        "P30",
+        subject_field=COUNTRY,
+        object_field=CONTINENT,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q30.add_filter("region_country", REGION)
+    q30.add_filter(GEOGRAPHY, "sovereign_state")
+    CultLAMA_queries.append(q30)
 
-            ### POLITICS ###
-            # Official language
-            q37 = query_factory.create_query(
-                "P37",
-                subject_field=COUNTRY,
-                object_field=LANGUAGE,
-                domain=POLITICS,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q37.add_filter("region_country", region)
-            q37.add_filter(GEOGRAPHY, "sovereign_state")
-            CultLAMA_queries.append(q37)
+    # Shares borders with
+    q47 = query_factory.create_query(
+        "P47",
+        subject_field=COUNTRY,
+        object_field=COUNTRY1,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q47.add_filter("region_country", REGION)
+    q47.add_filter(GEOGRAPHY, "sovereign_state")
+    q47.add_filter(GEOGRAPHY, "sovereign_state1")
+    CultLAMA_queries.append(q47)
 
-            # Diplomatic relations
-            q530 = query_factory.create_query(
-                "P530",
-                subject_field=COUNTRY,
-                object_field=COUNTRY1,
-                domain=POLITICS,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q530.add_filter("region_country", region)
-            q530.add_filter(GEOGRAPHY, "sovereign_state")
-            q530.add_filter(GEOGRAPHY, "sovereign_state1")
-            CultLAMA_queries.append(q530)
+    ### POLITICS ###
+    # Official language
+    q37 = query_factory.create_query(
+        "P37",
+        subject_field=COUNTRY,
+        object_field=LANGUAGE,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q37.add_filter("region_country", REGION)
+    q37.add_filter(GEOGRAPHY, "sovereign_state")
+    CultLAMA_queries.append(q37)
 
-            # Sister city
-            q190 = query_factory.create_query(
-                "P190",
-                subject_field=CITY,
-                object_field=CITY1,
-                domain=POLITICS,
-                region=region,
-                region_name=region_name,
-            )
-            if region != WORLDWIDE:
-                q190.add_filter("region_country", region)
-            q190.add_filter(GEOGRAPHY, "lies_in_country")
-            q190.add_filter(GEOGRAPHY, "big_city")
-            q190.add_filter(GEOGRAPHY, "big_city1")
-            CultLAMA_queries.append(q190)
+    # Diplomatic relations
+    q530 = query_factory.create_query(
+        "P530",
+        subject_field=COUNTRY,
+        object_field=COUNTRY1,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q530.add_filter("region_country", REGION)
+    q530.add_filter(GEOGRAPHY, "sovereign_state")
+    q530.add_filter(GEOGRAPHY, "sovereign_state1")
+    CultLAMA_queries.append(q530)
 
-        ### SCIENCE ###
-        # Has part (for chemical compounds)
-        q527 = query_factory.create_query(
-            "P527",
-            subject_field=CHEMICAL_COMPOUND,
-            object_field=CHEMICAL_ELEMENT,
-            domain=SCIENCE,
-            region=WORLDWIDE,
-            region_name=WORLDWIDE,
-        )
-        q527.add_filter(SCIENCE, "is_a_chemical_compound")
-        CultLAMA_queries.append(q527)
+    # Sister city
+    q190 = query_factory.create_query(
+        "P190",
+        subject_field=CITY,
+        object_field=CITY1,
+        domain=DOMAIN,
+        region=REGION,
+        region_name=REGION_NAME,
+    )
+    if REGION != WORLDWIDE:
+        q190.add_filter("region_country", REGION)
+    q190.add_filter(GEOGRAPHY, "city_lies_in_country")
+    q190.add_filter(GEOGRAPHY, "big_city")
+    q190.add_filter(GEOGRAPHY, "big_city1")
+    CultLAMA_queries.append(q190)
+
+    ### SCIENCE ###
+    # Has part (for chemical compounds)
+    q527 = query_factory.create_query(
+        "P527",
+        subject_field=CHEMICAL_COMPOUND,
+        object_field=CHEMICAL_ELEMENT,
+        domain=DOMAIN,
+        region=WORLDWIDE,
+        region_name=WORLDWIDE,
+    )
+    q527.add_filter(SCIENCE, "is_a_chemical_compound")
+    CultLAMA_queries.append(q527)
 
     return CultLAMA_queries
