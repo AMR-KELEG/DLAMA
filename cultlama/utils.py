@@ -155,7 +155,7 @@ def get_wikipedia_article_sizes(articles_urls, lang):
                 start += cur_BATCH_SIZE
 
             except Exception as e:
-                cur_BATCH_SIZE = cur_BATCH_SIZE // 2
+                cur_BATCH_SIZE = max(1, cur_BATCH_SIZE // 2)
                 logger.debug(e)
                 logger.info(f"Falling back to batch size of {cur_BATCH_SIZE} articles.")
 
