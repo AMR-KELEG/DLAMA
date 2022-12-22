@@ -55,7 +55,9 @@ def parse_sparql_results(results_list):
 
 def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
     """Get labels of wikidata entities using their IDs"""
-    MAX_BATCH_SIZE = 50 # https://www.wikidata.org/wiki/Wikidata:Data_access#MediaWiki_Action_API
+    MAX_BATCH_SIZE = (
+        50  # https://www.wikidata.org/wiki/Wikidata:Data_access#MediaWiki_Action_API
+    )
     labels = {}
     langs = "|".join(list_of_languages)
     for start in tqdm(
@@ -168,11 +170,30 @@ def get_wikipedia_article_sizes(articles_urls, lang):
             else:
                 article_size = 0
 
-            # Wikipedia has problems if the page's title contains "&"
+            # Link the article size to the url of the page
             try:
-                articles_sizes[titles[pages_responses[page_id]["title"]]] = article_size
+                normalized_page_title = pages_responses[page_id]["title"]
+
+                if normalized_page_title in normalized_titles_to_urls:
+                    articles_sizes[
+                        normalized_titles_to_urls[normalized_page_title]
+                    ] = article_size
+
+                # Redirects have new page titles that slightly differ from the original title
+                elif normalized_page_title in redirected_titles_to_original_titles:
+                    original_page_title = redirected_titles_to_original_titles[
+                        normalized_page_title
+                    ]
+                    articles_sizes[
+                        normalized_titles_to_urls[original_page_title]
+                    ] = article_size
+
+                else:
+                    raise Exception()
             except:
-                logger.warn("Title contains '&' causing problems with Wikipedia's API")
+                logger.warn(
+                    f"There is an issue with querying the page size for page of id 'page_id'"
+                )
                 logger.warn(pages_responses[page_id],)
 
     return articles_sizes
