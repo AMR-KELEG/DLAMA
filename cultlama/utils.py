@@ -87,57 +87,76 @@ def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
     return labels
 
 
+def get_article_sizes(articles_titles, lang):
+    titles_to_query = "|".join(articles_titles)
+    url = (
+        f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
+        f"{titles_to_query}&prop=revisions&rvprop=size&redirects"
+    )
+    additional_headers = {"content-encoding": "gzip"}
+    response = requests.get(url, headers=additional_headers).json()
+
+    pages_responses = response["query"]["pages"]
+    redirects = (
+        response["query"]["redirects"] if "redirects" in response["query"] else []
+    )
+
+    redirected_titles_to_original_titles = {
+        redirect["to"]: redirect["from"] for redirect in redirects
+    }
+    time.sleep(0.1)
+
+    return pages_responses, redirected_titles_to_original_titles
+
+
 def get_wikipedia_article_sizes(articles_urls, lang):
     """Get the size of wikipedia articles in bytes"""
-    batch_size = 50
+
+    MAX_BATCH_SIZE = 50  # https://www.mediawiki.org/wiki/API:Query#Additional_notes
     # A dictionary of url -> article size
     articles_sizes = {}
     for start in tqdm(
-        range(0, len(articles_urls), batch_size),
+        range(0, len(articles_urls), MAX_BATCH_SIZE),
         desc=f"Query sizes of Wikipedia articles in '{lang}'",
     ):
-        # Get the articles' titles from the urls
-        titles = {
+        cur_batch_articles_urls = articles_urls[start : start + MAX_BATCH_SIZE]
+        HTML_encoded_titles = [url.split("/")[-1] for url in cur_batch_articles_urls]
+
+        # Get the articles' normalized titles from the urls
+        normalized_titles_to_urls = {
             # Replace "_" in titles with " "
             requests.utils.unquote(re.sub("_", " ", url.split("/")[-1])): url
-            for url in articles_urls[start : start + batch_size]
+            for url in cur_batch_articles_urls
         }
-        # Filter out titles having "&" as they cause problems for Wikipedia's API!
-        titles = {
-            normalized_title: titles[normalized_title]
-            for normalized_title in titles
-            if "&" not in normalized_title
-        }
-        titles_to_query = "|".join(titles.keys())
-        url = (
-            f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
-            f"{titles_to_query}&prop=revisions&rvprop=size"
-        )
-        try:
-            response = requests.get(url).json()
-            pages_responses = response["query"]["pages"]
-            time.sleep(0.1)
-        except Exception as e:
-            # The url can be too long
-            logger.debug(e)
-            logger.info("Falling back to batch size of 10 articles.")
-            pages_responses = {}
-            titles_to_query_list = sorted(titles.keys())
-            smaller_batch_size = 10
-            for i in range(0, len(titles_to_query_list), smaller_batch_size):
-                titles_to_query = "|".join(
-                    titles_to_query_list[i : i + smaller_batch_size]
-                )
-                url = (
-                    f"https://{lang}.wikipedia.org/w/api.php?action=query&format=json&titles="
-                    f"{titles_to_query}&prop=revisions&rvprop=size"
-                )
-                response = requests.get(url).json()
+
+        start = 0
+        cur_BATCH_SIZE = MAX_BATCH_SIZE
+        pages_responses = {}
+        redirected_titles_to_original_titles = {}
+
+        while start < MAX_BATCH_SIZE:
+            try:
+                cur_batch_titles = HTML_encoded_titles[start : start + cur_BATCH_SIZE]
+                (
+                    cur_batch_pages_responses,
+                    cur_batch_redirected_titles_to_original_titles,
+                ) = get_article_sizes(cur_batch_titles, lang)
+
+                #  Join the minibatch results to the whole set of results
                 pages_responses = dict(
                     list(pages_responses.items())
-                    + list(response["query"]["pages"].items())
+                    + list(cur_batch_pages_responses.items())
                 )
-                time.sleep(0.1)
+                redirected_titles_to_original_titles = dict(
+                    list(redirected_titles_to_original_titles.items())
+                    + list(cur_batch_redirected_titles_to_original_titles.items())
+                )
+                start += cur_BATCH_SIZE
+
+            except Exception as e:
+                cur_BATCH_SIZE = cur_BATCH_SIZE // 2
+                logger.debug(e)
+                logger.info(f"Falling back to batch size of {cur_BATCH_SIZE} articles.")
 
         page_ids = list(pages_responses.keys())
         for page_id in page_ids:
