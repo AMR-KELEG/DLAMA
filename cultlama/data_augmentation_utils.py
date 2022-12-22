@@ -23,14 +23,6 @@ def find_macro_territories(places):
         f"?micro_place (wdt:P131*) ?macro_place . # located in the administrative territorial entity"
         """
         }
-        MINUS
-        {
-            { ?macro_place wdt:P31 wd:Q3624078 } # Avoid countries
-            UNION
-            { ?macro_place wdt:P31 wd:Q3024240 } # Avoid historical countries
-            UNION
-            { ?macro_place wdt:P31 wd:Q3336843 } # Avoid countries within the UK
-        }
     }
     """
     )
@@ -39,13 +31,14 @@ def find_macro_territories(places):
     parsed_data = parse_sparql_results(relation_triples)
 
     #  Some parsing is needed here
-    micro_to_macro_dict = {}
+    micro_to_macro_dict = {place: [place] for place in places}
     for tuple in parsed_data:
         micro_place = tuple["micro_place"]
         macro_place = tuple["macro_place"]
-        if micro_place not in micro_to_macro_dict:
-            micro_to_macro_dict[micro_place] = []
+        if micro_place not in micro_to_macro_dict[micro_place]:
+            micro_to_macro_dict[micro_place].append(micro_place)
         micro_to_macro_dict[micro_place].append(macro_place)
+    time.sleep(1)
     return micro_to_macro_dict
 
 
