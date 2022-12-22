@@ -55,14 +55,14 @@ def parse_sparql_results(results_list):
 
 def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
     """Get labels of wikidata entities using their IDs"""
-    batch_size = 50
+    MAX_BATCH_SIZE = 50 # https://www.wikidata.org/wiki/Wikidata:Data_access#MediaWiki_Action_API
     labels = {}
     langs = "|".join(list_of_languages)
     for start in tqdm(
-        range(0, len(wikidata_entities_ids), batch_size),
+        range(0, len(wikidata_entities_ids), MAX_BATCH_SIZE),
         desc="Query labels of Wikidata entities",
     ):
-        ids = wikidata_entities_ids[start : start + batch_size]
+        ids = wikidata_entities_ids[start : start + MAX_BATCH_SIZE]
         wikidata_ids = "|".join([id for id in ids if not id.startswith("http")])
         url = (
             "https://www.wikidata.org/w/api.php?"
@@ -71,7 +71,8 @@ def get_wikidata_labels(wikidata_entities_ids, list_of_languages):
             f"&languages={langs}&format=json&props=labels"
         )
 
-        r = requests.get(url)
+        additional_headers = {"content-encoding": "gzip"}
+        r = requests.get(url, headers=additional_headers)
         data = r.json()["entities"]
         time.sleep(0.1)
 
