@@ -1,6 +1,5 @@
 import time
 from constants import *
-from query import QueryFactory
 from filters import *
 import utils
 import data_generation_utils
@@ -11,7 +10,7 @@ import os
 import argparse
 import logging
 import sys
-import time
+import json
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler(sys.stdout)
@@ -28,8 +27,10 @@ NO_RETRIES = 5
 def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
     # Create output data files
     BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
+    DATA_DUMP_DIR = str(Path("data", "cultlama_dump"))
     for lang in LIST_OF_LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
+    os.makedirs(DATA_DUMP_DIR, exist_ok=True)
 
     for q in cultlama_queries.populate_queries(REGION, REGION_NAME):
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
@@ -51,13 +52,21 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
 
         logger.info(f"Total number of subjects: {len(df[q.subject_field].unique())}")
         df.reset_index(drop=True, inplace=True)
-        subjects_uris = df[q.subject_field].unique().tolist()
+
+        # Dump the raw data to a jsonl file
+        filename = Path(
+            DATA_DUMP_DIR, f"{q.relation_id}_{q.domain}_{q.region_name}.jsonl",
+        )
+        with open(filename, "w") as f:
+            for line in json.loads(df.to_json(orient="records")):
+                f.write(json.dumps(line) + "\n")
 
         # Start finding all the valid objects and the labels progressively
         BATCH_SIZE = 50
         complete_samples_df = None
         all_subjects_labels = {}
         all_objects_labels = {}
+        subjects_uris = df[q.subject_field].unique().tolist()
         for i in range(0, len(subjects_uris), BATCH_SIZE):
             batch_start_index = df[df[q.subject_field] == subjects_uris[i]].index[0]
             batch_end_index = df[
