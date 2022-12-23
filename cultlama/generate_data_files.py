@@ -77,7 +77,14 @@ def query_labels_for_triples(triples_df, q, LIST_OF_LANGS, SAMPLE_SIZE):
         samples_df.drop(["size"], inplace=True, axis=1)
         samples_df = pd.merge(
             samples_df,
-            triples_df[["country", q.subject_field, "size"]],
+            triples_df[
+                [q.subject_field, "size"]
+                + (
+                    ["country"]
+                    if "country" not in [q.subject_field, q.object_field]
+                    else []
+                )
+            ],
             on=q.subject_field,
             how="left",
         )
