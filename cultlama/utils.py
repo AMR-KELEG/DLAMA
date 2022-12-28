@@ -191,9 +191,9 @@ def get_wikipedia_article_sizes(articles_urls, lang):
                 else:
                     raise Exception()
             except:
-                logger.warn(
-                    f"There is an issue with querying the page size for page of id 'page_id'"
+                logger.warning(
+                    f"There is an issue with querying the page size for page of id '{page_id}'"
                 )
-                logger.warn(pages_responses[page_id],)
+                logger.warning(pages_responses[page_id],)
 
     return articles_sizes
