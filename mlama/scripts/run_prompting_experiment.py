@@ -42,7 +42,9 @@ def run_experiments(
 
     # Load the model
     model = build_model_by_name(
-        lm=input_param["model_name"], hf_model_name=input_param["bert_model_name"], device=device
+        lm=input_param["model_name"],
+        hf_model_name=input_param["bert_model_name"],
+        device=device,
     )
 
     LOGDIR = "output" if not use_cultlama else "output_cultlama"
@@ -159,6 +161,9 @@ def main():
         help="Specify a set of Wikidata relations to evaluate on",
     )
     parser.add_argument(
+        "--models", nargs="*", default=None, help="A list of model names to probe.",
+    )
+    parser.add_argument(
         "--dataset_dir",
         required=True,
         help="Directory containing jsonl files of tuples",
@@ -176,6 +181,9 @@ def main():
     args = parser.parse_args()
     language = args.lang
     language_models = LANG_TO_LMs[language]
+
+    if args.models:
+        language_models = [lm for lm in language_models if lm["label"] in args.models]
 
     data_path_pre = str(Path("./data/mlama1.1/", language))
 
