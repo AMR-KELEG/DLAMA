@@ -42,7 +42,7 @@ def run_experiments(
 
     # Load the model
     model = build_model_by_name(
-        lm=input_param["model_name"], hf_model_name=input_param["bert_model_name"]
+        lm=input_param["model_name"], hf_model_name=input_param["bert_model_name"], device=device
     )
 
     LOGDIR = "output" if not use_cultlama else "output_cultlama"

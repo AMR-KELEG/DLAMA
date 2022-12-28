@@ -72,13 +72,13 @@ def default_tokenizer(line):
 
 
 class Base_Connector:
-    def __init__(self, device):
+    def __init__(self, device_name):
 
         # these variables should be initialized
         self.vocab = None
 
         # This defines where the device where the model is. Changed by try_cuda.
-        self._model_device = device
+        self._model_device = torch.device(device_name)
 
     def optimize_top_layer(self, vocab_subset):
         """
@@ -91,11 +91,7 @@ class Base_Connector:
 
     def try_cuda(self):
         """Move model to GPU if one is available."""
-        if torch.cuda.is_available():
-            print("Moving model to CUDA")
-            self._cuda(self._model_device)
-        else:
-            print("No CUDA found")
+        self._cuda()
 
     def _cuda(self):
         """Move model to GPU."""

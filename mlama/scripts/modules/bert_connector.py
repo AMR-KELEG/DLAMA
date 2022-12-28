@@ -227,7 +227,7 @@ class Bert(Base_Connector):
 
     #  TODO: Move this to a configuration file
     def _cuda(self):
-        self.masked_bert_model.cuda(self._model_device)
+        self.masked_bert_model.to(self._model_device)
 
     def get_batch_generation(self, sentences_list, logger=None, try_cuda=True):
         if not sentences_list:

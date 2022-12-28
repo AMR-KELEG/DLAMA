@@ -7,7 +7,7 @@
 from .bert_connector import Bert
 
 
-def build_model_by_name(lm, hf_model_name, verbose=True):
+def build_model_by_name(lm, hf_model_name, device, verbose=True):
     """Load a model by name and args.
 
     Note, args.lm is not used for model selection. args are only passed to the
@@ -18,4 +18,4 @@ def build_model_by_name(lm, hf_model_name, verbose=True):
         raise ValueError("Unrecognized Language Model: %s." % lm)
     if verbose:
         print("Loading %s model..." % lm)
-    return MODEL_NAME_TO_CLASS[lm](hf_model_name)
+    return MODEL_NAME_TO_CLASS[lm](hf_model_name, device)
