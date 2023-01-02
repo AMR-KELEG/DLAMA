@@ -87,7 +87,9 @@ class Bert(Base_Connector):
             self.unk_index = self.inverse_vocab[self.tokenizer._unk_token]
 
     def get_id(self, string):
-        tokenized_text = self.tokenizer.tokenize(string)
+        # Add a space before the tokens so that sentencepiece generates the same
+        # subwords for objects out of context and within a sentence
+        tokenized_text = self.tokenizer.tokenize(" " + string)
         indexed_string = self.tokenizer.convert_tokens_to_ids(tokenized_text)
         if self.map_indices is not None:
             # map indices to subset of the vocabulary
@@ -189,7 +191,7 @@ class Bert(Base_Connector):
         masked_indices = []
         for i in range(len(tokenized_text)):
             token = tokenized_text[i]
-            if token == self.tokenizer.mask_token:
+            if token.strip() == self.tokenizer.mask_token:
                 masked_indices.append(i)
 
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
