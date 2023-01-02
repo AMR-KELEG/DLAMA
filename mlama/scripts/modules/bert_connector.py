@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, BasicTokenizer
 
 class CustomBaseTokenizer(BasicTokenizer):
     def __init__(self, do_lower_case, MASK_token):
-        super.__init__(do_lower_case=do_lower_case)
+        super().__init__(do_lower_case=do_lower_case)
         self.MASK = MASK_token
 
     def tokenize(self, text):
