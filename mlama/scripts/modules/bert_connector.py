@@ -6,7 +6,7 @@
 #
 import torch
 import numpy as np
-from modules.base_connector import *
+from modules.base_connector import Base_Connector
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForMaskedLM, BasicTokenizer
 
@@ -189,7 +189,7 @@ class Bert(Base_Connector):
         masked_indices = []
         for i in range(len(tokenized_text)):
             token = tokenized_text[i]
-            if token == MASK:
+            if token == self.tokenizer.mask_token:
                 masked_indices.append(i)
 
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
