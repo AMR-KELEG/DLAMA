@@ -181,7 +181,7 @@ class Bert(Base_Connector):
 
         # add [CLS] token at the beginning
         try:
-            tokenized_text.insert(0, self.tokenizer.sep_token)
+            tokenized_text.insert(0, self.tokenizer.cls_token)
         except Exception as e:
             print("Problem with adding CLS token!")
             raise e
