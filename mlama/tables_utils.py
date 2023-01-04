@@ -6,6 +6,7 @@ from natsort import natsorted
 from metrics_utils import load_model_results, compute_P_scores
 from dataset_analysis_utils import (
     compute_entropy,
+    compute_subject_entropy,
     normalize_region_name,
     load_jsonl_file,
     load_predicates_in_dataset,
@@ -54,8 +55,8 @@ def generate_entropy_table(dataset_dir):
         )
         entropy_values.append(
             {
-                "Predicate": predicate,
-                "Entropy": round(compute_entropy(triples), 3),
+                "predicate": predicate,
+                "entropy": round(compute_entropy(triples), 3),
                 "Support": len(triples),
             }
         )
@@ -64,14 +65,8 @@ def generate_entropy_table(dataset_dir):
 
 
 def generate_detailed_entropy_table(dataset_dir):
-    # TODO: Avoid hardcoding the domain names
     DOMAINS = [
-        "sports",
-        "politics",
-        "music",
-        "cinema_and_theatre",
-        "history",
-        "geography",
+        "general",
     ]
 
     predicates = load_predicates_in_dataset(dataset_dir)
@@ -107,7 +102,11 @@ def generate_detailed_entropy_table(dataset_dir):
                 predicate_values[f"entropy_{region}"] = round(
                     compute_entropy(triples), 3
                 )
-                #             predicate_values[f"support_{region}"] = len(triples)
+
+                predicate_values[f"entropy_country_{region}"] = round(
+                    compute_subject_entropy(triples), 3
+                )
+
                 predicate_values[f"most_common_{region}"] = find_most_common_object(
                     triples
                 )

@@ -66,6 +66,28 @@ def compute_entropy(relation_triples):
     return entropy
 
 
+def compute_subject_entropy(relation_triples):
+    """Compute the least possible entropy for a relation triple."""
+    # TODO: Fix this!
+    #  Form the object counts (based on the uris!)
+    countries_uris = Counter([triple["country"][0] for triple in relation_triples])
+    # countries_uris = Counter(
+    #     [uri[0] for triple in relation_triples for uri in triple["country"]]
+    # )
+
+    #  Compute the probabilities of these objects
+    countries_counts = [t[1] for t in countries_uris.most_common()]
+    n_countries = sum(countries_counts)
+    assert n_countries == len(relation_triples)
+    p_countries = [
+        country_count[1] / n_countries for country_count in countries_uris.most_common()
+    ]
+
+    #  Compute the entropy
+    entropy = sum([-p * math.log(p, 2) for p in p_countries])
+    return entropy
+
+
 def find_most_common_object(relation_triples):
     """Find the most common object within a list of relation triples."""
 
