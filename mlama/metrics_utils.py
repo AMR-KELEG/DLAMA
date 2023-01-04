@@ -10,7 +10,7 @@ from dataset_analysis_utils import normalize_region_name
 DOMAINS = ["general"]
 
 
-def load_predicate_results(results_dir, relation_id, model_name, lang):
+def load_single_predicate_predictions(results_dir, relation_id, model_name, lang):
     """
     Return a dataframe of a model's predictions for a specific relation in a specific language.
     """
@@ -62,6 +62,7 @@ def load_predicate_results(results_dir, relation_id, model_name, lang):
                 "valid_objects": sample["sample"]["obj_label"],
                 "predictions": sample["masked_topk"]["predicted"],
                 "probabilities": probs,
+                "countries": sample["sample"]["country"],
             }
         )
 
@@ -80,7 +81,7 @@ def load_model_results(results_dir, model_name, lang, relation_predicates=None):
         ]
 
     predicates_results_df = [
-        load_predicate_results(results_dir, predicate, model_name, lang)
+        load_single_predicate_predictions(results_dir, predicate, model_name, lang)
         for predicate in relation_predicates
     ]
 
