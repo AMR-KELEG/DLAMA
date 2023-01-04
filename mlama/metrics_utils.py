@@ -7,16 +7,7 @@ from pathlib import Path
 from natsort import natsorted
 from dataset_analysis_utils import normalize_region_name
 
-#  TODO: Load this list from the constants.py file within cultlama
-DOMAINS = [
-    "sports",
-    "politics",
-    "music",
-    "cinema_and_theatre",
-    "history",
-    "science",
-    "geography",
-]
+DOMAINS = ["general"]
 
 
 def load_predicate_results(results_dir, relation_id, model_name, lang):
