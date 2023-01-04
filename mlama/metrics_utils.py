@@ -29,19 +29,26 @@ def load_single_predicate_predictions(results_dir, relation_id, model_name, lang
     for sample in results["list_of_results"]:
         # Remove the "_REGION" from the sample name
         sample_id = re.sub(r"_REGION", "", sample["uuid"])
-        fields = sample_id.split("_")
 
-        # Infer the domain from the sample ID
-        domains = [d for d in DOMAINS if d in sample_id]
-        assert len(domains) == 1
-        domain = domains[0]
+        # Check if this is a CultLAMA sample
+        if "_" in sample_id:
+            fields = sample_id.split("_")
 
-        region = (
-            normalize_region_name(fields[-2])
-            if not "SOUTH_AMERICA" in sample_id
-            else "SOUTH_AMERICA"
-        )
-        sample_id = int(fields[-1])
+            # Infer the domain from the sample ID
+            domains = [d for d in DOMAINS if d in sample_id]
+            assert len(domains) == 1
+            domain = domains[0]
+
+            region = (
+                normalize_region_name(fields[-2])
+                if not "SOUTH_AMERICA" in sample_id
+                else "SOUTH_AMERICA"
+            )
+            sample_id = int(fields[-1])
+        else:
+            domain = "general"
+            region = "all"
+
         try:
             rank = sample["masked_topk"]["ranks"][0]
         except Exception as e:
