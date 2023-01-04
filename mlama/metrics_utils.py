@@ -45,9 +45,11 @@ def load_single_predicate_predictions(results_dir, relation_id, model_name, lang
                 else "SOUTH_AMERICA"
             )
             sample_id = int(fields[-1])
+            countries = sample["sample"]["country"]
         else:
             domain = "general"
             region = "all"
+            countries = []
 
         try:
             rank = sample["masked_topk"]["ranks"][0]
@@ -69,7 +71,7 @@ def load_single_predicate_predictions(results_dir, relation_id, model_name, lang
                 "valid_objects": sample["sample"]["obj_label"],
                 "predictions": sample["masked_topk"]["predicted"],
                 "probabilities": probs,
-                "countries": sample["sample"]["country"],
+                "countries": countries,
             }
         )
 
