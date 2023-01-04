@@ -30,6 +30,7 @@ def run_experiments(
         "bert_model_dir": "pre-trained_language_models/bert/cased_L-24_H-1024_A-16",
     },
     use_cultlama=False,
+    output_dir=None,
 ):
     """
     TODO
@@ -47,12 +48,18 @@ def run_experiments(
         device=device,
     )
 
-    LOGDIR = "output" if not use_cultlama else "output_cultlama"
+    output_dir = (
+        output_dir
+        if output_dir
+        else "output"
+        if not use_cultlama
+        else "output_cultlama"
+    )
     # Add the configuration parameters into a dictionary
     BASIC_CONFIGURATION_PARAMETERS = {
         "template": "",
         "batch_size": 4,
-        "logdir": LOGDIR,
+        "logdir": output_dir,
         "lowercase": False,
         "threads": -1,
         "interactive": False,
@@ -96,7 +103,7 @@ def run_experiments(
 
         configuration_parameters["full_logdir"] = str(
             Path(
-                LOGDIR,
+                output_dir,
                 "results",
                 configuration_parameters["label"],
                 language,
@@ -130,7 +137,13 @@ def run_experiments(
 
 
 def run_experiment_on_list_of_lms(
-    relations_templates, data_path_pre, language, language_models, use_cultlama, device
+    relations_templates,
+    data_path_pre,
+    language,
+    language_models,
+    use_cultlama,
+    device,
+    output_dir,
 ):
     for lm in language_models:
         print(lm["label"])
@@ -142,6 +155,7 @@ def run_experiment_on_list_of_lms(
                 input_param=lm,
                 use_cultlama=use_cultlama,
                 device=device,
+                output_dir=output_dir,
             )
         except Exception as e:
             print(e)
@@ -161,12 +175,18 @@ def main():
         help="Specify a set of Wikidata relations to evaluate on",
     )
     parser.add_argument(
-        "--models", nargs="*", default=None, help="A list of model names to probe.",
+        "--models", nargs="*", default=None, help="A list of model names to probe",
     )
     parser.add_argument(
         "--dataset_dir",
         required=True,
         help="Directory containing jsonl files of tuples",
+    )
+    parser.add_argument(
+        "--output_dir",
+        required=False,
+        default=None,
+        help="Directory in which the results are saved",
     )
     parser.add_argument(
         "--templates_file_path",
@@ -207,6 +227,7 @@ def main():
         language_models,
         use_cultlama=args.cultlama,
         device=args.device,
+        output_dir=args.output_dir,
     )
 
 
