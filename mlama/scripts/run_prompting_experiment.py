@@ -213,6 +213,13 @@ def main():
     else:
         relations_templates = load_jsonl(Path(data_path_pre, "templates.jsonl"))
 
+    # Only keep relations extracted from Wikidata predicates
+    relations_templates = [
+        relation_template
+        for relation_template in relations_templates
+        if relation_template["relation"].startswith("P")
+    ]
+
     if args.rel:
         relations_templates = [
             relation_template

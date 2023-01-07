@@ -63,8 +63,14 @@ JA_LMs = prepare_lms_configuration(
         ("tohoku_bert_base_char_v2", "cl-tohoku/bert-base-japanese-char-v2"),
         ("tohoku_bert_large", "cl-tohoku/bert-large-japanese"),
         ("tohoku_bert_large_char", "cl-tohoku/bert-large-japanese-char"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
+        (
+            "tohoku_bert_base_word_masking",
+            "cl-tohoku/bert-base-japanese-whole-word-masking",
+        ),
+        (
+            "tohoku_bert_base_word_masking",
+            "cl-tohoku/bert-base-japanese-whole-word-masking",
+        ),
         ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
     )
 )
@@ -95,6 +101,13 @@ ZH_LMs = prepare_lms_configuration(
     )
 )
 
+multi_LMS = prepare_lms_configuration(
+    (
+        ("mbert_base_cased", "bert-base-multilingual-cased"),
+        ("mbert_base_uncased", "bert-base-multilingual-uncased"),
+    )
+)
+
 LANG_TO_LMs = {
     "ar": AR_LMs,
     "en": EN_LMs,
@@ -102,4 +115,21 @@ LANG_TO_LMs = {
     "ja": JA_LMs,
     "ko": KO_LMs,
     "zh": ZH_LMs,
+    "ta": multi_LMS,
+    "th": multi_LMS,
+    "ka": multi_LMS,
+    "hy": multi_LMS,
+    "he": multi_LMS,
+    "az": multi_LMS,
+    "ru": multi_LMS,
+    "id": multi_LMS,
+    "ms": multi_LMS,
+    "af": multi_LMS,
+    "gl": multi_LMS,
+    "vi": multi_LMS,
+    "da": multi_LMS,
+    "es": multi_LMS,
+    "ca": multi_LMS,
+    "ceb": multi_LMS,
+    "ro": multi_LMS,
 }
