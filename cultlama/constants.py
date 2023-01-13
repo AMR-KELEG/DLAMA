@@ -90,6 +90,8 @@ EASTERN_ASIA = [
     SOUTH_KOREA,
     TAIWAN,
     MONGOLIA,
+    CHINA,
+    JAPAN,
 ]
 
 SOUTHERN_EAST_ASIA = [

@@ -48,6 +48,8 @@ FILTERS_DICTIONARY = {
         PHILIPPINES: f"VALUES ?{COUNTRY} {{wd:Q928}} . # Country is Philippines",
         MYANMAR: f"VALUES ?{COUNTRY} {{wd:Q836}} . # Country is Myanmar",
         SINGAPORE: f"VALUES ?{COUNTRY} {{wd:Q334}} . # Country is Singapore",
+        HONG_KONG: f"VALUES ?{COUNTRY} {{wd:Q8646}} . # Country is Hong Kong",
+        MACAU: f"VALUES ?{COUNTRY} {{wd:Q14773}} . # Country is Macau",
         ARGENTINA: f"VALUES ?{COUNTRY} {{wd:Q414}} . # Country is Argentina",
         BOLIVIA: f"VALUES ?{COUNTRY} {{wd:Q750}} . # Country is Bolivia",
         CHILE: f"VALUES ?{COUNTRY} {{wd:Q298}} . # Country is Chile",
