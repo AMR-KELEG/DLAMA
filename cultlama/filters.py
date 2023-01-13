@@ -66,6 +66,9 @@ FILTERS_DICTIONARY = {
         MADAGASCAR: f"VALUES ?{COUNTRY} {{wd:Q1019}} . # Country is Madagascar",
         NAMIBIA: f"VALUES ?{COUNTRY} {{wd:Q1030}} . # Country is Namibia",
         SOUTH_AFRICA: f"VALUES ?{COUNTRY} {{wd:Q258}} . # Country is South Africa",
+        #  African countries
+        NIGERIA: f"VALUES ?{COUNTRY} {{wd:Q1033}} . # Country is Nigeria",
+        CAMEROON: f"VALUES ?{COUNTRY} {{wd:Q1009}} . # Country is Cameroon",
     },
     PERSON: {
         "country_of_citizenship": f"?{PERSON} wdt:P27 ?{COUNTRY} . # The person has a country of citizenship",

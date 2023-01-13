@@ -82,6 +82,10 @@ MADAGASCAR = "Madagascar"
 NAMIBIA = "Namibia"
 SOUTH_AFRICA = "South Africa"
 
+# African countries
+CAMEROON = "Cameroon"
+NIGERIA = "Nigeria"
+
 # Regions
 ARAB_REGION = "Arab"
 
@@ -208,4 +212,6 @@ REGIONS_LANGS = {
     MADAGASCAR: ["fr"],
     NAMIBIA: ["en"],
     SOUTH_AFRICA: ["af", "zu", "en"],
+    NIGERIA: ["en"],
+    CAMEROON: ["en", "fr"],
 }
