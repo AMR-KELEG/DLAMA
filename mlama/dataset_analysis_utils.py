@@ -91,10 +91,14 @@ def compute_subject_entropy(relation_triples):
 def find_most_common_object(relation_triples):
     """Find the most common object within a list of relation triples."""
 
-    return Counter(
+    objects_counts = Counter(
         [
             (uri, obj_label)
             for triple in relation_triples
             for uri, obj_label in zip(triple["obj_uri"], triple["obj_label"])
         ]
-    ).most_common()[0][0][1]
+    ).most_common()
+
+    most_common_object = objects_counts[0][0][1]
+    most_common_object_count = objects_counts[0][1]
+    return f"{most_common_object} ({most_common_object_count})"

@@ -101,7 +101,7 @@ def compute_P_at_1(df):
     """Compute P@1 score for a dataframe of predictions."""
     number_correct = int((df["rank"] == 0).sum())
     n_samples = int(df.shape[0])
-    return round(100 * (number_correct / n_samples), 3)
+    return round(100 * (number_correct / n_samples), 1)
 
 
 def compute_P_scores(
