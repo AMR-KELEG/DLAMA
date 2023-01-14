@@ -1,11 +1,13 @@
 import re
 import glob
+import statistics
 import pandas as pd
 from pathlib import Path
 from natsort import natsorted
 from metrics_utils import load_model_results, compute_P_scores
 from dataset_analysis_utils import (
     compute_entropy,
+    compute_subject_entropy,
     normalize_region_name,
     load_jsonl_file,
     load_predicates_in_dataset,
@@ -31,12 +33,8 @@ def generate_stats_table(results_dir, lang, aggregation_method):
 
 
 def generate_detailed_predicate_table(results_dir, lang, model_name):
-    model_results = []
-
     results_df = load_model_results(results_dir, model_name=model_name, lang=lang)
     scores = compute_P_scores(results_df, aggregation_method="split_by_domain")
-
-    model_results.append(scores)
     return scores
 
 
@@ -54,8 +52,8 @@ def generate_entropy_table(dataset_dir):
         )
         entropy_values.append(
             {
-                "Predicate": predicate,
-                "Entropy": round(compute_entropy(triples), 3),
+                "predicate": predicate,
+                "entropy": round(compute_entropy(triples), 1),
                 "Support": len(triples),
             }
         )
@@ -64,14 +62,8 @@ def generate_entropy_table(dataset_dir):
 
 
 def generate_detailed_entropy_table(dataset_dir):
-    # TODO: Avoid hardcoding the domain names
     DOMAINS = [
-        "sports",
-        "politics",
-        "music",
-        "cinema_and_theatre",
-        "history",
-        "geography",
+        "general",
     ]
 
     predicates = load_predicates_in_dataset(dataset_dir)
@@ -93,9 +85,7 @@ def generate_detailed_entropy_table(dataset_dir):
         for predicate in natsorted(set(predicates)):
             predicate_values = {}
             predicate_values["domain"] = domain
-            predicate_values[
-                "predicate"
-            ] = f"{predicate} ({relation_predicate_id_to_name.get(predicate, predicate)})"
+            predicate_values["predicate"] = predicate
             for region in sorted(set(regions)):
                 filepaths = [
                     file_information[-1]
@@ -105,9 +95,13 @@ def generate_detailed_entropy_table(dataset_dir):
                 ]
                 triples = sum([load_jsonl_file(filepath) for filepath in filepaths], [])
                 predicate_values[f"entropy_{region}"] = round(
-                    compute_entropy(triples), 3
+                    compute_entropy(triples), 1
                 )
-                #             predicate_values[f"support_{region}"] = len(triples)
+
+                predicate_values[f"entropy_country_{region}"] = round(
+                    compute_subject_entropy(triples), 1
+                )
+
                 predicate_values[f"most_common_{region}"] = find_most_common_object(
                     triples
                 )
@@ -118,11 +112,26 @@ def generate_detailed_entropy_table(dataset_dir):
                 if predicate == file_information[0]
             ]
             triples = sum([load_jsonl_file(filepath) for filepath in filepaths], [])
-            predicate_values[f"entropy_aggregated"] = round(compute_entropy(triples), 3)
+            predicate_values[f"entropy_aggregated"] = round(compute_entropy(triples), 1)
             #         predicate_values[f"support_aggregated"] = len(triples)
             predicate_values[f"most_common_aggregated"] = find_most_common_object(
                 triples
             )
             entropy_values.append(predicate_values)
+
+    aggregated_values = {}
+    aggregated_values["predicate"] = "Aggregated"
+    for region in sorted(set(regions)):
+        aggregated_values[f"entropy_{region}"] = round(
+            statistics.mean([d[f"entropy_{region}"] for d in entropy_values]), 1
+        )
+
+        aggregated_values[f"entropy_country_{region}"] = round(
+            statistics.mean([d[f"entropy_country_{region}"] for d in entropy_values]), 1
+        )
+
+        aggregated_values[f"most_common_{region}"] = "NA"
+
+    entropy_values.append(aggregated_values)
     entropy_df = pd.DataFrame(entropy_values)
     return entropy_df

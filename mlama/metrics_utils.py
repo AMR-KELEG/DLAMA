@@ -7,19 +7,10 @@ from pathlib import Path
 from natsort import natsorted
 from dataset_analysis_utils import normalize_region_name
 
-#  TODO: Load this list from the constants.py file within cultlama
-DOMAINS = [
-    "sports",
-    "politics",
-    "music",
-    "cinema_and_theatre",
-    "history",
-    "science",
-    "geography",
-]
+DOMAINS = ["general"]
 
 
-def load_predicate_results(results_dir, relation_id, model_name, lang):
+def load_single_predicate_predictions(results_dir, relation_id, model_name, lang):
     """
     Return a dataframe of a model's predictions for a specific relation in a specific language.
     """
@@ -38,19 +29,28 @@ def load_predicate_results(results_dir, relation_id, model_name, lang):
     for sample in results["list_of_results"]:
         # Remove the "_REGION" from the sample name
         sample_id = re.sub(r"_REGION", "", sample["uuid"])
-        fields = sample_id.split("_")
 
-        # Infer the domain from the sample ID
-        domains = [d for d in DOMAINS if d in sample_id]
-        assert len(domains) == 1
-        domain = domains[0]
+        # Check if this is a CultLAMA sample
+        if "_" in sample_id:
+            fields = sample_id.split("_")
 
-        region = (
-            normalize_region_name(fields[-2])
-            if not "SOUTH_AMERICA" in sample_id
-            else "SOUTH_AMERICA"
-        )
-        sample_id = int(fields[-1])
+            # Infer the domain from the sample ID
+            domains = [d for d in DOMAINS if d in sample_id]
+            assert len(domains) == 1
+            domain = domains[0]
+
+            region = (
+                normalize_region_name(fields[-2])
+                if not "SOUTH_AMERICA" in sample_id
+                else "SOUTH_AMERICA"
+            )
+            sample_id = int(fields[-1])
+            countries = sample["sample"]["country"]
+        else:
+            domain = "general"
+            region = "all"
+            countries = []
+
         try:
             rank = sample["masked_topk"]["ranks"][0]
         except Exception as e:
@@ -71,6 +71,7 @@ def load_predicate_results(results_dir, relation_id, model_name, lang):
                 "valid_objects": sample["sample"]["obj_label"],
                 "predictions": sample["masked_topk"]["predicted"],
                 "probabilities": probs,
+                "countries": countries,
             }
         )
 
@@ -89,7 +90,7 @@ def load_model_results(results_dir, model_name, lang, relation_predicates=None):
         ]
 
     predicates_results_df = [
-        load_predicate_results(results_dir, predicate, model_name, lang)
+        load_single_predicate_predictions(results_dir, predicate, model_name, lang)
         for predicate in relation_predicates
     ]
 
@@ -100,7 +101,7 @@ def compute_P_at_1(df):
     """Compute P@1 score for a dataframe of predictions."""
     number_correct = int((df["rank"] == 0).sum())
     n_samples = int(df.shape[0])
-    return round(100 * (number_correct / n_samples), 3)
+    return round(100 * (number_correct / n_samples), 1)
 
 
 def compute_P_scores(
