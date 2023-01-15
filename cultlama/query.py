@@ -4,6 +4,7 @@ import utils
 import logging
 import sys
 import time
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler(sys.stdout)
@@ -26,14 +27,18 @@ class Query:
         domain,
         region,
         region_name,
+        sorting_function,
         filters=None,
     ):
+
+        assert sorting_function in ["size", "edits"]
         self.relation_id = relation_id
         self.subject_field = subject_field
         self.object_field = object_field
         self.domain = domain
         self.region = region
         self.region_name = region_name
+        self.sorting_function = sorting_function
         self.filters = [] if not filters else filters
 
         self.wikipedia_langs = REGIONS_LANGS[region]
@@ -178,6 +183,7 @@ class Query:
         while no_retries:
             try:
                 print(self.build_query(find_count, limit))
+
                 parsed_data = self.parse_query(find_count, limit)
                 parsed_data = [
                     dict(y) for y in set(tuple(x.items()) for x in parsed_data)
@@ -199,9 +205,17 @@ class Query:
                         )
                     )
                     # Find the articles' sizes of the urls
-                    wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(
-                        urls, lang=lang
-                    )
+                    if self.sorting_function == "size":
+                        wikipedia_sizes_dict = utils.get_wikipedia_article_sizes(
+                            urls, lang=lang
+                        )
+                    else:
+                        wikipedia_sizes_dict = {
+                            url: utils.get_wikipedia_article_edits(
+                                url, wikipedia_lang=lang
+                            )
+                            for url in tqdm(urls)
+                        }
 
                     # Add the size column to the dataframe
                     for triple in parsed_data:
@@ -228,7 +242,14 @@ class GroupedQuery:
     """An object of a list of Wikidata SPARQL queries."""
 
     def __init__(
-        self, relation_id, subject_field, object_field, domain, region, region_name,
+        self,
+        relation_id,
+        subject_field,
+        object_field,
+        domain,
+        region,
+        region_name,
+        sorting_function,
     ):
         self.relation_id = relation_id
         self.subject_field = subject_field
@@ -236,6 +257,7 @@ class GroupedQuery:
         self.domain = domain
         self.region = region
         self.region_name = region_name
+        self.sorting_function = sorting_function
         self.lazy_filters = (
             []
         )  # Lazy filters are filters that are used only on forming each subquery
@@ -266,6 +288,7 @@ class GroupedQuery:
                 domain=self.domain,
                 region=country,
                 region_name=self.region_name,
+                sorting_function=self.sorting_function,
             )
             # Add the lazy filters
             for filter in self.lazy_filters:

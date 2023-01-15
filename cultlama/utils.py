@@ -4,6 +4,7 @@ import requests
 from tqdm import tqdm
 import logging
 import sys
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 ch = logging.StreamHandler(sys.stdout)
@@ -197,3 +198,22 @@ def get_wikipedia_article_sizes(articles_urls, lang):
                 logger.warning(pages_responses[page_id],)
 
     return articles_sizes
+
+
+def get_wikipedia_article_edits(article_url, wikipedia_lang):
+    page_name = Path(article_url).name
+    url = (
+        f"https://{wikipedia_lang}.wikipedia.org/w/rest.php/v1/page/"
+        + page_name
+        + "/history/counts/edits"
+    )
+
+    response = requests.get(url)
+    data = response.json()
+
+    try:
+        return data["count"]
+    except:
+        return 0
+
+
