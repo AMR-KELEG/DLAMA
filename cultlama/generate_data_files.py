@@ -269,7 +269,6 @@ if __name__ == "__main__":
         "--sorting_function",
         default="size",
         choices=["size", "edits"],
-        required=True,
         help="The metric used to sort the queried triples before sampling",
     )
     args = parser.parse_args()
