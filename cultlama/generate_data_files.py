@@ -62,6 +62,7 @@ def query_labels_for_triples(triples_df, q, LIST_OF_LANGS, SAMPLE_SIZE):
             q.domain,
             WORLDWIDE,
             q.region_name,
+            q.sorting_function,
         )
         samples_query.add_subjects_filter(batch_subjects_uris)
         samples_data = samples_query.get_data(find_count=False)
@@ -150,7 +151,9 @@ def query_labels_for_triples(triples_df, q, LIST_OF_LANGS, SAMPLE_SIZE):
     return complete_samples_df, all_subjects_labels, all_objects_labels
 
 
-def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
+def main(
+    REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS, sorting_function
+):
     # Create output data files
     BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
     DATA_DUMP_DIR = str(Path("data", "cultlama_dump"))
@@ -158,7 +161,7 @@ def main(REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS):
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
     os.makedirs(DATA_DUMP_DIR, exist_ok=True)
 
-    for q in cultlama_queries.populate_queries(REGION, REGION_NAME):
+    for q in cultlama_queries.populate_queries(REGION, REGION_NAME, sorting_function):
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
         logger.info(
@@ -262,6 +265,12 @@ if __name__ == "__main__":
         required=True,
         help="A white-space separated list of Wikipedia languages (e.g.: 'en ko')",
     )
+    parser.add_argument(
+        "--sorting_function",
+        default="size",
+        choices=["size", "edits"],
+        help="The metric used to sort the queried triples before sampling",
+    )
     args = parser.parse_args()
 
     main(
@@ -270,4 +279,5 @@ if __name__ == "__main__":
         REGION_NAME=args.region,
         RELATIONS_SUBSET=args.rel,
         LIST_OF_LANGS=args.langs,
+        sorting_function=args.sorting_function,
     )
