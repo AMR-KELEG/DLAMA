@@ -3,7 +3,7 @@ from filters import *
 from query import QueryFactory
 
 
-def populate_queries(REGION, REGION_NAME):
+def populate_queries(REGION, REGION_NAME, sorting_function):
     """Form the queries with their respective filters.
 
     Args:
@@ -28,6 +28,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q27.add_filter("region_country", REGION)
     CultLAMA_queries.append(q27)
@@ -40,6 +41,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q106.add_filter(PERSON, "country_of_citizenship")
     q106.add_filter("region_country", REGION)
@@ -53,6 +55,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q103.add_filter(PERSON, "country_of_citizenship")
     q103.add_filter("region_country", REGION)
@@ -66,6 +69,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q1412.add_filter(PERSON, "country_of_citizenship")
     q1412.add_filter("region_country", REGION)
@@ -79,6 +83,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q19.add_filter(GEOGRAPHY, "city_lies_in_country")
     q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
@@ -94,6 +99,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q20.add_filter(GEOGRAPHY, "city_lies_in_country")
     q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
@@ -109,6 +115,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q17.add_filter("region_country", REGION)
     CultLAMA_queries.append(q17)
@@ -122,6 +129,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     p495.add_filter("region_country", REGION)
     CultLAMA_queries.append(p495)
@@ -134,6 +142,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     p407.add_filter(PIECE_OF_WORK, "country_of_origin")
     p407.add_filter("region_country", REGION)
@@ -147,6 +156,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q1303.add_filter(PERSON, "country_of_citizenship")
     q1303.add_filter("region_country", REGION)
@@ -160,6 +170,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q136.add_filter(PERSON, "country_of_citizenship")
     q136.add_filter("region_country", REGION)
@@ -173,6 +184,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q264.add_filter(PERSON, "country_of_citizenship")
     q264.add_filter("region_country", REGION)
@@ -186,6 +198,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     q364.add_filter(PIECE_OF_WORK, "country_of_origin")
     q364.add_filter("region_country", REGION)
@@ -199,6 +212,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     p449.add_filter(PIECE_OF_WORK, "country_of_origin")
     p449.add_filter("region_country", REGION)
@@ -213,6 +227,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q36.add_filter("region_country", REGION)
@@ -227,6 +242,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q1376.add_filter("region_country", REGION)
@@ -241,6 +257,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q30.add_filter("region_country", REGION)
@@ -255,6 +272,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q47.add_filter("region_country", REGION)
@@ -271,6 +289,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q37.add_filter("region_country", REGION)
@@ -285,6 +304,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q530.add_filter("region_country", REGION)
@@ -300,6 +320,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=REGION,
         region_name=REGION_NAME,
+        sorting_function=sorting_function,
     )
     if REGION != WORLDWIDE:
         q190.add_filter("region_country", REGION)
@@ -317,6 +338,7 @@ def populate_queries(REGION, REGION_NAME):
         domain=DOMAIN,
         region=WORLDWIDE,
         region_name=WORLDWIDE,
+        sorting_function=sorting_function,
     )
     q527.add_filter(SCIENCE, "is_a_chemical_compound")
     CultLAMA_queries.append(q527)

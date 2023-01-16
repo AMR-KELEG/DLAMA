@@ -329,15 +329,34 @@ class QueryFactory:
     """A class for forming queries based on the type of the region used."""
 
     def create_query(
-        self, relation_id, subject_field, object_field, domain, region, region_name
+        self,
+        relation_id,
+        subject_field,
+        object_field,
+        domain,
+        region,
+        region_name,
+        sorting_function,
     ):
         #  The region is a list of countries
         if type(region) == type([]):
             return GroupedQuery(
-                relation_id, subject_field, object_field, domain, region, region_name
+                relation_id,
+                subject_field,
+                object_field,
+                domain,
+                region,
+                region_name,
+                sorting_function,
             )
         #  The region is a single country/ a single group of countries (e.g.: Arab region)
         else:
             return Query(
-                relation_id, subject_field, object_field, domain, region, region_name
+                relation_id,
+                subject_field,
+                object_field,
+                domain,
+                region,
+                region_name,
+                sorting_function,
             )
