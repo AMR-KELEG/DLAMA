@@ -1,6 +1,8 @@
 # DLAMA
-Build relation triples that are more representative to the culture of specific regions as 
-opposed to LAMA which is more biased towards western entities.
+The repository for the `DLAMA: A Framework for Curating Culturally Diverse Facts for Probing
+the Knowledge of Pretrained Language Models` paper accepted to `ACL 2023 - Findings`.
+
+The codebase allows for curating relation triples that are more representative of the culture of specific regions as opposed to LAMA which is more biased towards western entities.
 
 - [DLAMA](#dlama)
   - [Usage](#usage)
