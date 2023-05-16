@@ -39,7 +39,7 @@ mv mlama1.1 mlama/data/mlama1.1/
 cd dlama/
 
 # Query raw triples from Wikidata to (data/dlama_raw/ directory)
-python generate_data_files.py --region REG --n N --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
+python generate_data_files.py --region REG --n N --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS --sorting_function size
 
 # Generate exhaustive lists of objects for the queried subjects to (data/dlama/ directory)
 python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
