@@ -35,13 +35,13 @@ mv mlama1.1 mlama/data/mlama1.1/
 
 ### 3. Build DLAMA
 ```
-# Navigate to the cultlama directory
-cd cultlama/
+# Navigate to the dlama directory
+cd dlama/
 
-# Query raw triples from Wikidata to (data/cultlama_raw/ directory)
+# Query raw triples from Wikidata to (data/dlama_raw/ directory)
 python generate_data_files.py --region REG --n N --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
 
-# Generate exhaustive lists of objects for the queried subjects to (data/cultlama/ directory)
+# Generate exhaustive lists of objects for the queried subjects to (data/dlama/ directory)
 python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF_RELATIONS
 
 ```
@@ -50,7 +50,7 @@ python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF
 - Note: The scripts within the `mlama` subdirectory are forked from https://github.com/norakassner/mlama and adapted accordingly.
 ```bash
 cd ../mlama # Navigate to the mlama directory within the repository
-python scripts/run_prompting_experiment.py --lang "ar" --cultlama --dataset_dir DATASET_BASE_DIR \
+python scripts/run_prompting_experiment.py --lang "ar" --dlama --dataset_dir DATASET_BASE_DIR \
        --templates_file_path TEMPLATES_FILE_PATH --device DEVICE_NAME --rel RELATIONS --models MODELS
 ```
 
@@ -80,7 +80,7 @@ P1412 | Languages spoken or published
 
 ## Adding new countries/regions to DLAMA
 
-1. Add the list of country names to `cultlama/constants.py`.
+1. Add the list of country names to `dlama/constants.py`.
 ```
 BOTSWANA = "Botswana"
 ESWATINI = "Eswatini"
@@ -90,7 +90,7 @@ NAMIBIA = "Namibia"
 SOUTH_AFRICA = "South Africa"
 ```
 
-2. Create a list of the new countries representing the region in `cultlama/constants.py`.
+2. Create a list of the new countries representing the region in `dlama/constants.py`.
 ```
 SOUTHERN_AFRICA = [
     BOTSWANA,
@@ -102,7 +102,7 @@ SOUTHERN_AFRICA = [
 ]
 ```
 
-3. Add the languages of Wikipedia that are related to each country to the `REGIONS_LANGS` variable in `cultlama/constants.py`.
+3. Add the languages of Wikipedia that are related to each country to the `REGIONS_LANGS` variable in `dlama/constants.py`.
 ```
 REGIONS_LANGS ={
     ...
@@ -116,7 +116,7 @@ REGIONS_LANGS ={
 }
 ```
 
-4. Add the Wikidata URIs for each country to the `"region_country"` key of the `FILTERS_DICTIONARY` variable in `cultlama/filters.py`.
+4. Add the Wikidata URIs for each country to the `"region_country"` key of the `FILTERS_DICTIONARY` variable in `dlama/filters.py`.
 ```
     "region_country": {
         ...
@@ -129,7 +129,7 @@ REGIONS_LANGS ={
     },
 ```
 
-5. Add the region as a new region in the `REGIONS` dictionary of `cultlama/generate_data_files.py`.
+5. Add the region as a new region in the `REGIONS` dictionary of `dlama/generate_data_files.py`.
 ```
   REGIONS ={
     ...
@@ -139,13 +139,13 @@ REGIONS_LANGS ={
 
 6. Query facts related to the new region
 ```
-$ python cultlama/generate_data_files.py --region SOUTHERN_AFRICA --n 6 --rel P36 --langs fr en
-$ python cultlama/generate_exhaustive_objects.py --rel P36 --langs en fr
+$ python dlama/generate_data_files.py --region SOUTHERN_AFRICA --n 6 --rel P36 --langs fr en
+$ python dlama/generate_exhaustive_objects.py --rel P36 --langs en fr
 ```
 
 7. Inspect the queried facts
 ```
-$ cat data/cultlama/en/P36_geography_SOUTHERN_AFRICA.jsonl
+$ cat data/dlama/en/P36_geography_SOUTHERN_AFRICA.jsonl
 {"sub_uri": "Q258", "obj_uri": ["Q37701", "Q3926", "Q5465"], "sub_label": "South Africa", "obj_label": ["Bloemfontein", "Pretoria", "Cape Town"], "uuid": "P36_geography_SOUTHERN_AFRICA_0"}
 {"sub_uri": "Q1019", "obj_uri": ["Q3915"], "sub_label": "Madagascar", "obj_label": ["Antananarivo"], "uuid": "P36_geography_SOUTHERN_AFRICA_1"}
 {"sub_uri": "Q1030", "obj_uri": ["Q3935"], "sub_label": "Namibia", "obj_label": ["Windhoek"], "uuid": "P36_geography_SOUTHERN_AFRICA_2"}
@@ -153,7 +153,7 @@ $ cat data/cultlama/en/P36_geography_SOUTHERN_AFRICA.jsonl
 {"sub_uri": "Q1050", "obj_uri": ["Q101418", "Q3904"], "sub_label": "Eswatini", "obj_label": ["Lobamba", "Mbabane"], "uuid": "P36_geography_SOUTHERN_AFRICA_4"}
 {"sub_uri": "Q1013", "obj_uri": ["Q3909"], "sub_label": "Lesotho", "obj_label": ["Maseru"], "uuid": "P36_geography_SOUTHERN_AFRICA_5"}
 
-$ cat data/cultlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
+$ cat data/dlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
 {"sub_uri": "Q258", "obj_uri": ["Q37701", "Q3926", "Q5465"], "sub_label": "Afrique du Sud", "obj_label": ["Bloemfontein", "Pretoria", "Le Cap"], "uuid": "P36_geography_SOUTHERN_AFRICA_0"}
 {"sub_uri": "Q1019", "obj_uri": ["Q3915"], "sub_label": "Madagascar", "obj_label": ["Antananarivo"], "uuid": "P36_geography_SOUTHERN_AFRICA_1"}
 {"sub_uri": "Q1030", "obj_uri": ["Q3935"], "sub_label": "Namibie", "obj_label": ["Windhoek"], "uuid": "P36_geography_SOUTHERN_AFRICA_2"}

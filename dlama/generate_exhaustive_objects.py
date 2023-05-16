@@ -24,8 +24,8 @@ logger.setLevel(logging.DEBUG)
 
 
 def generate_exhaustive_objects_lists(LIST_OF_RELATIONS, LIST_OF_LANGUAGES):
-    BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
-    OUTPUT_DATA_DIR = str(Path("data", "cultlama"))
+    BASE_DATA_DIR = str(Path("data", "dlama_raw"))
+    OUTPUT_DATA_DIR = str(Path("data", "dlama"))
     for lang in LIST_OF_LANGUAGES:
         os.makedirs(Path(OUTPUT_DATA_DIR, lang), exist_ok=True)
 

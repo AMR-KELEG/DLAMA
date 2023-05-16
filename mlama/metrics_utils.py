@@ -7,7 +7,7 @@ from pathlib import Path
 from natsort import natsorted
 from dataset_analysis_utils import normalize_region_name
 
-#  TODO: Load this list from the constants.py file within cultlama
+#  TODO: Load this list from the constants.py file within dlama
 DOMAINS = [
     "sports",
     "politics",

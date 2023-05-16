@@ -14,7 +14,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         A list of SPAQRL query objects.
     """
     ### ALL DOMAINS ###
-    CultLAMA_queries = []
+    DLAMA_queries = []
     query_factory = QueryFactory()
 
     # TODO: Reconsider whether having a domain for each query is useful.
@@ -31,7 +31,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         sorting_function=sorting_function,
     )
     q27.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q27)
+    DLAMA_queries.append(q27)
 
     # Occupation
     q106 = query_factory.create_query(
@@ -45,7 +45,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q106.add_filter(PERSON, "country_of_citizenship")
     q106.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q106)
+    DLAMA_queries.append(q106)
 
     # Native language
     q103 = query_factory.create_query(
@@ -59,7 +59,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q103.add_filter(PERSON, "country_of_citizenship")
     q103.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q103)
+    DLAMA_queries.append(q103)
 
     # Languages spoken or published
     q1412 = query_factory.create_query(
@@ -73,7 +73,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q1412.add_filter(PERSON, "country_of_citizenship")
     q1412.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q1412)
+    DLAMA_queries.append(q1412)
 
     # Place of birth
     q19 = query_factory.create_query(
@@ -89,7 +89,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     q19.add_filter(GEOGRAPHY, "city_not_sovereign_state")
     q19.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
     q19.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q19)
+    DLAMA_queries.append(q19)
 
     # Place of death
     q20 = query_factory.create_query(
@@ -105,7 +105,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     q20.add_filter(GEOGRAPHY, "city_not_sovereign_state")
     q20.add_filter(GEOGRAPHY, "city_not_country_within_the_UK")
     q20.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q20)
+    DLAMA_queries.append(q20)
 
     # Country of a place
     q17 = query_factory.create_query(
@@ -118,7 +118,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         sorting_function=sorting_function,
     )
     q17.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q17)
+    DLAMA_queries.append(q17)
 
     ### Entertainment ###
     # Country of origin
@@ -132,7 +132,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         sorting_function=sorting_function,
     )
     p495.add_filter("region_country", REGION)
-    CultLAMA_queries.append(p495)
+    DLAMA_queries.append(p495)
 
     # Language of work or name
     p407 = query_factory.create_query(
@@ -146,7 +146,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     p407.add_filter(PIECE_OF_WORK, "country_of_origin")
     p407.add_filter("region_country", REGION)
-    CultLAMA_queries.append(p407)
+    DLAMA_queries.append(p407)
 
     # Instrument
     q1303 = query_factory.create_query(
@@ -160,7 +160,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q1303.add_filter(PERSON, "country_of_citizenship")
     q1303.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q1303)
+    DLAMA_queries.append(q1303)
 
     # Genre
     q136 = query_factory.create_query(
@@ -174,7 +174,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q136.add_filter(PERSON, "country_of_citizenship")
     q136.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q136)
+    DLAMA_queries.append(q136)
 
     # Record Label
     q264 = query_factory.create_query(
@@ -188,7 +188,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q264.add_filter(PERSON, "country_of_citizenship")
     q264.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q264)
+    DLAMA_queries.append(q264)
 
     # Official language of film or tv show
     q364 = query_factory.create_query(
@@ -202,7 +202,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     q364.add_filter(PIECE_OF_WORK, "country_of_origin")
     q364.add_filter("region_country", REGION)
-    CultLAMA_queries.append(q364)
+    DLAMA_queries.append(q364)
 
     # Original Network
     p449 = query_factory.create_query(
@@ -216,7 +216,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     )
     p449.add_filter(PIECE_OF_WORK, "country_of_origin")
     p449.add_filter("region_country", REGION)
-    CultLAMA_queries.append(p449)
+    DLAMA_queries.append(p449)
 
     ### GEOGRAPHY ###
     # Capital
@@ -232,7 +232,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     if REGION != WORLDWIDE:
         q36.add_filter("region_country", REGION)
     q36.add_filter(GEOGRAPHY, "sovereign_state")
-    CultLAMA_queries.append(q36)
+    DLAMA_queries.append(q36)
 
     # Capital of
     q1376 = query_factory.create_query(
@@ -247,7 +247,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     if REGION != WORLDWIDE:
         q1376.add_filter("region_country", REGION)
     q1376.add_filter(GEOGRAPHY, "sovereign_state")
-    CultLAMA_queries.append(q1376)
+    DLAMA_queries.append(q1376)
 
     #  Continent
     q30 = query_factory.create_query(
@@ -262,7 +262,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     if REGION != WORLDWIDE:
         q30.add_filter("region_country", REGION)
     q30.add_filter(GEOGRAPHY, "sovereign_state")
-    CultLAMA_queries.append(q30)
+    DLAMA_queries.append(q30)
 
     # Shares borders with
     q47 = query_factory.create_query(
@@ -278,7 +278,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         q47.add_filter("region_country", REGION)
     q47.add_filter(GEOGRAPHY, "sovereign_state")
     q47.add_filter(GEOGRAPHY, "sovereign_state1")
-    CultLAMA_queries.append(q47)
+    DLAMA_queries.append(q47)
 
     ### POLITICS ###
     # Official language
@@ -294,7 +294,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     if REGION != WORLDWIDE:
         q37.add_filter("region_country", REGION)
     q37.add_filter(GEOGRAPHY, "sovereign_state")
-    CultLAMA_queries.append(q37)
+    DLAMA_queries.append(q37)
 
     # Diplomatic relations
     q530 = query_factory.create_query(
@@ -310,7 +310,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         q530.add_filter("region_country", REGION)
     q530.add_filter(GEOGRAPHY, "sovereign_state")
     q530.add_filter(GEOGRAPHY, "sovereign_state1")
-    CultLAMA_queries.append(q530)
+    DLAMA_queries.append(q530)
 
     # Sister city
     q190 = query_factory.create_query(
@@ -327,7 +327,7 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
     q190.add_filter(GEOGRAPHY, "city_lies_in_country")
     q190.add_filter(GEOGRAPHY, "big_city")
     q190.add_filter(GEOGRAPHY, "big_city1")
-    CultLAMA_queries.append(q190)
+    DLAMA_queries.append(q190)
 
     ### SCIENCE ###
     # Has part (for chemical compounds)
@@ -341,6 +341,6 @@ def populate_queries(REGION, REGION_NAME, sorting_function):
         sorting_function=sorting_function,
     )
     q527.add_filter(SCIENCE, "is_a_chemical_compound")
-    CultLAMA_queries.append(q527)
+    DLAMA_queries.append(q527)
 
-    return CultLAMA_queries
+    return DLAMA_queries
