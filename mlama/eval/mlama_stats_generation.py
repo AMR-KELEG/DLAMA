@@ -159,7 +159,7 @@ def main():
     # Configuration parameters
     # TODO: Move to args
     lang = "en"
-    base_dir = "output_cultlama"
+    base_dir = "output_dlama"
     output_path = str(Path(base_dir, "results/*/ar/"))
 
     # Reference is only used to filter out samples

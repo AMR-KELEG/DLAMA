@@ -4,7 +4,7 @@ from query import QueryFactory
 from filters import *
 import utils
 import data_generation_utils
-import cultlama_queries
+import dlama_queries
 import pandas as pd
 from pathlib import Path
 import os
@@ -155,13 +155,13 @@ def main(
     REGION, SAMPLE_SIZE, REGION_NAME, RELATIONS_SUBSET, LIST_OF_LANGS, sorting_function
 ):
     # Create output data files
-    BASE_DATA_DIR = str(Path("data", "cultlama_raw"))
-    DATA_DUMP_DIR = str(Path("data", "cultlama_dump"))
+    BASE_DATA_DIR = str(Path("data", "dlama_raw"))
+    DATA_DUMP_DIR = str(Path("data", "dlama_dump"))
     for lang in LIST_OF_LANGS:
         os.makedirs(Path(BASE_DATA_DIR, lang), exist_ok=True)
     os.makedirs(DATA_DUMP_DIR, exist_ok=True)
 
-    for q in cultlama_queries.populate_queries(REGION, REGION_NAME, sorting_function):
+    for q in dlama_queries.populate_queries(REGION, REGION_NAME, sorting_function):
         if RELATIONS_SUBSET and q.relation_id not in RELATIONS_SUBSET:
             continue
         logger.info(
@@ -234,7 +234,6 @@ if __name__ == "__main__":
         "SOUTH_WESTERN_EUROPE": SOUTH_WESTERN_EUROPE,
         "NORTH_AMERICA_AND_AUSTRALIA": NORTH_AMERICA_AND_AUSTRALIA,
         "SOUTH_AMERICA": SOUTH_AMERICA,
-        "SOUTHERN_AFRICA": SOUTHERN_AFRICA,
         "WESTERN_COUNTRIES": WESTERN_COUNTRIES,
     }
 

@@ -29,7 +29,7 @@ def run_experiments(
         "bert_model_name": "bert-large-cased",
         "bert_model_dir": "pre-trained_language_models/bert/cased_L-24_H-1024_A-16",
     },
-    use_cultlama=False,
+    use_dlama=False,
 ):
     """
     TODO
@@ -47,7 +47,7 @@ def run_experiments(
         device=device,
     )
 
-    LOGDIR = "output" if not use_cultlama else "output_cultlama"
+    LOGDIR = "output" if not use_dlama else "output_dlama"
     # Add the configuration parameters into a dictionary
     BASIC_CONFIGURATION_PARAMETERS = {
         "template": "",
@@ -64,7 +64,7 @@ def run_experiments(
         relation_name = relation["relation"]
 
         # Build the list of candidate objects
-        if use_cultlama:
+        if use_dlama:
             # The relation can have multiple subsets
             relation_files_path = str(Path(data_path_pre, f"{relation_name}_*.jsonl"))
         else:
@@ -130,7 +130,7 @@ def run_experiments(
 
 
 def run_experiment_on_list_of_lms(
-    relations_templates, data_path_pre, language, language_models, use_cultlama, device
+    relations_templates, data_path_pre, language, language_models, use_dlama, device
 ):
     for lm in language_models:
         print(lm["label"])
@@ -140,7 +140,7 @@ def run_experiment_on_list_of_lms(
                 data_path_pre,
                 language,
                 input_param=lm,
-                use_cultlama=use_cultlama,
+                use_dlama=use_dlama,
                 device=device,
             )
         except Exception as e:
@@ -152,7 +152,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lang", "-l", type=str, default="fr", help="language")
     parser.add_argument(
-        "--cultlama", "-c", action="store_true", help="Evaluate on cultlama data",
+        "--dlama", "-d", action="store_true", help="Evaluate on dlama data",
     )
     parser.add_argument(
         "--rel",
@@ -205,7 +205,7 @@ def main():
         str(Path(args.dataset_dir, language)),
         language,
         language_models,
-        use_cultlama=args.cultlama,
+        use_dlama=args.dlama,
         device=args.device,
     )
 

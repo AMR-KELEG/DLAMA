@@ -8,10 +8,10 @@ from argparse import ArgumentParser
 import sys
 
 sys.path.append("./")
-sys.path.append("cultlama")
-from cultlama.filters import FILTERS_DICTIONARY
-from cultlama.constants import WESTERN_COUNTRIES
-from cultlama.utils import graceful_get_wikidata_triples, parse_sparql_results
+sys.path.append("dlama")
+from dlama.filters import FILTERS_DICTIONARY
+from dlama.constants import WESTERN_COUNTRIES
+from dlama.utils import graceful_get_wikidata_triples, parse_sparql_results
 
 
 def get_country_uri(country_name):
