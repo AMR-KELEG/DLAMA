@@ -75,13 +75,6 @@ PERU = "Peru"
 URUGUAY = "Uruguay"
 VENEZUELA = "Venezuela"
 
-BOTSWANA = "Botswana"
-ESWATINI = "Eswatini"
-LESOTHO = "Lesotho"
-MADAGASCAR = "Madagascar"
-NAMIBIA = "Namibia"
-SOUTH_AFRICA = "South Africa"
-
 # African countries
 CAMEROON = "Cameroon"
 NIGERIA = "Nigeria"
@@ -149,15 +142,6 @@ SOUTH_AMERICA = [
     VENEZUELA,
 ]
 
-SOUTHERN_AFRICA = [
-    BOTSWANA,
-    ESWATINI,
-    LESOTHO,
-    MADAGASCAR,
-    NAMIBIA,
-    SOUTH_AFRICA,
-]
-
 #  LANGS for links of wikipedia pages
 REGIONS_LANGS = {
     ANDORRA: ["ca", "en"],
@@ -206,12 +190,6 @@ REGIONS_LANGS = {
     PERU: ["es", "en"],
     URUGUAY: ["es", "en"],
     VENEZUELA: ["es", "en"],
-    BOTSWANA: ["en"],
-    ESWATINI: ["en"],
-    LESOTHO: ["en"],
-    MADAGASCAR: ["fr"],
-    NAMIBIA: ["en"],
-    SOUTH_AFRICA: ["af", "zu", "en"],
     NIGERIA: ["en"],
     CAMEROON: ["en", "fr"],
 }
