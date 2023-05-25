@@ -3,7 +3,6 @@ import sys
 import json
 import time
 import logging
-import modules.base_connector as base
 import glob
 
 
@@ -61,7 +60,7 @@ def init_logging(log_directory):
     return logger
 
 
-def lowercase_samples(samples):
+def lowercase_samples(samples, mask_token):
     new_samples = []
     for sample in samples:
         sample["obj_label"] = sample["obj_label"].lower()
@@ -69,7 +68,7 @@ def lowercase_samples(samples):
         lower_masked_sentences = []
         for sentence in sample["masked_sentence"]:
             sentence = sentence.lower()
-            sentence = sentence.replace(base.MASK.lower(), base.MASK)
+            sentence = sentence.replace(mask_token.lower(), mask_token)
             lower_masked_sentences.append(sentence)
         sample["masked_sentence"] = lower_masked_sentences
 

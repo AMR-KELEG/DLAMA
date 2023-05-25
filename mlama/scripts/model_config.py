@@ -50,6 +50,7 @@ EN_LMs = prepare_lms_configuration(
         ("bert-base_uncased", "bert-base-uncased"),
         ("bert-large_cased", "bert-large-cased"),
         ("bert-large_uncased", "bert-large-uncased"),
+        ("roberta-base", "roberta-base"),
     )
 )
 
@@ -63,8 +64,14 @@ JA_LMs = prepare_lms_configuration(
         ("tohoku_bert_base_char_v2", "cl-tohoku/bert-base-japanese-char-v2"),
         ("tohoku_bert_large", "cl-tohoku/bert-large-japanese"),
         ("tohoku_bert_large_char", "cl-tohoku/bert-large-japanese-char"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
+        (
+            "tohoku_bert_base_word_masking",
+            "cl-tohoku/bert-base-japanese-whole-word-masking",
+        ),
+        (
+            "tohoku_bert_base_word_masking",
+            "cl-tohoku/bert-base-japanese-whole-word-masking",
+        ),
         ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
     )
 )

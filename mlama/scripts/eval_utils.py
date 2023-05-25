@@ -8,7 +8,6 @@ import json
 import torch
 import pickle
 from tqdm import tqdm
-import modules.base_connector as base
 import multiprocessing
 from multiprocessing.pool import ThreadPool
 import numpy as np
@@ -78,7 +77,7 @@ def run_evaluation(args, NUM_MASK, candidate_objects_dict, model=None):
     if args.lowercase:
         # lowercase all samples
         logger.info("lowercasing all samples...")
-        all_samples = utils.lowercase_samples(data)
+        all_samples = utils.lowercase_samples(data, model.tokenizer.mask_token)
     else:
         # keep samples as they are
         all_samples = data
@@ -96,7 +95,9 @@ def run_evaluation(args, NUM_MASK, candidate_objects_dict, model=None):
     for sample in all_samples:
         # Add the sample's subject to the template
         sample["masked_sentence"] = utils.fill_template_with_values(
-            args.template.strip(), sample["sub_label"].strip(), base.MASK
+            args.template.strip(),
+            sample["sub_label"].strip(),
+            model.tokenizer.mask_token,
         )
 
     samples_batches = utils.batchify(all_samples, args.batch_size)
@@ -120,7 +121,9 @@ def run_evaluation(args, NUM_MASK, candidate_objects_dict, model=None):
             masked_sentences = []
             for num_mask in range(1, NUM_MASK + 1):
                 sentence = sample["masked_sentence"]
-                sentence = sentence.replace(base.MASK, base.MASK * num_mask)
+                sentence = sentence.replace(
+                    model.tokenizer.mask_token, model.tokenizer.mask_token * num_mask
+                )
                 sentence = sentence.replace("][", "] [")
                 masked_sentences.append(sentence)
                 sentences_b.append([sentence])

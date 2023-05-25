@@ -6,12 +6,16 @@
 #
 import torch
 import numpy as np
-from modules.base_connector import *
+from modules.base_connector import Base_Connector
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForMaskedLM, BasicTokenizer
 
 
 class CustomBaseTokenizer(BasicTokenizer):
+    def __init__(self, do_lower_case, MASK_token):
+        super().__init__(do_lower_case=do_lower_case)
+        self.MASK = MASK_token
+
     def tokenize(self, text):
         """Tokenizes a piece of text."""
         text = self._clean_text(text)
@@ -27,10 +31,10 @@ class CustomBaseTokenizer(BasicTokenizer):
         for token in orig_tokens:
 
             # pass MASK forward
-            if MASK in token:
-                split_tokens.append(MASK)
-                if token != MASK:
-                    remaining_chars = token.replace(MASK, "").strip()
+            if self.MASK in token:
+                split_tokens.append(self.MASK)
+                if token != self.MASK:
+                    remaining_chars = token.replace(self.MASK, "").strip()
                     if remaining_chars:
                         split_tokens.append(remaining_chars)
                 continue
@@ -62,7 +66,9 @@ class Bert(Base_Connector):
         self._init_inverse_vocab()
 
         # Add custom tokenizer to avoid splitting the ['MASK'] token
-        custom_basic_tokenizer = CustomBaseTokenizer(do_lower_case=do_lower_case)
+        custom_basic_tokenizer = CustomBaseTokenizer(
+            do_lower_case=do_lower_case, MASK_token=self.tokenizer.mask_token
+        )
         self.tokenizer.basic_tokenizer = custom_basic_tokenizer
 
         # Load pre-trained model (weights)
@@ -77,11 +83,13 @@ class Bert(Base_Connector):
             self.unk_index = self.inverse_vocab[self.tokenizer._unk_token]
         except:
             self.bert_model = self.masked_bert_model.roberta
-            self.pad_id = self.inverse_vocab[ROBERTA_PAD]
-            self.unk_index = self.inverse_vocab[ROBERTA_UNK]
+            self.pad_id = self.inverse_vocab[self.tokenizer._pad_token]
+            self.unk_index = self.inverse_vocab[self.tokenizer._unk_token]
 
     def get_id(self, string):
-        tokenized_text = self.tokenizer.tokenize(string)
+        # Add a space before the tokens so that sentencepiece generates the same
+        # subwords for objects out of context and within a sentence
+        tokenized_text = self.tokenizer.tokenize(" " + string)
         indexed_string = self.tokenizer.convert_tokens_to_ids(tokenized_text)
         if self.map_indices is not None:
             # map indices to subset of the vocabulary
@@ -142,12 +150,7 @@ class Bert(Base_Connector):
                 final_attention_mask = torch.cat(
                     (final_attention_mask, attention_tensor), dim=0
                 )
-        # print(final_tokens_tensor)
-        # print(final_segments_tensor)
-        # print(final_attention_mask)
-        # print(final_tokens_tensor.shape)
-        # print(final_segments_tensor.shape)
-        # print(final_attention_mask.shape)
+
         return (
             final_tokens_tensor,
             final_segments_tensor,
@@ -158,53 +161,37 @@ class Bert(Base_Connector):
 
     def __get_input_tensors(self, sentences):
 
-        if len(sentences) > 2:
+        if len(sentences) > 1:
             print(sentences)
-            raise ValueError(
-                "BERT accepts maximum two sentences in input for each data point"
-            )
+            raise ValueError("Only one sentence is expected!")
 
         first_tokenized_sentence = self.tokenizer.tokenize(sentences[0])
         first_segment_id = np.zeros(len(first_tokenized_sentence), dtype=int).tolist()
 
         # add [SEP] token at the end
         try:
-            first_tokenized_sentence.append(BERT_SEP)
-        except:
-            first_tokenized_sentence.append(ROBERTA_SEP)
+            first_tokenized_sentence.append(self.tokenizer.sep_token)
+        except Exception as e:
+            print("Problem with adding separator token!")
+            raise e
         first_segment_id.append(0)
 
-        if len(sentences) > 1:
-            second_tokenized_sentece = self.tokenizer.tokenize(sentences[1])
-            second_segment_id = np.full(
-                len(second_tokenized_sentece), 1, dtype=int
-            ).tolist()
-
-            # add [SEP] token at the end
-            try:
-                second_tokenized_sentece.append(BERT_SEP)
-            except:
-                second_tokenized_sentece.append(ROBERTA_SEP)
-            second_segment_id.append(1)
-
-            tokenized_text = first_tokenized_sentence + second_tokenized_sentece
-            segments_ids = first_segment_id + second_segment_id
-        else:
-            tokenized_text = first_tokenized_sentence
-            segments_ids = first_segment_id
+        tokenized_text = first_tokenized_sentence
+        segments_ids = first_segment_id
 
         # add [CLS] token at the beginning
         try:
-            tokenized_text.insert(0, BERT_CLS)
-        except:
-            tokenized_text.insert(0, ROBERTA_CLS)
+            tokenized_text.insert(0, self.tokenizer.cls_token)
+        except Exception as e:
+            print("Problem with adding CLS token!")
+            raise e
         segments_ids.insert(0, 0)
 
         # look for masked indices
         masked_indices = []
         for i in range(len(tokenized_text)):
             token = tokenized_text[i]
-            if token == MASK:
+            if token.strip() == self.tokenizer.mask_token:
                 masked_indices.append(i)
 
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
@@ -258,34 +245,3 @@ class Bert(Base_Connector):
             token_ids_list.append(self.__get_token_ids_from_tensor(indexed_string))
 
         return log_probs, token_ids_list, masked_indices_list
-
-    def get_contextual_embeddings(self, sentences_list, try_cuda=True):
-
-        # assume in input 1 or 2 sentences - in general, it considers only the first 2 sentences
-        if not sentences_list:
-            return None
-        if try_cuda:
-            self.try_cuda()
-
-        (
-            tokens_tensor,
-            segments_tensor,
-            attention_mask_tensor,
-            masked_indices_list,
-            tokenized_text_list,
-        ) = self.__get_input_tensors_batch(sentences_list)
-
-        with torch.no_grad():
-            all_encoder_layers, _ = self.bert_model(
-                tokens_tensor.to(self._model_device),
-                segments_tensor.to(self._model_device),
-            )
-
-        all_encoder_layers = [layer.cpu() for layer in all_encoder_layers]
-
-        sentence_lengths = [len(x) for x in tokenized_text_list]
-
-        # all_encoder_layers: a list of the full sequences of encoded-hidden-states at the end
-        # of each attention block (i.e. 12 full sequences for BERT-base, 24 for BERT-large), each
-        # encoded-hidden-state is a torch.FloatTensor of size [batch_size, sequence_length, hidden_size]
-        return all_encoder_layers, sentence_lengths, tokenized_text_list
