@@ -165,7 +165,14 @@ $ cat data/dlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
 ## Utilities
 - Script to quantify the percentage of tuples related to the 21 Western countries (for the predicates that have persons or places as their subjects 
 and/or objects)
-`python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --output_stats_file mLAMA_stats.jsonl`
+```
+python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --output_stats_file mLAMA_stats.jsonl
+```
+
+- Script to evaluate GPT3.5 on DLAMA predicates
+```
+python mlama/scripts/evaluate_gpt.py --predicate P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
+```
 
 ## References
 ```bibtex
