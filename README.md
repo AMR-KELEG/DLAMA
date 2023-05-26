@@ -63,7 +63,7 @@ python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --outpu
 
 - Script to evaluate GPT3.5 on DLAMA predicates (Note: `OPENAI_API_KEY` needs to be set as an environment variable) 
 ```
-python mlama/scripts/evaluate_gpt.py --predicate P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
+python mlama/scripts/evaluate_gpt.py --predicates P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
 ```
 
 ## Relation predicates currently supported within DLAMA

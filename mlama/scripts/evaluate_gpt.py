@@ -119,7 +119,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--predicates",
         nargs="*",
-        default=None,
+        required=True,
         help="A white-space separated list DLAMA predicates (e.g.: 'P17 P20').",
     )
     parser.add_argument(
