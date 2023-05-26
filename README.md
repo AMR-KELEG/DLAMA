@@ -10,9 +10,9 @@ The codebase allows for curating relation triples that are more representative o
     - [2. Download mLAMA](#2-download-mlama)
     - [3. Build DLAMA](#3-build-dlama)
     - [4. Run the experiments](#4-run-the-experiments)
+  - [Utilities](#utilities)
   - [Relation predicates currently supported within DLAMA](#relation-predicates-currently-supported-within-dlama)
   - [Adding new countries/regions to DLAMA](#adding-new-countriesregions-to-dlama)
-  - [Utilities](#utilities)
   - [References](#references)
   - [Acknowledgements](#acknowledgements)
 
@@ -52,6 +52,18 @@ python generate_exhaustive_objects.py --langs LIST_OF_LABELS_LANGS --rel LIST_OF
 cd ../mlama # Navigate to the mlama directory within the repository
 python scripts/run_prompting_experiment.py --lang "ar" --dlama --dataset_dir DATASET_BASE_DIR \
        --templates_file_path TEMPLATES_FILE_PATH --device DEVICE_NAME --rel RELATIONS --models MODELS
+```
+
+## Utilities
+- Script to quantify the percentage of tuples related to the 21 Western countries (for the predicates that have persons or places as their subjects 
+and/or objects)
+```
+python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --output_stats_file mLAMA_stats.jsonl
+```
+
+- Script to evaluate GPT3.5 on DLAMA predicates (Note: `OPENAI_API_KEY` needs to be set as an environment variable) 
+```
+python mlama/scripts/evaluate_gpt.py --predicate P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
 ```
 
 ## Relation predicates currently supported within DLAMA
@@ -160,18 +172,6 @@ $ cat data/dlama/fr/P36_geography_SOUTHERN_AFRICA.jsonl
 {"sub_uri": "Q963", "obj_uri": ["Q3919"], "sub_label": "Botswana", "obj_label": ["Gaborone"], "uuid": "P36_geography_SOUTHERN_AFRICA_3"}
 {"sub_uri": "Q1050", "obj_uri": ["Q101418", "Q3904"], "sub_label": "Eswatini", "obj_label": ["Lobamba", "Mbabané"], "uuid": "P36_geography_SOUTHERN_AFRICA_4"}
 {"sub_uri": "Q1013", "obj_uri": ["Q3909"], "sub_label": "Lesotho", "obj_label": ["Maseru"], "uuid": "P36_geography_SOUTHERN_AFRICA_5"}
-```
-
-## Utilities
-- Script to quantify the percentage of tuples related to the 21 Western countries (for the predicates that have persons or places as their subjects 
-and/or objects)
-```
-python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --output_stats_file mLAMA_stats.jsonl
-```
-
-- Script to evaluate GPT3.5 on DLAMA predicates
-```
-python mlama/scripts/evaluate_gpt.py --predicate P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
 ```
 
 ## References
