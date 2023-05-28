@@ -16,6 +16,119 @@ from eval_utils import run_evaluation
 from pathlib import Path
 import glob
 
+# T5 dependencies
+import os
+import re
+import pickle
+from tqdm import tqdm
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+from eval_utils import get_T5_ranking
+
+
+def run_T5_experiments(
+    relations_templates,
+    data_path_pre,
+    language,
+    device,
+    input_param={
+        "lm": "T5",
+        "label": "mt5_base",
+        "model_name": "T5",
+        "T5_model_name": "google/mt5-small",
+    },
+    use_dlama=False,
+):
+    # Load the model
+    model_name = input_param["T5_model_name"]
+    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    model = T5ForConditionalGeneration.from_pretrained(model_name).to(device)
+
+    LOGDIR = "output" if not use_dlama else "output_dlama"
+
+    for relation in relations_templates:
+        relation_name = relation["relation"]
+
+        # Build the list of candidate objects
+        if use_dlama:
+            # The relation can have multiple subsets
+            relation_files_path = str(Path(data_path_pre, f"{relation_name}_*.jsonl"))
+        else:
+            relation_files_path = str(Path(data_path_pre, f"{relation_name}.jsonl"))
+
+        relation_files = [f for f in glob.glob(relation_files_path)]
+
+        if not relation_files:
+            print("Relation {} excluded.".format(relation["relation"]))
+            continue
+
+        relation_triples = []
+        for file in set(relation_files):
+            with open(file, "r") as f:
+                relation_triples += [json.loads(line) for line in f]
+
+        # TODO: Augment valid objects with normalized values
+        candidate_objects = [
+            triple["obj_label"]
+            if type(triple["obj_label"]) == list
+            else [triple["obj_label"]]
+            for triple in relation_triples
+        ]
+
+        unique_candidate_objects = sorted(
+            set([c for c_l in candidate_objects for c in c_l])
+        )
+
+        relation_template = relation["template"]
+        triples_results = []
+        for triple in tqdm(relation_triples):
+            triple_results = {"sample": triple, "uuid": triple["uuid"]}
+            sub_label = triple["sub_label"]
+            obj_labels = triple["obj_label"]
+
+            # Find the candidate answers probabilities for this triple
+            answers_probabilities = get_T5_ranking(
+                model,
+                tokenizer,
+                unique_candidate_objects,
+                re.sub("[X]", sub_label, relation_template),
+                device,
+            )
+
+            # Sort the answers
+            sorted_answers_probabilities = sorted(
+                [
+                    (answers_probabilities[answer], answer)
+                    for answer in answers_probabilities
+                ]
+            )
+            sorted_probablities = [t[0] for t in sorted_answers_probabilities]
+            sorted_answers = [t[1] for t in sorted_answers_probabilities]
+
+            # Form the output dictionary for this relation
+            ranks = [sorted_answers.index(obj_label) for obj_label in obj_labels]
+            probs = [answers_probabilities[obj_label] for obj_label in obj_labels]
+
+            triple_results["masked_topk"] = {
+                "ranks": ranks,
+                "prob_true": probs,
+                "predicted": sorted_answers,
+                "probs": sorted_probablities,
+            }
+
+            triples_results.append(triple_results)
+
+        log_directory = str(
+            Path(
+                LOGDIR, "results", input_param["label"], language, relation["relation"],
+            )
+        )
+        os.makedirs(log_directory, exist_ok=True)
+
+        # Dump the results to a .pkl file
+        with open("{}/result.pkl".format(log_directory), "wb") as f:
+            output_dict = {"list_of_results": triples_results}
+            pickle.dump(output_dict, f)
+
 
 def run_experiments(
     relations_templates,
@@ -135,14 +248,24 @@ def run_experiment_on_list_of_lms(
     for lm in language_models:
         print(lm["label"])
         try:
-            run_experiments(
-                relations_templates,
-                data_path_pre,
-                language,
-                input_param=lm,
-                use_dlama=use_dlama,
-                device=device,
-            )
+            if "T5" in lm["label"]:
+                run_T5_experiments(
+                    relations_templates,
+                    data_path_pre,
+                    language,
+                    input_param=lm,
+                    use_dlama=use_dlama,
+                    device=device,
+                )
+            else:
+                run_experiments(
+                    relations_templates,
+                    data_path_pre,
+                    language,
+                    input_param=lm,
+                    use_dlama=use_dlama,
+                    device=device,
+                )
         except Exception as e:
             print(e)
             print(f'Failed for: {lm["label"]}', file=sys.stderr)

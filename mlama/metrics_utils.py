@@ -42,8 +42,7 @@ def load_predicate_results(results_dir, relation_id, model_name, lang):
 
         # Infer the domain from the sample ID
         domains = [d for d in DOMAINS if d in sample_id]
-        assert len(domains) == 1
-        domain = domains[0]
+        domain = domains[0] if domains else "general"
 
         region = (
             normalize_region_name(fields[-2])

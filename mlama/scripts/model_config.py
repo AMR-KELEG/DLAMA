@@ -1,4 +1,4 @@
-def prepare_lms_configuration(models_tuples):
+def prepare_bert_lms_configuration(models_tuples):
     """
     Convert list of models' names to configuration dictionaries
 
@@ -17,7 +17,25 @@ def prepare_lms_configuration(models_tuples):
     ]
 
 
-AR_LMs = prepare_lms_configuration(
+def prepare_T5_lms_configuration(models_tuples):
+    """
+    Convert list of models' names to configuration dictionaries
+
+    Args:
+    model_tuples -- A tuple of tuples of the models' labels and names on the HF site
+    """
+    return [
+        {
+            "lm": "T5",
+            "label": model_label,
+            "model_name": "T5",
+            "T5_model_name": hf_model_name,
+        }
+        for model_label, hf_model_name in models_tuples
+    ]
+
+
+AR_LMs = prepare_bert_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
@@ -38,9 +56,9 @@ AR_LMs = prepare_lms_configuration(
         ("marbert", "UBC-NLP/MARBERT"),
         ("marbert_v2", "UBC-NLP/MARBERTv2"),
     )
-)
+) + prepare_T5_lms_configuration((("mT5_base", "google/mt5-base"),))
 
-EN_LMs = prepare_lms_configuration(
+EN_LMs = prepare_bert_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
@@ -51,9 +69,9 @@ EN_LMs = prepare_lms_configuration(
         ("bert-large_cased", "bert-large-cased"),
         ("bert-large_uncased", "bert-large-uncased"),
     )
-)
+) + prepare_T5_lms_configuration((("mT5_base", "google/mt5-base"),("T5_base", "t5-base")))
 
-JA_LMs = prepare_lms_configuration(
+JA_LMs = prepare_bert_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
@@ -63,13 +81,11 @@ JA_LMs = prepare_lms_configuration(
         ("tohoku_bert_base_char_v2", "cl-tohoku/bert-base-japanese-char-v2"),
         ("tohoku_bert_large", "cl-tohoku/bert-large-japanese"),
         ("tohoku_bert_large_char", "cl-tohoku/bert-large-japanese-char"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
-        ("tohoku_bert_base_word_masking", "cl-tohoku/bert-base-japanese-whole-word-masking"),
         ("japanese_bert_base", "colorfulscoop/bert-base-ja"),
     )
 )
 
-KO_LMs = prepare_lms_configuration(
+KO_LMs = prepare_bert_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),
@@ -78,7 +94,7 @@ KO_LMs = prepare_lms_configuration(
     )
 )
 
-ES_LMs = prepare_lms_configuration(
+ES_LMs = prepare_bert_lms_configuration(
     (
         ("beto_cased", "dccuchile/bert-base-spanish-wwm-cased"),
         ("beto_uncased", "dccuchile/bert-base-spanish-wwm-uncased"),
@@ -87,7 +103,7 @@ ES_LMs = prepare_lms_configuration(
     )
 )
 
-ZH_LMs = prepare_lms_configuration(
+ZH_LMs = prepare_bert_lms_configuration(
     (
         ("mbert_base_cased", "bert-base-multilingual-cased"),
         ("mbert_base_uncased", "bert-base-multilingual-uncased"),

@@ -184,3 +184,69 @@ def run_evaluation(args, NUM_MASK, candidate_objects_dict, model=None):
     all_results = dict(list_of_results=list_of_results)
     with open("{}/result.pkl".format(log_directory), "wb") as f:
         pickle.dump(all_results, f)
+
+
+def get_T5_ranking(model, tokenizer, candidate_answers, prompt, device):
+    """Rank the answers according to their probability of filling the masked object.
+
+    Args:
+        model: A T5 model
+        tokenizer: The model's tokenizer
+        candidate_answers: A list of strings for all the candidate answers
+        prompt: The manual prompt used to probe the model
+        device: The GPU to use or "cpu"
+
+    Returns:
+        The answers with their corresponding probabilities.
+    """
+    #  Replace the span for the object within the template
+    input_ids = tokenizer(
+        prompt.replace("[Y]", "<extra_id_0>"), return_tensors="pt"
+    ).input_ids
+
+    # Tokenize the different answers for the span
+    answers_probabilities = {}
+
+    # TODO: Make this an argument to the function
+    BATCH_SIZE = 128
+    for i in tqdm(range(0, len(candidate_answers), BATCH_SIZE)):
+        answers = candidate_answers[i : i + BATCH_SIZE]
+        labels = tokenizer(
+            ["<extra_id_0> " + answer + " <extra_id_1>" for answer in answers],
+            return_tensors="pt",
+            padding=True,
+        ).input_ids
+
+        # Output in the form (Queries, Token Index, Value in Vocab)
+        # T5 generates an output in the form "<extra_id_0> 'answer' <extra_id_1>"
+        outputs = model(
+            input_ids=torch.concat([input_ids for _ in range(len(answers))]).to(device),
+            labels=labels.to(device),
+        ).logits
+
+        # Find the ids of the extra tokens
+        EXTRA_ID_0_index = tokenizer("<extra_id_0>").input_ids[0]
+        EXTRA_ID_1_index = tokenizer("<extra_id_1>").input_ids[0]
+
+        for answer_id in range(len(answers)):
+            target_ids = labels[answer_id]
+            answer_subword_probabilities = []
+
+            for idx, t_idx in enumerate(target_ids):
+                # Skip the first t_idx which is always <extra_id_0>
+                if idx == 0:
+                    assert t_idx == EXTRA_ID_0_index
+                    continue
+
+                #  Stop computing the probabilities just before the <extra_id_1>
+                if t_idx == EXTRA_ID_1_index:
+                    break
+
+                logits = outputs[answer_id, idx, :]
+                probs = logits.cpu().softmax(dim=-1).detach().numpy()
+                answer_subword_probabilities.append(-np.log(probs[t_idx]))
+
+            answer_probability = np.mean(answer_subword_probabilities)
+            answers_probabilities[answers[answer_id]] = answer_probability
+
+    return answers_probabilities
