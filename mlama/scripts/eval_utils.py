@@ -208,7 +208,7 @@ def get_T5_ranking(model, tokenizer, candidate_answers, prompt, device):
     answers_probabilities = {}
 
     # TODO: Make this an argument to the function
-    BATCH_SIZE = 256
+    BATCH_SIZE = 128
     for i in tqdm(range(0, len(candidate_answers), BATCH_SIZE)):
         answers = candidate_answers[i : i + BATCH_SIZE]
         labels = tokenizer(

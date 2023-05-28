@@ -105,7 +105,7 @@ def run_T5_experiments(
             sorted_answers = [t[1] for t in sorted_answers_probabilities]
 
             # Form the output dictionary for this relation
-            ranks = [sorted_answers.index(obj_label) + 1 for obj_label in obj_labels]
+            ranks = [sorted_answers.index(obj_label) for obj_label in obj_labels]
             probs = [answers_probabilities[obj_label] for obj_label in obj_labels]
 
             triple_results["masked_topk"] = {
