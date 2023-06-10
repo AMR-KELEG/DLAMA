@@ -1,6 +1,6 @@
 # DLAMA
-The repository for the `DLAMA: A Framework for Curating Culturally Diverse Facts for Probing
-the Knowledge of Pretrained Language Models` paper accepted to `ACL 2023 - Findings`.
+The repository for the [`DLAMA: A Framework for Curating Culturally Diverse Facts for Probing
+the Knowledge of Pretrained Language Models`](https://arxiv.org/abs/2306.05076) paper accepted to `ACL 2023 - Findings`.
 
 The codebase allows for curating relation triples that are more representative of the culture of specific regions as opposed to LAMA which is more biased towards western entities.
 
