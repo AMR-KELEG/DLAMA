@@ -66,6 +66,15 @@ python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --outpu
 python mlama/scripts/evaluate_gpt.py --predicates P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
 ```
 
+- Script to translate DLAMA to other langauges (Note: Some triples with missing labels in the new language will be dropped)
+```
+cd data/
+tar -xzvf dlama-v1.tar.gz
+cd ../dlama/
+# For this example, the DLAMA-v1 (Asia-West) is to be translated into Chinese "zh"
+python translate_dlama_dataset.py --lang "zh" --dir ../data/asia-west/dlama/
+```
+
 ## Relation predicates currently supported within DLAMA
 Relation predicate| Relation label
 --- | ---
