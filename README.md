@@ -2,9 +2,25 @@
 The codebase for the `DLAMA: A Framework for Curating Culturally Diverse Facts for Probing
 the Knowledge of Pretrained Language Models` paper accepted to `ACL 2023 - Findings`.
 
-The paper can now be accessed through arXiv: https://arxiv.org/abs/2306.05076
+The paper can now be accessed through: https://aclanthology.org/2023.findings-acl.389/
 
 The DLAMA framework allows for curating relation triples that are more representative of the culture of specific regions as opposed to LAMA which is more biased towards western entities.
+
+If you find the framework useful, please cite the paper:
+```bibtex
+@inproceedings{keleg-magdy-2023-dlama,
+    title = "{DLAMA}: A Framework for Curating Culturally Diverse Facts for Probing the Knowledge of Pretrained Language Models",
+    author = "Keleg, Amr  and
+      Magdy, Walid",
+    booktitle = "Findings of the Association for Computational Linguistics: ACL 2023",
+    month = jul,
+    year = "2023",
+    address = "Toronto, Canada",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2023.findings-acl.389",
+    pages = "6245--6266",
+}
+```
 
 - [DLAMA](#dlama)
   - [Usage](#usage)
