@@ -84,6 +84,11 @@ python mlama/quantify_diversity.py --dataset_dir mlama/data/mlama1.1/en/ --outpu
 python mlama/scripts/evaluate_gpt.py --predicates P27 P30 --langs en --dataset_dir data/arab-west/dlama/ --output_dir OUTPUT_DIR
 ```
 
+- Script to evaluate bloom and bloomz models
+```
+ % CUDA_VISIBLE_DEVICES="0" python mlama/scripts/evaluate_bloom.py --predicates P27 P30 --lang en --dataset_dir data/arab-west/dlama/  -m bigscience/bloomz-560m
+```
+
 - Script to translate DLAMA to other langauges (Note: Some triples with missing labels in the new language will be dropped)
 ```
 cd data/
