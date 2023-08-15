@@ -55,6 +55,7 @@ AR_LMs = prepare_bert_lms_configuration(
         ("arbert", "UBC-NLP/ARBERT"),
         ("marbert", "UBC-NLP/MARBERT"),
         ("marbert_v2", "UBC-NLP/MARBERTv2"),
+        ("morrbert", "otmangi/MorrBERT"),
     )
 ) + prepare_T5_lms_configuration((("mT5_base", "google/mt5-base"),))
 
@@ -69,7 +70,9 @@ EN_LMs = prepare_bert_lms_configuration(
         ("bert-large_cased", "bert-large-cased"),
         ("bert-large_uncased", "bert-large-uncased"),
     )
-) + prepare_T5_lms_configuration((("mT5_base", "google/mt5-base"),("T5_base", "t5-base")))
+) + prepare_T5_lms_configuration(
+    (("mT5_base", "google/mt5-base"), ("T5_base", "t5-base"))
+)
 
 JA_LMs = prepare_bert_lms_configuration(
     (
