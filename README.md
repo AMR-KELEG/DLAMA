@@ -1,4 +1,8 @@
 # DLAMA
+
+[![Huggingface Space](https://img.shields.io/badge/🤗-DLAMA(v1)%20-yellow.svg)]([https://huggingface.co/spaces/AMR-KELEG/ALDi](https://huggingface.co/datasets/AMR-KELEG/DLAMA-v1))
+
+
 The codebase for the `DLAMA: A Framework for Curating Culturally Diverse Facts for Probing
 the Knowledge of Pretrained Language Models` paper accepted to `ACL 2023 - Findings`.
 
